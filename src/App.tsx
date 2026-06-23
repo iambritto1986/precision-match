@@ -96,6 +96,8 @@ export default function App() {
   const [toasts, setToasts] = useState<{ id: string; message: string; type: 'success' | 'error' | 'info' }[]>([]);
   const [isOnboarding, setIsOnboarding] = useState<boolean>(false);
   const [onboardingStep, setOnboardingStep] = useState<'options' | 'linkedin' | 'loading'>('options');
+  const [isGuestMode, setIsGuestMode] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Math.random().toString(36).substring(7);
@@ -280,6 +282,12 @@ export default function App() {
       }
     }
 
+    if (credits <= 0 && !isPro) {
+      showToast("You've used all your free credits. Upgrade to continue.", "error");
+      setShowPricing(true);
+      return;
+    }
+
     setBaseContext(sourceText);
     setIsGenerating(true);
     try {
@@ -311,6 +319,12 @@ export default function App() {
         setWorkspaceSubTab('form'); // Open form editor directly
       } else {
         alert("Failed to intelligently format resume from the text.");
+      }
+      if (!isPro) {
+        setCredits(prev => Math.max(0, prev - 1));
+        if (user && user.uid !== 'local-guest-uid') {
+          updateDoc(doc(db, 'users', user.uid), { credits: credits - 1 }).catch(console.error);
+        }
       }
     } catch(e) {
       console.error(e);
@@ -467,6 +481,7 @@ export default function App() {
             </button>
             <button 
               onClick={() => {
+                setIsGuestMode(true);
                 setUser({
                   uid: 'local-guest-uid',
                   displayName: 'Local Guest',
@@ -475,6 +490,7 @@ export default function App() {
                 });
                 setIsPro(true);
                 setCredits(100);
+                setAuthLoading(false);
               }}
               className="w-full mt-3 bg-slate-100 text-slate-700 font-bold py-3 rounded-lg hover:bg-slate-200 transition text-sm flex items-center justify-center border border-slate-200"
             >
@@ -541,16 +557,8 @@ export default function App() {
                  {resumes.map(resume => (
                    <div 
                       key={resume.id}
-                      onClick={() => setActiveResumeId(resume.id)}
-                      className={`p-3 rounded-lg cursor-pointer transition-colors ${resume.id === activeResumeId ? 'bg-slate-700 ring-1 ring-blue-500' : 'bg-slate-800 hover:bg-slate-700/80'}`}
+                      className={`group relative p-3 rounded-lg cursor-pointer transition-colors ${resume.id === activeResumeId ? 'bg-slate-700 ring-1 ring-blue-500' : 'bg-slate-800 hover:bg-slate-700/80'}`}
                    >
-                     <p className="text-sm font-medium pr-2 truncate">{resume.name}</p>
-                     {resume.id === activeResumeId && (
-                       <div className="mt-2">
-                         <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
-                           <div className="bg-blue-500 h-full rounded-full" style={{ width: '88%' }}></div>
-                         </div>
-                         <p className="text-[10px] mt-1 text-slate-400">88% Match Score</p>
                        </div>
                      )}
                    </div>
