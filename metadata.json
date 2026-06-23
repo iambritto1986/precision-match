@@ -1,0 +1,6 @@
+{
+  "name": "Precision Match",
+  "description": "A resume builder that curates resumes and cover letters based on job descriptions, supporting from-scratch creation or uploading old resumes, with professional industry-standard templates.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

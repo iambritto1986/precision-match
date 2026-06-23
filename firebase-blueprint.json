@@ -1,0 +1,93 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "isPro": {
+          "type": "boolean"
+        },
+        "credits": {
+          "type": "number"
+        },
+        "stripeCustomerId": {
+          "type": "string"
+        }
+      },
+      "required": ["email", "createdAt"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Admin Users",
+      "type": "object",
+      "properties": {
+        "createdAt": { "type": "string" }
+      },
+      "required": ["createdAt"]
+    },
+    "Resume": {
+      "title": "Resume",
+      "description": "A tailored resume",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "contentData": { "type": "string", "description": "JSON string of the structured resume" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "contentData", "createdAt", "updatedAt"]
+    },
+    "Chat": {
+      "title": "Chat",
+      "description": "A conversation with AI",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "createdAt", "updatedAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A message within a chat",
+      "type": "object",
+      "properties": {
+        "role": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["role", "text", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/admins/{userId}": {
+      "schema": { "$ref": "Admin" },
+      "description": "Admin privileges"
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "User" },
+      "description": "User profiles"
+    },
+    "/users/{userId}/resumes/{resumeId}": {
+      "schema": { "$ref": "Resume" },
+      "description": "User's stored resumes"
+    },
+    "/users/{userId}/chats/{chatId}": {
+      "schema": { "$ref": "Chat" },
+      "description": "User's chat sessions"
+    },
+    "/users/{userId}/chats/{chatId}/messages/{messageId}": {
+      "schema": { "$ref": "Message" },
+      "description": "Messages within a user's chat"
+    }
+  }
+}
