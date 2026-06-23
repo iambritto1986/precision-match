@@ -444,7 +444,14 @@ export default function App() {
   };
 
   if (authLoading) {
-     return <div className="flex h-screen items-center justify-center bg-slate-50 relative"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div></div>;
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-50 font-inter">
+        <div className="text-center">
+          <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-4 animate-pulse">P</div>
+          <p className="text-sm text-slate-400 animate-pulse">Loading Precision Match...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
