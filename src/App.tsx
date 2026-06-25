@@ -98,6 +98,10 @@ export default function App() {
   const [onboardingStep, setOnboardingStep] = useState<'options' | 'linkedin' | 'loading'>('options');
   const [isGuestMode, setIsGuestMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [showLegalModal, setShowLegalModal] = useState<'privacy' | 'terms' | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Math.random().toString(36).substring(7);
@@ -559,7 +563,24 @@ export default function App() {
                       key={resume.id}
                       className={`group relative p-3 rounded-lg cursor-pointer transition-colors ${resume.id === activeResumeId ? 'bg-slate-700 ring-1 ring-blue-500' : 'bg-slate-800 hover:bg-slate-700/80'}`}
                    >
-                       </div>
+                     <div onClick={() => setActiveResumeId(resume.id)} className="pr-6">
+                       <p className="text-sm font-medium truncate">{resume.name}</p>
+                       <p className="text-[10px] text-slate-400 mt-1 truncate">
+                         {resume.data.personalDetails?.title || 'No Title'}
+                       </p>
+                     </div>
+                     {resumes.length > 1 && (
+                       <button
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           const newResumes = resumes.filter(r => r.id !== resume.id);
+                           setResumes(newResumes);
+                           if (activeResumeId === resume.id) setActiveResumeId(newResumes[0].id);
+                         }}
+                         className="absolute top-3 right-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition"
+                       >
+                         <X className="w-3.5 h-3.5" />
+                       </button>
                      )}
                    </div>
                  ))}
@@ -588,11 +609,26 @@ export default function App() {
                <p className="text-xs font-medium truncate w-24">{user?.displayName || user?.email || resumeData.personalDetails.name || 'Guest'}</p>
                <p className="text-[10px] text-slate-400">{isPro ? 'Pro Member' : 'Free Tier'}</p>
              </div>
+             {user ? (
+                <button onClick={logout} className="text-slate-400 hover:text-white p-1" title="Log Out"><LogOut className="w-4 h-4" /></button>
+             ) : (
+                <button onClick={loginWithGoogle} className="text-blue-400 hover:text-blue-300 p-1" title="Log In"><LogIn className="w-4 h-4" /></button>
+             )}
           </div>
-          {user ? (
-             <button onClick={logout} className="text-slate-400 hover:text-white p-1" title="Log Out"><LogOut className="w-4 h-4" /></button>
-          ) : (
-             <button onClick={loginWithGoogle} className="text-blue-400 hover:text-blue-300 p-1" title="Log In"><LogIn className="w-4 h-4" /></button>
+        </div>
+        <div className="px-6 pb-4 flex flex-wrap gap-x-3 gap-y-1">
+          <button onClick={() => setShowFeedback(true)} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Feedback</button>
+          <span className="text-slate-700 text-[10px]">&middot;</span>
+          <button onClick={() => setShowLegalModal('privacy')} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Privacy</button>
+          <span className="text-slate-700 text-[10px]">&middot;</span>
+          <button onClick={() => setShowLegalModal('terms')} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Terms</button>
+          <span className="text-slate-700 text-[10px]">&middot;</span>
+          <a href="mailto:support@precisionmatch.app" className="text-[10px] text-slate-500 hover:text-slate-300 transition">Support</a>
+          {user && user.uid !== 'local-guest-uid' && (
+            <>
+              <span className="text-slate-700 text-[10px]">&middot;</span>
+              <button onClick={() => setShowDeleteConfirm(true)} className="text-[10px] text-red-400/70 hover:text-red-400 transition">Delete Account</button>
+            </>
           )}
         </div>
       </aside>
@@ -1473,6 +1509,130 @@ export default function App() {
               </div>
             )}
 
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Modal */}
+      {showFeedback && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <h2 className="text-lg font-bold text-slate-800 mb-2">Send Feedback</h2>
+            <p className="text-sm text-slate-500 mb-4">Found a bug? Have a feature request? Let us know.</p>
+            <textarea
+              value={feedbackText}
+              onChange={e => setFeedbackText(e.target.value)}
+              className="w-full h-28 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 resize-none"
+              placeholder="What's on your mind?"
+            />
+            <div className="flex justify-end gap-3">
+              <button onClick={() => { setShowFeedback(false); setFeedbackText(''); }} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800">Cancel</button>
+              <button
+                onClick={async () => {
+                  if (!feedbackText.trim()) return;
+                  try {
+                    if (user && user.uid !== 'local-guest-uid') {
+                      const feedbackRef = doc(collection(db, 'feedback'), Date.now().toString());
+                      await setDoc(feedbackRef, {
+                        userId: user.uid,
+                        email: user.email || '',
+                        text: feedbackText.trim(),
+                        createdAt: new Date().toISOString()
+                      });
+                    }
+                    showToast('Thank you for your feedback!', 'success');
+                    setShowFeedback(false);
+                    setFeedbackText('');
+                  } catch (e) {
+                    console.error(e);
+                    showToast('Failed to submit feedback.', 'error');
+                  }
+                }}
+                className="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded shadow hover:bg-blue-700 transition"
+              >Submit</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Confirmation */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6">
+            <h2 className="text-lg font-bold text-red-600 mb-2">Delete Account</h2>
+            <p className="text-sm text-slate-600 mb-6">This will permanently delete your account and all associated resume data. This action cannot be undone.</p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800">Cancel</button>
+              <button
+                onClick={async () => {
+                  try {
+                    if (user && user.uid !== 'local-guest-uid') {
+                      const userRef = doc(db, 'users', user.uid);
+                      const { deleteDoc } = await import('firebase/firestore');
+                      await deleteDoc(userRef);
+                    }
+                    await logout();
+                    setShowDeleteConfirm(false);
+                    showToast('Your account has been deleted.', 'info');
+                  } catch (e) {
+                    console.error(e);
+                    showToast('Failed to delete account. Please contact support.', 'error');
+                  }
+                }}
+                className="px-4 py-2 bg-red-600 text-white text-sm font-bold rounded shadow hover:bg-red-700 transition"
+              >Delete My Account</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Legal Modal (Privacy / Terms) */}
+      {showLegalModal && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[85vh]">
+            <div className="p-5 border-b border-slate-200 flex justify-between items-center">
+              <h2 className="text-lg font-bold text-slate-800">{showLegalModal === 'privacy' ? 'Privacy Policy' : 'Terms of Service'}</h2>
+              <button onClick={() => setShowLegalModal(null)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 overflow-y-auto text-sm text-slate-700 leading-relaxed space-y-4">
+              {showLegalModal === 'privacy' ? (
+                <>
+                  <p><strong>Last Updated:</strong> June 2026</p>
+                  <p>Precision Match (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your personal information.</p>
+                  <h3 className="font-bold text-slate-900 text-base">Information We Collect</h3>
+                  <p>We collect information you provide directly: your name, email address (via Google Sign-In), resume content (employment history, education, skills, contact details), and job descriptions you submit for AI tailoring.</p>
+                  <h3 className="font-bold text-slate-900 text-base">How We Use Your Information</h3>
+                  <p>Your data is used solely to: generate and tailor resumes using AI, provide the app&apos;s core functionality, process payments via Stripe, and improve our service. We do <strong>not</strong> sell your personal data to third parties.</p>
+                  <h3 className="font-bold text-slate-900 text-base">Data Storage &amp; Security</h3>
+                  <p>Data is stored securely in Google Cloud Firestore with encryption at rest and in transit. Access is restricted by Firebase Security Rules that ensure users can only access their own data.</p>
+                  <h3 className="font-bold text-slate-900 text-base">Third-Party Services</h3>
+                  <p>We use Google Gemini AI (to process resumes), Stripe (to process payments), and Firebase (for authentication and storage). Each service has its own privacy policy.</p>
+                  <h3 className="font-bold text-slate-900 text-base">Data Retention &amp; Deletion</h3>
+                  <p>You may delete your account and all associated data at any time using the &quot;Delete Account&quot; option in the sidebar. Upon deletion, your data is permanently removed from our database.</p>
+                  <h3 className="font-bold text-slate-900 text-base">Contact</h3>
+                  <p>For privacy inquiries, email <a href="mailto:support@precisionmatch.app" className="text-blue-600 underline">support@precisionmatch.app</a>.</p>
+                </>
+              ) : (
+                <>
+                  <p><strong>Last Updated:</strong> June 2026</p>
+                  <p>By using Precision Match, you agree to these Terms of Service. If you do not agree, do not use the service.</p>
+                  <h3 className="font-bold text-slate-900 text-base">Service Description</h3>
+                  <p>Precision Match is an AI-powered resume builder that helps users create and tailor resumes. The service uses artificial intelligence to generate content suggestions.</p>
+                  <h3 className="font-bold text-slate-900 text-base">AI-Generated Content Disclaimer</h3>
+                  <p><strong>Important:</strong> AI-generated resume content is provided as suggestions only. You are solely responsible for reviewing, verifying, and approving all content before using it in job applications. We do not guarantee the accuracy, completeness, or effectiveness of AI-generated content.</p>
+                  <h3 className="font-bold text-slate-900 text-base">User Responsibilities</h3>
+                  <p>You agree to: provide accurate information, review all AI-generated content for accuracy, not use the service for illegal purposes, and not attempt to abuse or circumvent rate limits or security measures.</p>
+                  <h3 className="font-bold text-slate-900 text-base">Payments &amp; Refunds</h3>
+                  <p>Payments are processed securely through Stripe. Subscription charges recur monthly until cancelled. Refund requests are handled on a case-by-case basis — contact support within 7 days of purchase.</p>
+                  <h3 className="font-bold text-slate-900 text-base">Limitation of Liability</h3>
+                  <p>Precision Match is provided &quot;as is&quot; without warranties. We are not liable for any damages arising from the use of AI-generated resume content, including but not limited to job application outcomes.</p>
+                  <h3 className="font-bold text-slate-900 text-base">Changes to Terms</h3>
+                  <p>We may update these terms at any time. Continued use of the service constitutes acceptance of updated terms.</p>
+                  <h3 className="font-bold text-slate-900 text-base">Contact</h3>
+                  <p>For questions about these terms, email <a href="mailto:support@precisionmatch.app" className="text-blue-600 underline">support@precisionmatch.app</a>.</p>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}

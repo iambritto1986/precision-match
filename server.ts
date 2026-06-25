@@ -10,6 +10,35 @@ import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import fs from 'fs';
 
+// --------------- Simple in-memory rate limiter ---------------
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const RATE_LIMIT_MAX = 20; // max requests per window per IP
+
+function rateLimit(req: express.Request, res: express.Response): boolean {
+  const ip = req.ip || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false; // not limited
+  }
+  entry.count++;
+  if (entry.count > RATE_LIMIT_MAX) {
+    res.status(429).json({ error: 'Too many requests. Please wait a moment.', code: 'RATE_LIMITED' });
+    return true; // limited
+  }
+  return false;
+}
+
+// Clean up stale entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimitMap) {
+    if (now > entry.resetAt) rateLimitMap.delete(ip);
+  }
+}, 5 * 60_000);
+
 let firebaseAdminApp: any;
 try {
   const firebaseConfigPath = path.resolve(process.cwd(), 'firebase-applet-config.json');
@@ -63,7 +92,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = parseInt(process.env.PORT || '3000', 10);
 
   // --------------- CORS ---------------
   const allowedOrigin = process.env.APP_URL || 'http://localhost:3000';
@@ -141,6 +170,14 @@ async function startServer() {
 
   app.use(express.json({ limit: '50mb' }));
 
+  // Apply rate limiting to all AI and payment endpoints
+  app.use('/api/generate-resume', (req, res, next) => { if (!rateLimit(req, res)) next(); });
+  app.use('/api/generate-cover-letter', (req, res, next) => { if (!rateLimit(req, res)) next(); });
+  app.use('/api/chat', (req, res, next) => { if (!rateLimit(req, res)) next(); });
+  app.use('/api/extract-resume', (req, res, next) => { if (!rateLimit(req, res)) next(); });
+  app.use('/api/extract-linkedin', (req, res, next) => { if (!rateLimit(req, res)) next(); });
+  app.use('/api/enhance-photo', (req, res, next) => { if (!rateLimit(req, res)) next(); });
+
   app.post("/api/refund", async (req, res) => {
     if (!stripeClient) {
       return res.status(500).json({ error: "Stripe is not configured.", code: "STRIPE_NOT_CONFIGURED" });
@@ -197,8 +234,9 @@ async function startServer() {
       return res.status(400).json({ error: "Missing or invalid required field: userId", code: "VALIDATION_ERROR" });
     }
     try {
+      const creditPriceId = process.env.STRIPE_CREDIT_PRICE_ID || 'price_1TjhoWKc3d6UbNauMyXLfggD';
       const session = await stripeClient.checkout.sessions.create({
-        mode: priceId === 'price_1TjhoWKc3d6UbNauMyXLfggD' ? 'payment' : 'subscription',
+        mode: priceId === creditPriceId ? 'payment' : 'subscription',
         payment_method_types: ['card'],
         line_items: [
           {
