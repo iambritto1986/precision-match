@@ -463,9 +463,9 @@ export default function App() {
 
   if (authLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 font-inter">
+      <div className="flex h-screen items-center justify-center bg-[#060a13] font-inter">
         <div className="text-center">
-          <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-4 animate-pulse">P</div>
+          <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-4 animate-pulse shadow-lg shadow-blue-500/30">P</div>
           <p className="text-sm text-slate-400 animate-pulse">Loading Precision Match...</p>
         </div>
       </div>
@@ -474,12 +474,12 @@ export default function App() {
 
   if (!user) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 font-inter">
-         <div className="max-w-md w-full bg-white p-8 border border-slate-200 rounded-xl shadow-lg text-center">
-            <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-6">P</div>
-            <h1 className="text-2xl font-black tracking-tight text-slate-800 mb-2">Precision Match</h1>
-            <p className="text-slate-500 text-sm mb-8 font-medium">Please log in to continue building your resume and accessing premium AI features.</p>
-            <button onClick={loginWithGoogle} className="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition shadow-sm hover:shadow-md flex items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-[#060a13] font-inter relative overflow-hidden">
+         <div className="max-w-md w-full glass-modal p-8 text-center relative z-10">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-6 shadow-lg shadow-blue-500/30 animate-float">P</div>
+            <h1 className="text-2xl font-black tracking-tight text-white mb-2">Precision Match</h1>
+            <p className="text-slate-400 text-sm mb-8 font-medium">Please log in to continue building your resume and accessing premium AI features.</p>
+            <button onClick={loginWithGoogle} className="w-full glass-button-primary py-3 rounded-xl text-sm flex items-center justify-center">
                <LogIn className="w-4 h-4 mr-2" />
                Log in with Google
             </button>
@@ -496,9 +496,9 @@ export default function App() {
                 setCredits(100);
                 setAuthLoading(false);
               }}
-              className="w-full mt-3 bg-slate-100 text-slate-700 font-bold py-3 rounded-lg hover:bg-slate-200 transition text-sm flex items-center justify-center border border-slate-200"
+              className="w-full mt-3 glass-button-secondary py-3 rounded-xl text-sm font-bold flex items-center justify-center"
             >
-               <Users className="w-4 h-4 mr-2 text-slate-500" />
+               <Users className="w-4 h-4 mr-2 text-slate-400" />
                Continue as Guest (Local Test)
             </button>
          </div>
@@ -507,17 +507,16 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen w-full bg-slate-50 text-slate-900 overflow-hidden font-inter">
+    <div className="flex h-screen w-full bg-[#060a13] text-slate-100 overflow-hidden font-inter relative">
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         .font-inter { font-family: 'Inter', sans-serif; }
         .scroll-hide::-webkit-scrollbar { display: none; }
-        .status-badge { background: #dcfce7; color: #166534; font-size: 11px; padding: 2px 8px; border-radius: 9999px; font-weight: 600; }
       ` }} />
-      <aside className="w-64 bg-slate-900 text-white flex flex-col shrink-0">
+      <aside className="w-64 glass-sidebar text-white flex flex-col shrink-0 relative z-10">
         <div className="p-6">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center font-bold text-lg">P</div>
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-500/20">P</div>
             <div>
               <h1 className="text-lg font-bold leading-none">Precision Match</h1>
               <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Resume Builder</p>
@@ -526,32 +525,32 @@ export default function App() {
         </div>
         <nav className="flex-1 mt-4 flex flex-col overflow-hidden">
           <div className="flex-shrink-0 space-y-1">
-            <div className="px-6 py-3 text-slate-400 text-[11px] uppercase font-semibold tracking-wider">Main Menu</div>
-            {isAdmin && <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); }} className={`flex items-center px-6 py-3 text-sm transition-colors ${activeTab === 'dashboard' ? 'bg-slate-800 border-r-4 border-blue-500 text-white' : 'text-slate-400 hover:text-white'}`}><Users className="w-4 h-4 mr-3"/> Founder Hub</a>}
-            <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('resume'); }} className={`flex items-center px-6 py-3 text-sm transition-colors ${activeTab === 'resume' ? 'bg-slate-800 border-r-4 border-blue-500 text-white' : 'text-slate-400 hover:text-white'}`}><FileText className="w-4 h-4 mr-3"/> Resume Builder</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('edit'); }} className={`flex items-center px-6 py-3 text-sm transition-colors ${activeTab === 'edit' ? 'bg-slate-800 border-r-4 border-blue-500 text-white' : 'text-slate-400 hover:text-white'}`}><Code className="w-4 h-4 mr-3"/> Source Data</a>
+            <div className="px-6 py-3 text-slate-500 text-[11px] uppercase font-semibold tracking-wider">Main Menu</div>
+            {isAdmin && <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); }} className={`flex items-center px-6 py-3 text-sm transition-all ${activeTab === 'dashboard' ? 'bg-white/10 border-r-2 border-blue-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><Users className="w-4 h-4 mr-3"/> Founder Hub</a>}
+            <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('resume'); }} className={`flex items-center px-6 py-3 text-sm transition-all ${activeTab === 'resume' ? 'bg-white/10 border-r-2 border-blue-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><FileText className="w-4 h-4 mr-3"/> Resume Builder</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('edit'); }} className={`flex items-center px-6 py-3 text-sm transition-all ${activeTab === 'edit' ? 'bg-white/10 border-r-2 border-blue-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><Code className="w-4 h-4 mr-3"/> Source Data</a>
             <a href="#" onClick={(e) => { 
                 e.preventDefault(); 
                 if (!isPro) { setShowPricing(true); return; }
                 setActiveTab('chat'); 
-            }} className={`flex items-center px-6 py-3 text-sm transition-colors ${activeTab === 'chat' ? 'bg-slate-800 border-r-4 border-blue-500 text-white' : 'text-slate-400 hover:text-white'}`}>
-                <MessageCircle className="w-4 h-4 mr-3" /> Career Chat {!isPro && <span className="ml-auto bg-slate-800 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
+            }} className={`flex items-center px-6 py-3 text-sm transition-all ${activeTab === 'chat' ? 'bg-white/10 border-r-2 border-blue-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                <MessageCircle className="w-4 h-4 mr-3" /> Career Chat {!isPro && <span className="ml-auto bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
             </a>
             <a href="#" onClick={(e) => { 
                 e.preventDefault(); 
                 if (!isPro) { setShowPricing(true); return; }
                 setActiveTab('interview'); 
-            }} className={`flex items-center px-6 py-3 text-sm transition-colors ${activeTab === 'interview' ? 'bg-slate-800 border-r-4 border-blue-500 text-white' : 'text-slate-400 hover:text-white'}`}>
-                <Mic className="w-4 h-4 mr-3"/> Live Interview {!isPro && <span className="ml-auto bg-slate-800 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
+            }} className={`flex items-center px-6 py-3 text-sm transition-all ${activeTab === 'interview' ? 'bg-white/10 border-r-2 border-blue-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                <Mic className="w-4 h-4 mr-3"/> Live Interview {!isPro && <span className="ml-auto bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
             </a>
           </div>
-          <div className="px-6 py-6 mt-4 border-t border-slate-800 flex flex-col overflow-y-auto flex-1">
+          <div className="px-6 py-6 mt-4 border-t border-white/5 flex flex-col overflow-y-auto flex-1">
             <button 
                onClick={(e) => { 
                  e.preventDefault(); 
                  handleStartNewResume();
                }} 
-               className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded transition border border-blue-500 mb-6 shadow shrink-0"
+               className="w-full flex items-center justify-center px-4 py-2 glass-button-primary text-sm rounded-xl mb-6 shrink-0"
             >
                + Start New Resume
             </button>
@@ -561,7 +560,7 @@ export default function App() {
                  {resumes.map(resume => (
                    <div 
                       key={resume.id}
-                      className={`group relative p-3 rounded-lg cursor-pointer transition-colors ${resume.id === activeResumeId ? 'bg-slate-700 ring-1 ring-blue-500' : 'bg-slate-800 hover:bg-slate-700/80'}`}
+                      className={`group relative p-3 rounded-xl cursor-pointer transition-all ${resume.id === activeResumeId ? 'bg-white/10 ring-1 ring-blue-500/50' : 'bg-white/[0.03] hover:bg-white/[0.07]'}`}
                    >
                      <div onClick={() => setActiveResumeId(resume.id)} className="pr-6">
                        <p className="text-sm font-medium truncate">{resume.name}</p>
@@ -589,22 +588,22 @@ export default function App() {
           </div>
           
           <div className="px-6 pb-6 pt-2 shrink-0">
-            <div className="p-4 bg-slate-800 rounded-lg">
+            <div className="p-4 bg-white/5 rounded-xl border border-white/10">
               <div className="flex justify-between items-end mb-2">
                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">AI Credits</p>
-                 <p className="text-[10px] text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded cursor-pointer hover:bg-blue-500/20" onClick={() => setShowPricing(true)}>Upgrade</p>
+                 <p className="text-[10px] text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded-lg cursor-pointer hover:bg-blue-500/20 transition" onClick={() => setShowPricing(true)}>Upgrade</p>
               </div>
               <p className="text-sm font-medium">{credits} / 3 Free Remaining</p>
-              <div className="w-full bg-slate-700 h-1 mt-3 rounded-full overflow-hidden">
-                <div className={`h-full rounded-full transition-all ${credits > 0 ? 'bg-green-400' : 'bg-red-500'}`} style={{ width: `${(credits/3)*100}%` }}></div>
+              <div className="w-full bg-white/10 h-1.5 mt-3 rounded-full overflow-hidden">
+                <div className={`h-full rounded-full transition-all ${credits > 0 ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(248,113,113,0.4)]'}`} style={{ width: `${(credits/3)*100}%` }}></div>
               </div>
-              <p className="text-[10px] mt-2 text-slate-400">1 Credit deducted per generation</p>
+              <p className="text-[10px] mt-2 text-slate-500">1 Credit deducted per generation</p>
             </div>
           </div>
         </nav>
-        <div className="p-6 border-t border-slate-800 flex items-center justify-between">
+        <div className="p-6 border-t border-white/5 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-             <div className="w-8 h-8 rounded-full bg-slate-700 overflow-hidden bg-cover bg-center shrink-0" style={{ backgroundImage: user?.photoURL ? `url(${user.photoURL})` : resumeData.personalDetails.profilePictureUrl ? `url(${resumeData.personalDetails.profilePictureUrl})` : 'none' }}></div>
+             <div className="w-8 h-8 rounded-full bg-white/10 border border-white/10 overflow-hidden bg-cover bg-center shrink-0" style={{ backgroundImage: user?.photoURL ? `url(${user.photoURL})` : resumeData.personalDetails.profilePictureUrl ? `url(${resumeData.personalDetails.profilePictureUrl})` : 'none' }}></div>
              <div className="overflow-hidden">
                <p className="text-xs font-medium truncate w-24">{user?.displayName || user?.email || resumeData.personalDetails.name || 'Guest'}</p>
                <p className="text-[10px] text-slate-400">{isPro ? 'Pro Member' : 'Free Tier'}</p>
@@ -633,20 +632,20 @@ export default function App() {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden relative z-10">
         {activeTab === 'resume' && (
            <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-8 shrink-0">
+        <header className="h-16 border-b border-white/5 glass-header flex items-center justify-between px-8 shrink-0">
           <div className="flex items-center space-x-4">
-            <h2 className="text-sm font-semibold text-slate-800">Workspace: Tailoring {resumeData.personalDetails.name}'s Resume</h2>
+            <h2 className="text-sm font-semibold text-slate-200">Workspace: Tailoring {resumeData.personalDetails.name}'s Resume</h2>
             <span className="status-badge pr-3"><CheckCircle2 className="w-3 h-3 inline mr-1 -mt-0.5" />Optimized for ATS</span>
           </div>
           <div className="flex items-center space-x-3">
-             <button onClick={() => exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`)} className="px-4 py-2 text-xs font-medium border border-slate-200 rounded hover:bg-slate-50 transition-colors flex items-center text-slate-700">
+             <button onClick={() => exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`)} className="px-4 py-2 text-xs font-medium glass-button-secondary rounded-xl flex items-center">
                <FileOutput className="w-3 h-3 mr-2" />
                Export PDF
              </button>
-             <button onClick={() => exportToDocx(resumeData)} className="px-4 py-2 text-xs font-medium bg-slate-900 text-white rounded hover:bg-slate-800 transition-colors flex items-center shadow-sm">
+             <button onClick={() => exportToDocx(resumeData)} className="px-4 py-2 text-xs font-medium glass-button-primary rounded-xl flex items-center">
                <Download className="w-3 h-3 mr-2" />
                Download Word
              </button>
@@ -656,10 +655,10 @@ export default function App() {
         <div className="flex-1 flex overflow-hidden">
           <section className={`${
             workspaceSubTab === 'form' ? 'w-[55%] lg:w-[50%]' : 'w-[45%] lg:w-[40%] xl:w-[35%]'
-          } border-r border-slate-200 p-6 flex flex-col bg-white overflow-y-auto transition-all duration-300`}>
+          } border-r border-white/5 p-6 flex flex-col bg-white/[0.02] backdrop-blur-sm overflow-y-auto transition-all duration-300`}>
              
              {/* Sub-tab Navigation */}
-             <div className="flex border-b border-slate-200 mb-6 shrink-0">
+             <div className="flex border-b border-white/10 mb-6 shrink-0">
                {[
                  { id: 'ai', name: 'AI Tailor' },
                  { id: 'form', name: 'Manual Edit' },
@@ -670,8 +669,8 @@ export default function App() {
                    onClick={() => setWorkspaceSubTab(tab.id as any)}
                    className={`flex-1 pb-3 text-xs font-bold uppercase tracking-wider border-b-2 text-center transition-all ${
                      workspaceSubTab === tab.id
-                       ? 'border-blue-500 text-blue-600 font-bold'
-                       : 'border-transparent text-slate-400 hover:text-slate-600 font-medium'
+                       ? 'border-blue-400 text-blue-400 font-bold'
+                       : 'border-transparent text-slate-500 hover:text-slate-300 font-medium'
                    }`}
                  >
                    {tab.name}
@@ -1169,8 +1168,8 @@ export default function App() {
       </main>
 
       {showPricing && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-           <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-8 relative overflow-hidden">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+           <div className="glass-modal max-w-5xl w-full p-8 relative overflow-hidden">
               <button className="absolute top-6 right-6 text-slate-400 hover:text-slate-600" onClick={() => setShowPricing(false)}>
                  <span className="sr-only">Close</span>
                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -1179,42 +1178,42 @@ export default function App() {
               <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
 
               <div className="text-center mb-10">
-                 <h2 className="text-3xl font-black text-slate-900 mb-4">Honest, Transparent Pricing</h2>
-                 <p className="text-slate-600">The resume market is full of trial traps ($2.95/14 days then $25/mo). We are doing something different. Deeply competitive flat pricing.</p>
+                 <h2 className="text-3xl font-black text-white mb-4">Honest, Transparent Pricing</h2>
+                 <p className="text-slate-400">The resume market is full of trial traps ($2.95/14 days then $25/mo). We are doing something different. Deeply competitive flat pricing.</p>
               </div>
 
               <div className="grid md:grid-cols-3 gap-6">
                  {/* Free Tier */}
-                 <div className="border border-slate-200 rounded-xl p-6 bg-slate-50 flex flex-col">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-2">Free Tier</h3>
-                    <div className="text-4xl font-black text-slate-900 mb-4">$0</div>
-                    <p className="text-sm text-slate-600 mb-6">Perfect for trying out the platform and generating a quick resume.</p>
+                 <div className="glass-card p-6 flex flex-col">
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-2">Free Tier</h3>
+                    <div className="text-4xl font-black text-white mb-4">$0</div>
+                    <p className="text-sm text-slate-400 mb-6">Perfect for trying out the platform and generating a quick resume.</p>
                     <ul className="space-y-3 text-sm text-slate-700 flex-1 mb-8">
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> 3 AI Generation Credits</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> Export to PDF</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> Standard Templates</li>
                     </ul>
-                    <button onClick={() => setShowPricing(false)} className="w-full py-2.5 rounded border border-slate-300 text-slate-700 font-bold hover:bg-slate-100 transition">{user ? 'Current Plan' : 'Dismiss'}</button>
+                    <button onClick={() => setShowPricing(false)} className="w-full py-2.5 rounded-xl glass-button-secondary font-bold">{user ? 'Current Plan' : 'Dismiss'}</button>
                  </div>
 
                  {/* Top Up Credits */}
-                 <div className="border border-slate-200 rounded-xl p-6 bg-white flex flex-col shadow-sm">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-800 mb-2">Additional Credits</h3>
-                    <div className="text-4xl font-black text-slate-900 mb-1">$3<span className="text-lg text-slate-500 font-normal">/pack</span></div>
+                 <div className="glass-card p-6 flex flex-col">
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-300 mb-2">Additional Credits</h3>
+                    <div className="text-4xl font-black text-white mb-1">$3<span className="text-lg text-slate-400 font-normal">/pack</span></div>
                     <p className="text-xs text-slate-500 mb-4">One-time purchase.</p>
                     <p className="text-sm text-slate-600 mb-6 border-b border-slate-100 pb-4">Need a few more edits? Grab a top-up.</p>
                     <ul className="space-y-3 text-sm text-slate-700 flex-1 mb-8">
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-slate-600 mr-2 mt-0.5 shrink-0"/> +10 AI Generations</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-slate-600 mr-2 mt-0.5 shrink-0"/> Never expires</li>
                     </ul>
-                    <button onClick={() => handlePurchase('price_1TjhoWKc3d6UbNauMyXLfggD')} className="w-full py-2.5 rounded border border-slate-800 text-slate-800 font-bold hover:bg-slate-50 transition">Buy Credits</button>
+                    <button onClick={() => handlePurchase('price_1TjhoWKc3d6UbNauMyXLfggD')} className="w-full py-2.5 rounded-xl glass-button-secondary font-bold">Buy Credits</button>
                  </div>
 
                  {/* Pro Tier */}
-                 <div className="border-2 border-blue-500 rounded-xl p-6 bg-white shadow-xl shadow-blue-500/10 flex flex-col relative">
-                    <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg rounded-tr-xl">Most Popular</div>
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-blue-600 mb-2">Pro Member</h3>
-                    <div className="text-4xl font-black text-slate-900 mb-1">$5<span className="text-lg text-slate-500 font-normal">/mo</span></div>
+                 <div className="border-2 border-blue-500/50 glass-card p-6 flex flex-col relative shadow-[0_0_30px_rgba(59,130,246,0.15)]">
+                    <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg rounded-tr-2xl">Most Popular</div>
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-blue-400 mb-2">Pro Member</h3>
+                    <div className="text-4xl font-black text-white mb-1">$5<span className="text-lg text-slate-400 font-normal">/mo</span></div>
                     <p className="text-xs text-slate-500 mb-4">No hidden fees. Cancel anytime.</p>
                     <p className="text-sm text-slate-600 mb-6 border-b border-slate-100 pb-4">Everything you need to land your dream job.</p>
                     <ul className="space-y-3 text-sm text-slate-700 flex-1 mb-8">
@@ -1223,7 +1222,7 @@ export default function App() {
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Live AI Voice Interview Practice</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Export to MS Word (DOCX)</li>
                     </ul>
-                    <button onClick={() => handlePurchase('price_1TjhnmKc3d6UbNauXULxTxrh')} className="w-full py-2.5 rounded bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">{isPro ? 'Manage Subscription' : 'Upgrade to Pro'}</button>
+                    <button onClick={() => handlePurchase('price_1TjhnmKc3d6UbNauXULxTxrh')} className="w-full py-2.5 rounded-xl glass-button-primary">{isPro ? 'Manage Subscription' : 'Upgrade to Pro'}</button>
                  </div>
               </div>
            </div>
@@ -1232,8 +1231,8 @@ export default function App() {
 
       {ingestionModal && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-           <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6">
-              <h2 className="text-lg font-bold text-slate-800 mb-2">
+           <div className="glass-modal max-w-lg w-full p-6">
+              <h2 className="text-lg font-bold text-white mb-2">
                  {ingestionModal === 'linkedin' ? 'Sync LinkedIn Profile' : 'Paste Manual Data'}
               </h2>
               <p className="text-sm text-slate-500 mb-4">
@@ -1244,14 +1243,14 @@ export default function App() {
                    type="text" 
                    value={ingestionInput} 
                    onChange={e => setIngestionInput(e.target.value)}
-                   className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                   className="w-full glass-input rounded-xl px-3 py-2 text-sm mb-4"
                    placeholder="https://linkedin.com/in/yourprofile"
                  />
               ) : (
                  <textarea 
                    value={ingestionInput}
                    onChange={e => setIngestionInput(e.target.value)}
-                   className="w-full h-32 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 resize-none"
+                   className="w-full h-32 glass-input rounded-xl px-3 py-2 text-sm mb-4 resize-none"
                    placeholder="My name is... I have 5 years of experience in..."
                  />
               )}
@@ -1292,10 +1291,10 @@ export default function App() {
 
       {editingSection && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-           <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[90vh]">
-              <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-xl">
+           <div className="glass-modal max-w-2xl w-full flex flex-col max-h-[90vh]">
+              <div className="p-4 border-b border-white/10 flex justify-between items-center rounded-t-xl">
                  <div>
-                    <h2 className="text-lg font-bold text-slate-800 capitalize">Edit {editingSection}</h2>
+                    <h2 className="text-lg font-bold text-white capitalize">Edit {editingSection}</h2>
                     <p className="text-xs text-slate-500 mt-1">Make your edits below in JSON format. Tip: You can add or reduce items directly in the arrays.</p>
                  </div>
                  <button onClick={() => setEditingSection(null)} className="text-slate-400 hover:text-slate-600">
@@ -1306,11 +1305,11 @@ export default function App() {
                  <textarea
                     value={sectionEditValue}
                     onChange={e => setSectionEditValue(e.target.value)}
-                    className="w-full h-[50vh] font-mono text-sm p-4 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 text-slate-800"
+                    className="w-full h-[50vh] font-mono text-sm p-4 glass-input rounded-xl text-slate-200"
                     spellCheck="false"
                  />
               </div>
-              <div className="p-4 border-t border-slate-200 flex justify-end gap-3 bg-slate-50 rounded-b-xl">
+              <div className="p-4 border-t border-white/10 flex justify-end gap-3 rounded-b-xl">
                  <button 
                    onClick={() => setEditingSection(null)}
                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800"
@@ -1345,10 +1344,10 @@ export default function App() {
         {toasts.map(toast => (
           <div
             key={toast.id}
-            className={`p-4 rounded-xl shadow-lg flex items-start gap-3 border text-xs font-semibold uppercase tracking-wider text-slate-800 bg-white pointer-events-auto transition-all duration-300 ${
-              toast.type === 'success' ? 'border-green-200 bg-green-50/90 text-green-800' :
-              toast.type === 'error' ? 'border-red-200 bg-red-50/90 text-red-800' :
-              'border-blue-200 bg-blue-50/90 text-blue-800'
+            className={`p-4 rounded-xl shadow-lg flex items-start gap-3 border text-xs font-semibold uppercase tracking-wider pointer-events-auto transition-all duration-300 backdrop-blur-xl ${
+              toast.type === 'success' ? 'border-emerald-500/30 bg-emerald-900/80 text-emerald-300' :
+              toast.type === 'error' ? 'border-red-500/30 bg-red-900/80 text-red-300' :
+              'border-blue-500/30 bg-blue-900/80 text-blue-300'
             }`}
           >
             {toast.type === 'success' && <Check className="w-4 h-4 text-green-600 shrink-0" />}
@@ -1361,14 +1360,14 @@ export default function App() {
 
       {/* Onboarding Wizard Modal */}
       {isOnboarding && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative overflow-hidden border border-slate-100 flex flex-col min-h-[400px] justify-between">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="glass-modal max-w-2xl w-full p-8 relative overflow-hidden flex flex-col min-h-[400px] justify-between">
             <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 left-0"></div>
             
             {resumes.length > 0 && resumes[0].name !== 'Alex Rivera' && (
               <button 
                 onClick={() => setIsOnboarding(false)}
-                className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 p-1 bg-slate-100 rounded-full transition"
+                className="absolute top-6 right-6 text-slate-400 hover:text-white p-1 bg-white/10 rounded-full transition"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1515,14 +1514,14 @@ export default function App() {
 
       {/* Feedback Modal */}
       {showFeedback && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-            <h2 className="text-lg font-bold text-slate-800 mb-2">Send Feedback</h2>
-            <p className="text-sm text-slate-500 mb-4">Found a bug? Have a feature request? Let us know.</p>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="glass-modal max-w-md w-full p-6">
+            <h2 className="text-lg font-bold text-white mb-2">Send Feedback</h2>
+            <p className="text-sm text-slate-400 mb-4">Found a bug? Have a feature request? Let us know.</p>
             <textarea
               value={feedbackText}
               onChange={e => setFeedbackText(e.target.value)}
-              className="w-full h-28 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 resize-none"
+              className="w-full h-28 glass-input rounded-xl px-3 py-2 text-sm mb-4 resize-none"
               placeholder="What's on your mind?"
             />
             <div className="flex justify-end gap-3">
@@ -1557,10 +1556,10 @@ export default function App() {
 
       {/* Delete Account Confirmation */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6">
-            <h2 className="text-lg font-bold text-red-600 mb-2">Delete Account</h2>
-            <p className="text-sm text-slate-600 mb-6">This will permanently delete your account and all associated resume data. This action cannot be undone.</p>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="glass-modal max-w-sm w-full p-6">
+            <h2 className="text-lg font-bold text-red-400 mb-2">Delete Account</h2>
+            <p className="text-sm text-slate-400 mb-6">This will permanently delete your account and all associated resume data. This action cannot be undone.</p>
             <div className="flex justify-end gap-3">
               <button onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800">Cancel</button>
               <button
@@ -1588,10 +1587,10 @@ export default function App() {
 
       {/* Legal Modal (Privacy / Terms) */}
       {showLegalModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[85vh]">
-            <div className="p-5 border-b border-slate-200 flex justify-between items-center">
-              <h2 className="text-lg font-bold text-slate-800">{showLegalModal === 'privacy' ? 'Privacy Policy' : 'Terms of Service'}</h2>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="glass-modal max-w-2xl w-full flex flex-col max-h-[85vh]">
+            <div className="p-5 border-b border-white/10 flex justify-between items-center">
+              <h2 className="text-lg font-bold text-white">{showLegalModal === 'privacy' ? 'Privacy Policy' : 'Terms of Service'}</h2>
               <button onClick={() => setShowLegalModal(null)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-6 overflow-y-auto text-sm text-slate-700 leading-relaxed space-y-4">

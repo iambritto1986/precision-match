@@ -179,8 +179,8 @@ export default function VoiceInterview({ resumeData }: { resumeData: ResumeData 
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 bg-slate-50 w-full h-full font-inter">
-      <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-2xl w-full max-w-lg text-center border border-slate-800 relative overflow-hidden flex flex-col items-center min-h-[480px] justify-between">
+    <div className="flex flex-col items-center justify-center p-6 w-full h-full font-inter">
+      <div className="glass-modal text-white p-8 w-full max-w-lg text-center relative overflow-hidden flex flex-col items-center min-h-[480px] justify-between">
         
         {/* Decorative Grid Background */}
         <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:14px_24px] pointer-events-none"></div>
@@ -195,7 +195,7 @@ export default function VoiceInterview({ resumeData }: { resumeData: ResumeData 
             </span>
           </div>
           {isConnected && (
-            <div className="text-xs font-mono bg-slate-800 px-2.5 py-1 rounded-full text-slate-300 shadow-inner">
+            <div className="text-xs font-mono bg-white/10 border border-white/10 px-2.5 py-1 rounded-full text-slate-300">
               {formatDuration(callDuration)}
             </div>
           )}
