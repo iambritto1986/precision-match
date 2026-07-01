@@ -223,17 +223,17 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
   ];
 
   return (
-    <div className="flex flex-col md:flex-row h-full bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm relative">
+    <div className="flex flex-col md:flex-row h-full glass-card overflow-hidden relative">
       {/* "Section added!" toast */}
       {justAdded && (
-        <div className="absolute top-3 right-3 z-50 flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-lg border border-emerald-200 shadow-sm animate-slideDown">
+        <div className="absolute top-3 right-3 z-50 flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-emerald-500/20 shadow-sm animate-slideDown">
           <CheckCircle className="w-3.5 h-3.5" />
           {justAdded}
         </div>
       )}
 
       {/* Tab Menu */}
-      <div className="w-full md:w-48 bg-slate-50 border-r border-slate-200 flex md:flex-col shrink-0 overflow-x-auto md:overflow-y-auto scroll-hide">
+      <div className="w-full md:w-48 bg-white/[0.03] border-r border-white/[0.06] flex md:flex-col shrink-0 overflow-x-auto md:overflow-y-auto scroll-hide">
         {menuItems.map(item => {
           const Icon = item.icon;
           const active = activeSection === item.id;
@@ -241,13 +241,13 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
             <button
               key={item.id}
               onClick={() => setActiveSection(item.id)}
-              className={`flex items-center gap-2.5 px-4 py-3 text-xs font-bold uppercase tracking-wider text-left border-b md:border-b-0 md:border-l-4 transition-all shrink-0 form-section-header ${
+              className={`flex items-center gap-2.5 px-4 py-3 text-xs font-bold uppercase tracking-wider text-left border-b md:border-b-0 md:border-l-2 transition-all shrink-0 form-section-header ${
                 active
-                  ? 'bg-white border-blue-500 text-blue-600 md:border-l-blue-500 font-bold'
-                  : 'border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-800 font-medium'
+                  ? 'bg-white/10 border-indigo-400 text-indigo-300 md:border-l-indigo-400 font-bold'
+                  : 'border-transparent text-slate-500 hover:bg-white/5 hover:text-slate-300 font-medium'
               }`}
             >
-              <Icon className={`w-4 h-4 transition-colors ${active ? 'text-blue-500' : 'text-slate-400'}`} />
+              <Icon className={`w-4 h-4 transition-colors ${active ? 'text-indigo-400' : 'text-slate-500'}`} />
               <span className="truncate">{item.name}</span>
             </button>
           );
@@ -258,85 +258,85 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
       <div className="flex-1 p-5 overflow-y-auto max-h-[60vh] md:max-h-[75vh]">
         {activeSection === 'personal' && (
           <div className="space-y-4 section-panel">
-            <h3 className="text-sm font-bold text-slate-800 border-b pb-2 mb-4">Personal Details</h3>
+            <h3 className="text-sm font-bold text-slate-200 border-b border-white/10 pb-2 mb-4">Personal Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Full Name</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Full Name</label>
                 <input
                   type="text"
                   value={data.personalDetails.name}
                   onChange={e => updatePersonal('name', e.target.value)}
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
+                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
                   placeholder="Alex Rivera"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Job Title</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Job Title</label>
                 <input
                   type="text"
                   value={data.personalDetails.title}
                   onChange={e => updatePersonal('title', e.target.value)}
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
+                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
                   placeholder="Software Engineer"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Email</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Email</label>
                 <input
                   type="email"
                   value={data.personalDetails.email}
                   onChange={e => updatePersonal('email', e.target.value)}
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
+                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
                   placeholder="alex@example.com"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Phone</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Phone</label>
                 <input
                   type="text"
                   value={data.personalDetails.phone}
                   onChange={e => updatePersonal('phone', e.target.value)}
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
+                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
                   placeholder="+1 555 0123"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Location</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Location</label>
                 <input
                   type="text"
                   value={data.personalDetails.location}
                   onChange={e => updatePersonal('location', e.target.value)}
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
+                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
                   placeholder="New York, NY"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">LinkedIn URL</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">LinkedIn URL</label>
                 <input
                   type="text"
                   value={data.personalDetails.linkedin}
                   onChange={e => updatePersonal('linkedin', e.target.value)}
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
+                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
                   placeholder="linkedin.com/in/alexrivera"
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Personal Website</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Personal Website</label>
                 <input
                   type="text"
                   value={data.personalDetails.website || ''}
                   onChange={e => updatePersonal('website', e.target.value)}
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
+                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
                   placeholder="alexrivera.com"
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Professional Summary</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Professional Summary</label>
                 <textarea
                   value={data.personalDetails.summary}
                   onChange={e => updatePersonal('summary', e.target.value)}
                   rows={4}
-                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50 resize-none"
+                  className="w-full glass-input rounded-lg px-3 py-2 text-sm resize-none"
                   placeholder="Write a brief professional summary..."
                 />
               </div>
@@ -346,11 +346,11 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
 
         {activeSection === 'experience' && (
           <div className="space-y-4 section-panel">
-            <div className="flex justify-between items-center border-b pb-2">
-              <h3 className="text-sm font-bold text-slate-800">Work Experience</h3>
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+              <h3 className="text-sm font-bold text-slate-200">Work Experience</h3>
               <button
                 onClick={() => addListItem('experience')}
-                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition"
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition border border-indigo-500/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Job
               </button>
@@ -371,7 +371,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mr-8" style={{ gap: '16px' }}>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Company</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Company</label>
                         <input
                           type="text"
                           value={exp.company}
@@ -381,7 +381,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Role / Job Title</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Role / Job Title</label>
                         <input
                           type="text"
                           value={exp.role}
@@ -391,7 +391,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Duration / Dates</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Duration / Dates</label>
                         <input
                           type="text"
                           value={exp.duration}
@@ -401,7 +401,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Location</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Location</label>
                         <input
                           type="text"
                           value={exp.location}
@@ -449,11 +449,11 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
 
         {activeSection === 'skills' && (
           <div className="space-y-4 section-panel">
-            <div className="flex justify-between items-center border-b pb-2">
-              <h3 className="text-sm font-bold text-slate-800">Skills & Expertise</h3>
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+              <h3 className="text-sm font-bold text-slate-200">Skills & Expertise</h3>
               <button
                 onClick={addSkillCategory}
-                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition"
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition border border-indigo-500/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Category
               </button>
@@ -474,7 +474,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
 
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 md:mr-4">
                       <div className="md:col-span-1">
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Category Title</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Category Title</label>
                         <input
                           type="text"
                           value={skillGroup.category}
@@ -484,7 +484,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Skills (comma separated)</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Skills (comma separated)</label>
                         <input
                           type="text"
                           value={(skillGroup.items || []).join(', ')}
@@ -504,11 +504,11 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
 
         {activeSection === 'education' && (
           <div className="space-y-4 section-panel">
-            <div className="flex justify-between items-center border-b pb-2">
-              <h3 className="text-sm font-bold text-slate-800">Education</h3>
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+              <h3 className="text-sm font-bold text-slate-200">Education</h3>
               <button
                 onClick={() => addListItem('education')}
-                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition"
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition border border-indigo-500/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Add School
               </button>
@@ -529,7 +529,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mr-8">
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Institution</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Institution</label>
                         <input
                           type="text"
                           value={edu.institution}
@@ -539,7 +539,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Degree / Course</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Degree / Course</label>
                         <input
                           type="text"
                           value={edu.degree}
@@ -549,7 +549,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Duration / Dates</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Duration / Dates</label>
                         <input
                           type="text"
                           value={edu.duration}
@@ -559,7 +559,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Location</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Location</label>
                         <input
                           type="text"
                           value={edu.location}
@@ -569,7 +569,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Details (e.g. GPA, Honors)</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Details (e.g. GPA, Honors)</label>
                         <input
                           type="text"
                           value={edu.details}
@@ -588,11 +588,11 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
 
         {activeSection === 'projects' && (
           <div className="space-y-4 section-panel">
-            <div className="flex justify-between items-center border-b pb-2">
-              <h3 className="text-sm font-bold text-slate-800">Projects</h3>
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+              <h3 className="text-sm font-bold text-slate-200">Projects</h3>
               <button
                 onClick={() => addListItem('projects')}
-                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition"
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition border border-indigo-500/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Project
               </button>
@@ -613,7 +613,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mr-8">
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Project Name</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Project Name</label>
                         <input
                           type="text"
                           value={proj.name}
@@ -623,7 +623,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Role / Tech Stack</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Role / Tech Stack</label>
                         <input
                           type="text"
                           value={proj.role}
@@ -633,7 +633,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Duration / Dates</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Duration / Dates</label>
                         <input
                           type="text"
                           value={proj.duration}
@@ -643,7 +643,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Project URL (Optional)</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Project URL (Optional)</label>
                         <input
                           type="text"
                           value={proj.url || ''}
@@ -653,7 +653,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Description</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Description</label>
                         <textarea
                           value={proj.description}
                           onChange={e => updateListItem('projects', idx, 'description', e.target.value)}
@@ -672,11 +672,11 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
 
         {activeSection === 'certifications' && (
           <div className="space-y-4 section-panel">
-            <div className="flex justify-between items-center border-b pb-2">
-              <h3 className="text-sm font-bold text-slate-800">Certifications</h3>
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+              <h3 className="text-sm font-bold text-slate-200">Certifications</h3>
               <button
                 onClick={() => addListItem('certifications')}
-                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition"
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition border border-indigo-500/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Certification
               </button>
@@ -697,7 +697,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mr-8">
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Certification Name</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Certification Name</label>
                         <input
                           type="text"
                           value={cert.name}
@@ -707,7 +707,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Issuer</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Issuer</label>
                         <input
                           type="text"
                           value={cert.issuer}
@@ -717,7 +717,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Date</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Date</label>
                         <input
                           type="text"
                           value={cert.date}
@@ -736,11 +736,11 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
 
         {activeSection === 'custom' && (
           <div className="space-y-4 section-panel">
-            <div className="flex justify-between items-center border-b pb-2">
-              <h3 className="text-sm font-bold text-slate-800">Custom Sections</h3>
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+              <h3 className="text-sm font-bold text-slate-200">Custom Sections</h3>
               <button
                 onClick={addCustomSection}
-                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition"
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition border border-indigo-500/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Section
               </button>
@@ -761,12 +761,12 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
 
                     <div className="space-y-4">
                       <div className="max-w-xs mr-8">
-                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Section Title</label>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Section Title</label>
                         <input
                           type="text"
                           value={cs.title}
                           onChange={e => updateCustomSectionTitle(cs.id, e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full glass-input rounded-lg px-3 py-1.5 text-sm font-bold"
                           placeholder="Languages / Awards"
                         />
                       </div>
