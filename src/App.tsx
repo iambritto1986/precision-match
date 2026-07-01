@@ -463,7 +463,7 @@ export default function App() {
 
   if (authLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#060a13] font-inter">
+      <div className="flex h-screen items-center justify-center bg-[#0f0b1e] font-inter">
         <div className="text-center">
           <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-4 animate-pulse shadow-lg shadow-blue-500/30">P</div>
           <p className="text-sm text-slate-400 animate-pulse">Loading Precision Match...</p>
@@ -474,9 +474,9 @@ export default function App() {
 
   if (!user) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#060a13] font-inter relative overflow-hidden">
+      <div className="flex h-screen items-center justify-center bg-[#0f0b1e] font-inter relative overflow-hidden">
          <div className="max-w-md w-full glass-modal p-8 text-center relative z-10">
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-6 shadow-lg shadow-blue-500/30 animate-float">P</div>
+            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-6 shadow-lg shadow-indigo-500/30 animate-float">P</div>
             <h1 className="text-2xl font-black tracking-tight text-white mb-2">Precision Match</h1>
             <p className="text-slate-400 text-sm mb-8 font-medium">Please log in to continue building your resume and accessing premium AI features.</p>
             <button onClick={loginWithGoogle} className="w-full glass-button-primary py-3 rounded-xl text-sm flex items-center justify-center">
@@ -507,7 +507,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen w-full bg-[#060a13] text-slate-100 overflow-hidden font-inter relative">
+    <div className="flex h-screen w-full bg-[#0f0b1e] text-slate-100 overflow-hidden font-inter relative">
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         .font-inter { font-family: 'Inter', sans-serif; }
@@ -516,7 +516,7 @@ export default function App() {
       <aside className="w-64 glass-sidebar text-white flex flex-col shrink-0 relative z-10">
         <div className="p-6">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center font-bold text-lg shadow-lg shadow-blue-500/20">P</div>
+            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-500/25">P</div>
             <div>
               <h1 className="text-lg font-bold leading-none">Precision Match</h1>
               <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Resume Builder</p>
@@ -526,22 +526,22 @@ export default function App() {
         <nav className="flex-1 mt-4 flex flex-col overflow-hidden">
           <div className="flex-shrink-0 space-y-1">
             <div className="px-6 py-3 text-slate-500 text-[11px] uppercase font-semibold tracking-wider">Main Menu</div>
-            {isAdmin && <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); }} className={`flex items-center px-6 py-3 text-sm transition-all ${activeTab === 'dashboard' ? 'bg-white/10 border-r-2 border-blue-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><Users className="w-4 h-4 mr-3"/> Founder Hub</a>}
-            <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('resume'); }} className={`flex items-center px-6 py-3 text-sm transition-all ${activeTab === 'resume' ? 'bg-white/10 border-r-2 border-blue-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><FileText className="w-4 h-4 mr-3"/> Resume Builder</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('edit'); }} className={`flex items-center px-6 py-3 text-sm transition-all ${activeTab === 'edit' ? 'bg-white/10 border-r-2 border-blue-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><Code className="w-4 h-4 mr-3"/> Source Data</a>
+            {isAdmin && <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'dashboard' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><Users className="w-4 h-4 mr-3"/> Founder Hub</a>}
+            <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('resume'); }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'resume' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><FileText className="w-4 h-4 mr-3"/> Resume Builder</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('edit'); }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'edit' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><Code className="w-4 h-4 mr-3"/> Source Data</a>
             <a href="#" onClick={(e) => { 
                 e.preventDefault(); 
                 if (!isPro) { setShowPricing(true); return; }
                 setActiveTab('chat'); 
-            }} className={`flex items-center px-6 py-3 text-sm transition-all ${activeTab === 'chat' ? 'bg-white/10 border-r-2 border-blue-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                <MessageCircle className="w-4 h-4 mr-3" /> Career Chat {!isPro && <span className="ml-auto bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
+            }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'chat' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                <MessageCircle className="w-4 h-4 mr-3" /> Career Chat {!isPro && <span className="ml-auto bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
             </a>
             <a href="#" onClick={(e) => { 
                 e.preventDefault(); 
                 if (!isPro) { setShowPricing(true); return; }
                 setActiveTab('interview'); 
-            }} className={`flex items-center px-6 py-3 text-sm transition-all ${activeTab === 'interview' ? 'bg-white/10 border-r-2 border-blue-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                <Mic className="w-4 h-4 mr-3"/> Live Interview {!isPro && <span className="ml-auto bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
+            }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'interview' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                <Mic className="w-4 h-4 mr-3"/> Live Interview {!isPro && <span className="ml-auto bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
             </a>
           </div>
           <div className="px-6 py-6 mt-4 border-t border-white/5 flex flex-col overflow-y-auto flex-1">
@@ -655,7 +655,7 @@ export default function App() {
         <div className="flex-1 flex overflow-hidden">
           <section className={`${
             workspaceSubTab === 'form' ? 'w-[55%] lg:w-[50%]' : 'w-[45%] lg:w-[40%] xl:w-[35%]'
-          } border-r border-white/5 p-6 flex flex-col bg-white/[0.02] backdrop-blur-sm overflow-y-auto transition-all duration-300`}>
+          } border-r border-white/[0.06] p-6 flex flex-col bg-[rgba(15,11,30,0.35)] backdrop-blur-xl overflow-y-auto transition-all duration-300`}>
              
              {/* Sub-tab Navigation */}
              <div className="flex border-b border-white/10 mb-6 shrink-0">
@@ -669,7 +669,7 @@ export default function App() {
                    onClick={() => setWorkspaceSubTab(tab.id as any)}
                    className={`flex-1 pb-3 text-xs font-bold uppercase tracking-wider border-b-2 text-center transition-all ${
                      workspaceSubTab === tab.id
-                       ? 'border-blue-400 text-blue-400 font-bold'
+                       ? 'border-indigo-400 text-indigo-300 font-bold'
                        : 'border-transparent text-slate-500 hover:text-slate-300 font-medium'
                    }`}
                  >
