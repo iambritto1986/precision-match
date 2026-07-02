@@ -958,7 +958,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
   };
 
   return (
-    <div className={getStyle("bg-white min-h-[11in] text-slate-800 grid grid-cols-3")}>
+    <div className={getStyle("bg-white min-h-[1056px] w-[816px] box-border relative text-slate-800 grid grid-cols-3")}>
       {/* LEFT COLUMN */}
       <div className="col-span-1 bg-indigo-50 p-8 border-r border-indigo-100 flex flex-col gap-6">
         <div className="flex flex-col items-center text-center">
@@ -1104,7 +1104,7 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
   };
 
   return (
-    <div className={getStyle("bg-white min-h-[11in] text-slate-800 p-10 font-mono")}>
+    <div className={getStyle("bg-white min-h-[1056px] w-[816px] box-border relative text-slate-800 p-10 font-mono")}>
       <header className="border-b-2 border-emerald-500 pb-6 mb-6 flex justify-between items-end">
         <div>
           <h1 className="text-4xl font-black text-slate-900 tracking-tighter mb-1">&gt; {data.personalDetails.name}_</h1>
@@ -1232,7 +1232,7 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
   };
 
   return (
-    <div className={getStyle("bg-[#fdfcfb] min-h-[11in] text-slate-900 p-12")}>
+    <div className={getStyle("bg-[#fdfcfb] min-h-[1056px] w-[816px] box-border relative text-slate-900 p-12")}>
       <header className="text-center mb-8">
         <h1 className="text-3xl font-normal text-slate-900 mb-2 uppercase tracking-widest">{data.personalDetails.name}</h1>
         {data.personalDetails.title && <h2 className="text-sm font-italic text-slate-600 mb-4">{data.personalDetails.title}</h2>}

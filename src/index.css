@@ -68,9 +68,9 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  z-index: 0;
+  z-index: -1;
   pointer-events: none;
-  opacity: 0.85; /* Blend with deep space background color */
+  opacity: 1; /* Blend with deep space background color */
 }
 
 h1, h2, h3, h4 {
@@ -81,6 +81,10 @@ h1, h2, h3, h4 {
 }
 
 /* Reset typography for resume preview so it stays black-on-white */
+#resume-preview-content * {
+  color: #0f172a !important;
+}
+
 #resume-preview-content h1, 
 #resume-preview-content h2, 
 #resume-preview-content h3, 
@@ -88,7 +92,6 @@ h1, h2, h3, h4 {
 #resume-preview-content p,
 #resume-preview-content span,
 #resume-preview-content div {
-  color: inherit !important;
   text-transform: none !important;
   letter-spacing: normal !important;
   font-family: 'Playfair Display', 'Inter', serif !important;
@@ -98,7 +101,7 @@ p, span, label { color: var(--text-secondary); }
 
 #resume-preview-content p,
 #resume-preview-content span,
-#resume-preview-content label { color: inherit !important; }
+#resume-preview-content label { color: #0f172a !important; }
 
 /* Scrollbars */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
