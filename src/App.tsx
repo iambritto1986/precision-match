@@ -773,7 +773,7 @@ export default function App() {
                           disabled={isAtsScanning || !jobDescription}
                           className="text-[10px] uppercase font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-3 py-1.5 rounded transition disabled:opacity-50 flex items-center gap-1"
                         >
-                          {isAtsScanning ? <RefreshCw className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
+                          {isAtsScanning ? <RefreshCw className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
                           Scan Resume
                         </button>
                       </div>
