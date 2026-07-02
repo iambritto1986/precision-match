@@ -544,7 +544,7 @@ export default function App() {
         .font-inter { font-family: 'Inter', sans-serif; }
         .scroll-hide::-webkit-scrollbar { display: none; }
       ` }} />
-      <aside className="w-64 glass-sidebar text-white flex flex-col shrink-0 relative z-10">
+      <aside className="w-64 glass-sidebar text-white flex flex-col shrink-0 relative z-10 overflow-y-auto scroll-hide">
         <div className="p-6">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-500/25">P</div>
@@ -554,7 +554,7 @@ export default function App() {
             </div>
           </div>
         </div>
-        <nav className="flex-1 mt-4 flex flex-col overflow-hidden">
+        <nav className="flex-1 mt-4 flex flex-col overflow-hidden min-h-0">
           <div className="flex-shrink-0 space-y-1">
             <div className="px-6 py-3 text-slate-500 text-[11px] uppercase font-semibold tracking-wider">Main Menu</div>
             {isAdmin && <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'dashboard' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><Users className="w-4 h-4 mr-3"/> Founder Hub</a>}
@@ -575,7 +575,7 @@ export default function App() {
                 <Mic className="w-4 h-4 mr-3"/> Live Interview {!isPro && <span className="ml-auto bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
             </a>
           </div>
-          <div className="px-6 py-6 mt-4 border-t border-white/5 flex flex-col overflow-y-auto flex-1">
+          <div className="px-6 py-6 mt-4 border-t border-white/5 flex flex-col overflow-y-auto flex-1 min-h-0">
             <button 
                onClick={(e) => { 
                  e.preventDefault(); 
@@ -663,9 +663,9 @@ export default function App() {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col overflow-hidden relative z-10">
+      <main className="flex-1 flex flex-col overflow-hidden relative z-10 min-w-0 min-h-0">
         {activeTab === 'resume' && (
-           <div className="flex-1 flex flex-col overflow-hidden">
+           <div className="flex-1 flex flex-col overflow-hidden min-h-0">
         <header className="h-16 border-b border-white/5 glass-header flex items-center justify-between px-8 shrink-0">
           <div className="flex items-center space-x-4">
             <h2 className="text-sm font-semibold text-slate-200">Workspace: Tailoring {resumeData.personalDetails.name}'s Resume</h2>
@@ -683,7 +683,7 @@ export default function App() {
           </div>
         </header>
 
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden min-h-0">
           <section className={`${
             workspaceSubTab === 'form' ? 'w-[55%] lg:w-[50%]' : 'w-[45%] lg:w-[40%] xl:w-[35%]'
           } border-r border-white/[0.06] p-6 flex flex-col bg-[rgba(15,11,30,0.35)] backdrop-blur-xl overflow-y-auto transition-all duration-300`}>
