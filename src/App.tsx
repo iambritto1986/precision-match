@@ -510,7 +510,7 @@ export default function App() {
             <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-6 shadow-lg shadow-indigo-500/30 animate-float">P</div>
             <h1 className="text-2xl font-black tracking-tight text-white mb-2">Precision Match</h1>
             <p className="text-slate-400 text-sm mb-8 font-medium">Please log in to continue building your resume and accessing premium AI features.</p>
-            <button onClick={loginWithGoogle} className="w-full glass-button-primary py-3 rounded-xl text-sm flex items-center justify-center">
+            <button onClick={loginWithGoogle} className="w-full btn-primary py-3 rounded-xl text-sm flex items-center justify-center">
                <LogIn className="w-4 h-4 mr-2" />
                Log in with Google
             </button>
@@ -527,7 +527,7 @@ export default function App() {
                 setCredits(100);
                 setAuthLoading(false);
               }}
-              className="w-full mt-3 glass-button-secondary py-3 rounded-xl text-sm font-bold flex items-center justify-center"
+              className="w-full mt-3 btn-secondary py-3 rounded-xl text-sm font-bold flex items-center justify-center"
             >
                <Users className="w-4 h-4 mr-2 text-slate-400" />
                Continue as Guest (Local Test)
@@ -581,7 +581,7 @@ export default function App() {
                  e.preventDefault(); 
                  handleStartNewResume();
                }} 
-               className="w-full flex items-center justify-center px-4 py-2 glass-button-primary text-sm rounded-xl mb-6 shrink-0"
+               className="w-full flex items-center justify-center px-4 py-2 btn-primary text-sm rounded-xl mb-6 shrink-0"
             >
                + Start New Resume
             </button>
@@ -672,11 +672,11 @@ export default function App() {
             <span className="status-badge pr-3"><CheckCircle2 className="w-3 h-3 inline mr-1 -mt-0.5" />Optimized for ATS</span>
           </div>
           <div className="flex items-center space-x-3">
-             <button onClick={() => exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`)} className="px-4 py-2 text-xs font-medium glass-button-primary rounded-xl flex items-center">
+             <button onClick={() => exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`)} className="px-4 py-2 text-xs font-medium btn-primary rounded-xl flex items-center">
                <FileOutput className="w-3 h-3 mr-2" />
                Export PDF
              </button>
-             <button onClick={() => exportToDocx(resumeData)} className="px-4 py-2 text-xs font-medium glass-button-secondary rounded-xl flex items-center">
+             <button onClick={() => exportToDocx(resumeData)} className="px-4 py-2 text-xs font-medium btn-secondary rounded-xl flex items-center">
                <Download className="w-3 h-3 mr-2" />
                Download Word
              </button>
@@ -828,7 +828,7 @@ export default function App() {
                     <button 
                       onClick={generateResume}
                       disabled={isGenerating}
-                      className="w-full py-3.5 glass-button-primary text-sm rounded-xl flex items-center justify-center disabled:opacity-70 mt-4 shrink-0"
+                      className="w-full py-3.5 btn-primary text-sm rounded-xl flex items-center justify-center disabled:opacity-70 mt-4 shrink-0"
                     >
                       {isGenerating ? (
                         <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Generating Magic...</>
@@ -1092,7 +1092,7 @@ export default function App() {
            <button 
              onClick={generateCoverLetter}
              disabled={isCoverLetterGenerating}
-             className="px-6 py-2.5 glass-button-primary text-xs rounded-xl disabled:opacity-70 flex items-center"
+             className="px-6 py-2.5 btn-primary text-xs rounded-xl disabled:opacity-70 flex items-center"
            >
              {isCoverLetterGenerating ? (
                <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Auto-Writing...</>
@@ -1106,7 +1106,7 @@ export default function App() {
 
         {activeTab === 'edit' && (
           <div className="flex-1 flex flex-col p-8 bg-slate-50 items-center overflow-y-auto">
-             <div className="w-full max-w-4xl glass-card flex flex-col h-full overflow-hidden p-6">
+             <div className="w-full max-w-4xl card flex flex-col h-full overflow-hidden p-6">
                 <div className="flex justify-between items-center mb-6">
                    <h2 className="text-xl font-black text-white">Source Data Editor</h2>
                    <button 
@@ -1254,7 +1254,7 @@ export default function App() {
 
       {showPricing && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-           <div className="glass-modal max-w-5xl w-full p-8 relative overflow-hidden">
+           <div className="modal-container max-w-5xl w-full p-8 relative overflow-hidden">
               <button className="absolute top-6 right-6 text-slate-400 hover:text-slate-600" onClick={() => setShowPricing(false)}>
                  <span className="sr-only">Close</span>
                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -1269,7 +1269,7 @@ export default function App() {
 
               <div className="grid md:grid-cols-3 gap-6">
                  {/* Free Tier */}
-                 <div className="glass-card p-6 flex flex-col">
+                 <div className="card p-6 flex flex-col">
                     <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-2">Free Tier</h3>
                     <div className="text-4xl font-black text-white mb-4">$0</div>
                     <p className="text-sm text-slate-400 mb-6">Perfect for trying out the platform and generating a quick resume.</p>
@@ -1278,11 +1278,11 @@ export default function App() {
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> Export to PDF</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> Standard Templates</li>
                     </ul>
-                    <button onClick={() => setShowPricing(false)} className="w-full py-2.5 rounded-xl glass-button-secondary font-bold">{user ? 'Current Plan' : 'Dismiss'}</button>
+                    <button onClick={() => setShowPricing(false)} className="w-full py-2.5 rounded-xl btn-secondary font-bold">{user ? 'Current Plan' : 'Dismiss'}</button>
                  </div>
 
                  {/* Top Up Credits */}
-                 <div className="glass-card p-6 flex flex-col">
+                 <div className="card p-6 flex flex-col">
                     <h3 className="text-sm font-bold uppercase tracking-widest text-slate-300 mb-2">Additional Credits</h3>
                     <div className="text-4xl font-black text-white mb-1">$3<span className="text-lg text-slate-400 font-normal">/pack</span></div>
                     <p className="text-xs text-slate-500 mb-4">One-time purchase.</p>
@@ -1291,11 +1291,11 @@ export default function App() {
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-slate-600 mr-2 mt-0.5 shrink-0"/> +10 AI Generations</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-slate-600 mr-2 mt-0.5 shrink-0"/> Never expires</li>
                     </ul>
-                    <button onClick={() => handlePurchase('price_1TjhoWKc3d6UbNauMyXLfggD')} className="w-full py-2.5 rounded-xl glass-button-secondary font-bold">Buy Credits</button>
+                    <button onClick={() => handlePurchase('price_1TjhoWKc3d6UbNauMyXLfggD')} className="w-full py-2.5 rounded-xl btn-secondary font-bold">Buy Credits</button>
                  </div>
 
                  {/* Pro Tier */}
-                 <div className="border-2 border-blue-500/50 glass-card p-6 flex flex-col relative shadow-[0_0_30px_rgba(59,130,246,0.15)]">
+                 <div className="border-2 border-blue-500/50 card p-6 flex flex-col relative shadow-[0_0_30px_rgba(59,130,246,0.15)]">
                     <div className="absolute top-0 right-0 bg-blue-500/200 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg rounded-tr-2xl">Most Popular</div>
                     <h3 className="text-sm font-bold uppercase tracking-widest text-blue-400 mb-2">Pro Member</h3>
                     <div className="text-4xl font-black text-white mb-1">$5<span className="text-lg text-slate-400 font-normal">/mo</span></div>
@@ -1307,7 +1307,7 @@ export default function App() {
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Live AI Voice Interview Practice</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Export to MS Word (DOCX)</li>
                     </ul>
-                    <button onClick={() => handlePurchase('price_1TjhnmKc3d6UbNauXULxTxrh')} className="w-full py-2.5 rounded-xl glass-button-primary">{isPro ? 'Manage Subscription' : 'Upgrade to Pro'}</button>
+                    <button onClick={() => handlePurchase('price_1TjhnmKc3d6UbNauXULxTxrh')} className="w-full py-2.5 rounded-xl btn-primary">{isPro ? 'Manage Subscription' : 'Upgrade to Pro'}</button>
                  </div>
               </div>
            </div>
@@ -1316,7 +1316,7 @@ export default function App() {
 
       {ingestionModal && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-           <div className="glass-modal max-w-lg w-full p-6">
+           <div className="modal-container max-w-lg w-full p-6">
               <h2 className="text-lg font-bold text-white mb-2">
                  {ingestionModal === 'linkedin' ? 'Sync LinkedIn Profile' : 'Paste Manual Data'}
               </h2>
@@ -1376,7 +1376,7 @@ export default function App() {
 
       {editingSection && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-           <div className="glass-modal max-w-2xl w-full flex flex-col max-h-[90vh]">
+           <div className="modal-container max-w-2xl w-full flex flex-col max-h-[90vh]">
               <div className="p-4 border-b border-white/10 flex justify-between items-center rounded-t-xl">
                  <div>
                     <h2 className="text-lg font-bold text-white capitalize">Edit {editingSection}</h2>
@@ -1446,7 +1446,7 @@ export default function App() {
       {/* Onboarding Wizard Modal */}
       {isOnboarding && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="glass-modal max-w-2xl w-full p-8 relative overflow-hidden flex flex-col min-h-[400px] justify-between">
+          <div className="modal-container max-w-2xl w-full p-8 relative overflow-hidden flex flex-col min-h-[400px] justify-between">
             <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 left-0"></div>
             
                           <button 
@@ -1470,7 +1470,7 @@ export default function App() {
                     onClick={() => {
                       fileInputRef.current?.click();
                     }}
-                    className="border border-white/10 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-500/5 rounded-xl p-5 bg-white/5 hover:bg-white/10 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
+                    className="card cursor-pointer flex flex-col items-center justify-center text-center p-5 group" style={{border: "1px solid rgba(0,240,255,0.2)"}}
                   >
                     <div className="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4 group-hover:bg-blue-500/40 transition-colors">
                       <Upload className="w-6 h-6" />
@@ -1482,7 +1482,7 @@ export default function App() {
                   {/* Card 2: Sync LinkedIn */}
                   <div 
                     onClick={() => setOnboardingStep('linkedin')}
-                    className="border border-white/10 hover:border-indigo-500/40 hover:shadow-xl hover:shadow-indigo-500/5 rounded-xl p-5 bg-white/5 hover:bg-white/10 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
+                    className="card cursor-pointer flex flex-col items-center justify-center text-center p-5 group" style={{border: "1px solid rgba(181,0,255,0.2)"}}
                   >
                     <div className="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-500/40 transition-colors">
                       <Linkedin className="w-6 h-6" />
@@ -1502,7 +1502,7 @@ export default function App() {
                       setIsOnboarding(false);
                       setWorkspaceSubTab('form');
                     }}
-                    className="border border-white/10 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/5 rounded-xl p-5 bg-white/5 hover:bg-white/10 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
+                    className="card cursor-pointer flex flex-col items-center justify-center text-center p-5 group" style={{border: "1px solid rgba(0,240,255,0.2)"}}
                   >
                     <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4 group-hover:bg-emerald-500/40 transition-colors">
                       <FileText className="w-6 h-6" />
@@ -1598,7 +1598,7 @@ export default function App() {
       {/* Feedback Modal */}
       {showFeedback && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="glass-modal max-w-md w-full p-6">
+          <div className="modal-container max-w-md w-full p-6">
             <h2 className="text-lg font-bold text-white mb-2">Send Feedback</h2>
             <p className="text-sm text-slate-400 mb-4">Found a bug? Have a feature request? Let us know.</p>
             <textarea
@@ -1640,7 +1640,7 @@ export default function App() {
       {/* Delete Account Confirmation */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="glass-modal max-w-sm w-full p-6">
+          <div className="modal-container max-w-sm w-full p-6">
             <h2 className="text-lg font-bold text-red-400 mb-2">Delete Account</h2>
             <p className="text-sm text-slate-400 mb-6">This will permanently delete your account and all associated resume data. This action cannot be undone.</p>
             <div className="flex justify-end gap-3">
@@ -1671,7 +1671,7 @@ export default function App() {
       {/* Legal Modal (Privacy / Terms) */}
       {showLegalModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="glass-modal max-w-2xl w-full flex flex-col max-h-[85vh]">
+          <div className="modal-container max-w-2xl w-full flex flex-col max-h-[85vh]">
             <div className="p-5 border-b border-white/10 flex justify-between items-center">
               <h2 className="text-lg font-bold text-white">{showLegalModal === 'privacy' ? 'Privacy Policy' : 'Terms of Service'}</h2>
               <button onClick={() => setShowLegalModal(null)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>

@@ -1,15 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&family=Outfit:wght@400;600;700&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&family=Outfit:wght@400;600;700&display=swap');
 @import "tailwindcss";
 
-/* ═══════════════════════════════════════════════════════════════
-   GLASSMORPHISM DESIGN SYSTEM — Precision Match
-   Real frosted-glass with visible background bleed-through
-   ═══════════════════════════════════════════════════════════════ */
-
 :root {
-  --accent: #6366f1;
-  --accent-light: #818cf8;
-  --accent-glow: rgba(99, 102, 241, 0.35);
+  /* Color Palette - Deep Space & Neon Conduits */
+  --bg-app: #030712;          /* Void black/deepest blue for the background */
+  --bg-surface: rgba(15, 23, 42, 0.65); /* Translucent panels for glassmorphism */
+  --bg-surface-hover: rgba(30, 41, 59, 0.8);
+  
+  --accent-primary: #00F0FF;  /* Neon Cyan for primary actions/glows */
+  --accent-hover: #00C4D1;
+  --accent-secondary: #B500FF; /* Deep magenta for secondary tech accents */
+  --accent-gradient: linear-gradient(135deg, #00F0FF 0%, #B500FF 100%);
+  
+  --text-primary: #E2E8F0;    /* Crisp off-white */
+  --text-secondary: #64748B;  /* Muted slate for data points */
+  
+  --border-color: rgba(0, 240, 255, 0.2); /* Faint cyan borders */
+  --border-glow: 0 0 10px rgba(0, 240, 255, 0.15);
+  
+  --input-bg: rgba(3, 7, 18, 0.8);
+  
+  /* Spacing & Radii - Slightly sharper for a tech feel */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-modal: 0 0 40px rgba(0, 240, 255, 0.1), inset 0 0 20px rgba(181, 0, 255, 0.05);
 }
 
 @theme {
@@ -19,46 +35,9 @@
   --font-opensans: "Open Sans", sans-serif;
   --font-space: "Space Grotesk", sans-serif;
   --font-outfit: "Outfit", sans-serif;
-
-  --color-white: #ffffff;
-  --color-black: #000000;
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
-  --color-blue-50: #eff6ff;
-  --color-blue-100: #dbeafe;
-  --color-blue-200: #bfdbfe;
-  --color-blue-300: #93c5fd;
-  --color-blue-400: #60a5fa;
-  --color-blue-500: #3b82f6;
-  --color-blue-600: #2563eb;
-  --color-blue-700: #1d4ed8;
-  --color-blue-800: #1e40af;
-  --color-blue-900: #1e3a8a;
-  --color-slate-50: #f8fafc;
-  --color-slate-100: #f1f5f9;
-  --color-slate-200: #e2e8f0;
-  --color-slate-300: #cbd5e1;
-  --color-slate-400: #94a3b8;
-  --color-slate-500: #64748b;
-  --color-slate-600: #475569;
-  --color-slate-700: #334155;
-  --color-slate-800: #1e293b;
-  --color-slate-900: #0f172a;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   VIVID MESH GRADIENT BACKGROUND
-   The key: background must be colorful enough to see THROUGH glass
-   ═══════════════════════════════════════════════════════════════ */
-
+/* Global Reset & Typography */
 html {
   font-size: 16px !important;
   -webkit-text-size-adjust: 100%;
@@ -66,14 +45,15 @@ html {
 }
 
 body {
-  background: #070514;
-  color: #f8fafc;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   overflow: hidden;
 }
 
-/* Rich photographic background — THIS is what makes glassmorphism work.
-   The frosted panels need something detailed to blur over. */
 #root {
   position: relative;
   min-height: 100vh;
@@ -84,261 +64,173 @@ body {
   content: '';
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.45) 0%, transparent 50%),
-    radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.45) 0%, transparent 50%),
-    radial-gradient(circle at 50% 80%, rgba(14, 165, 233, 0.45) 0%, transparent 50%),
-    radial-gradient(circle at 50% 10%, rgba(139, 92, 246, 0.35) 0%, transparent 50%);
-  background-color: #0f0b1e;
-  z-index: 0;
-  pointer-events: none;
-  animation: bg-shift 20s ease-in-out infinite alternate;
-}
-
-@keyframes bg-shift {
-  0% { transform: scale(1.0); }
-  100% { transform: scale(1.1) rotate(2deg); }
-}
-
-/* Warm amber + purple overlay to tint the background and unify the color scheme */
-#root::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 20% 80%, rgba(217, 119, 6, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
-    linear-gradient(to bottom, rgba(15, 11, 30, 0.3) 0%, rgba(15, 11, 30, 0.5) 100%);
+  background-image: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.05) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 100%, rgba(181, 0, 255, 0.05) 0%, transparent 50%);
+  background-color: var(--bg-app);
   z-index: 0;
   pointer-events: none;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   KEYFRAMES
-   ═══════════════════════════════════════════════════════════════ */
-
-@keyframes orbFloat1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-60px, 40px) scale(1.05); }
-  66% { transform: translate(40px, -30px) scale(0.95); }
-}
-@keyframes orbFloat2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(70px, -40px) scale(1.1); }
-  66% { transform: translate(-40px, 50px) scale(0.9); }
-}
-@keyframes orbFloat3 {
-  0%, 100% { transform: translate(-50%, -50%) translate(0, 0); }
-  33% { transform: translate(-50%, -50%) translate(40px, 50px); }
-  66% { transform: translate(-50%, -50%) translate(-50px, -30px); }
-}
-@keyframes orbFloat4 {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(-30px, 30px); }
+h1, h2, h3, h4 {
+  color: #FFFFFF;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; } to { opacity: 1; }
-}
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; } 50% { opacity: 0.6; }
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-@keyframes sectionAdded {
-  0% { opacity: 0; transform: translateY(6px) scale(0.98); }
-  60% { transform: translateY(-2px) scale(1.005); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes checkPop {
-  0% { transform: scale(0); opacity: 0; }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); opacity: 1; }
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-}
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.15); }
-  50% { box-shadow: 0 0 35px rgba(99, 102, 241, 0.3); }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   ANIMATION UTILITY CLASSES
-   ═══════════════════════════════════════════════════════════════ */
-
-.animate-fadeIn { animation: fadeIn 200ms ease-out both; }
-.animate-slideUp { animation: slideUp 250ms ease-out both; }
-.animate-slideDown { animation: slideDown 250ms ease-out both; }
-.animate-pulse-subtle { animation: pulse 2s ease-in-out infinite; }
-.animate-shimmer {
-  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.06) 50%, transparent 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-.animate-section-added { animation: sectionAdded 300ms ease-out both; }
-.animate-check-pop { animation: checkPop 300ms ease-out both; }
-.animate-float { animation: float 3s ease-in-out infinite; }
-.animate-glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
-
-button, a, input, textarea, select { transition: all 150ms ease; }
-
-/* ═══════════════════════════════════════════════════════════════
-   SCROLLBAR (thin, dark, unobtrusive)
-   ═══════════════════════════════════════════════════════════════ */
-
+/* Scrollbars */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
-* { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.12) transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0, 240, 255, 0.2); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 240, 255, 0.4); }
+* { scrollbar-width: thin; scrollbar-color: rgba(0, 240, 255, 0.2) transparent; }
 .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
 .scroll-hide::-webkit-scrollbar { display: none; }
 
-/* ═══════════════════════════════════════════════════════════════
-   GLASSMORPHISM PANELS
-   
-   The trick: rgba backgrounds with LOW alpha + strong backdrop-blur
-   This lets the colorful orbs bleed through, creating the real effect.
-   The top-edge highlight border mimics light refraction.
-   ═══════════════════════════════════════════════════════════════ */
-
-.glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.glass:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.glass-subtle {
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(12px) saturate(120%);
-  -webkit-backdrop-filter: blur(12px) saturate(120%);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.glass-dark {
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(32px) saturate(150%);
-  -webkit-backdrop-filter: blur(32px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* The main glass card: translucent with visible frost */
-.glass-card {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+/* 1. Layouts & Surfaces */
+.sidebar, .panel, .card {
+  background-color: var(--bg-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--border-glow);
   transition: all 250ms ease;
 }
 
-.glass-card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transform: translateY(-1px);
+/* 2. Modals */
+.modal-container {
+  background-color: var(--bg-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Sidebar: translucent enough to let orbs peek through */
-.glass-sidebar {
-  background: rgba(9, 9, 11, 0.6);
-  backdrop-filter: blur(40px) saturate(160%);
-  -webkit-backdrop-filter: blur(40px) saturate(160%);
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.02);
+.modal-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent-gradient);
+  box-shadow: 0 2px 10px var(--accent-primary);
 }
 
-/* Modal: frosted glass with strong depth */
-.glass-modal {
-  background: rgba(9, 9, 11, 0.85);
-  backdrop-filter: blur(40px) saturate(150%);
-  -webkit-backdrop-filter: blur(40px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+/* 3. Inputs & Forms */
+input[type="text"], 
+input[type="email"], 
+textarea, 
+select,
+.tech-input {
+  background-color: var(--input-bg) !important;
+  color: var(--accent-primary) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  border: 1px solid rgba(100, 116, 139, 0.3) !important;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  width: 100%;
 }
 
-/* Inputs: glass feel with visible frosting */
-.glass-input {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #f8fafc !important;
-  border-radius: 12px;
-  transition: all 200ms ease;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-}
-.glass-input::placeholder { color: rgba(148, 163, 184, 0.6) !important; }
-.glass-input:focus {
-  border-color: rgba(255, 255, 255, 0.25) !important;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
-  background: rgba(255, 255, 255, 0.06) !important;
+input[type="text"]:focus, 
+input[type="email"]:focus, 
+textarea:focus, 
+select:focus,
+.tech-input:focus {
+  outline: none !important;
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.25), inset 0 0 5px rgba(0, 240, 255, 0.1) !important;
 }
 
-/* Primary action button: indigo gradient with glow */
-.glass-button-primary {
-  background: rgba(255, 255, 255, 0.9);
-  color: #09090b;
-  border: 1px solid rgba(255, 255, 255, 1);
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15), inset 0 -2px 0 rgba(0, 0, 0, 0.05);
+input::placeholder, textarea::placeholder {
+  color: rgba(100, 116, 139, 0.6) !important;
+}
+
+/* 4. Buttons */
+.btn-primary {
+  background: transparent;
+  color: var(--accent-primary);
+  border: 1px solid var(--accent-primary);
+  border-radius: var(--radius-sm);
+  padding: 12px 24px;
   font-weight: 600;
-  transition: all 200ms ease;
-}
-.glass-button-primary:hover {
-  background: #ffffff;
-  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.25), inset 0 -2px 0 rgba(0, 0, 0, 0.05);
-  transform: translateY(-1px);
-}
-
-/* Secondary: glass outline button */
-.glass-button-secondary {
-  background: rgba(255, 255, 255, 0.03);
-  color: #cbd5e1;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
-  transition: all 200ms ease;
-}
-.glass-button-secondary:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #f8fafc;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Header bar: thin frost strip */
-.glass-header {
-  background: rgba(9, 9, 11, 0.7);
-  backdrop-filter: blur(32px) saturate(140%);
-  -webkit-backdrop-filter: blur(32px) saturate(140%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+.btn-primary:hover {
+  background: var(--accent-primary);
+  color: #000000;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   STATUS BADGE
-   ═══════════════════════════════════════════════════════════════ */
+.btn-primary:active {
+  transform: scale(0.98);
+}
 
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-surface-hover);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 10px rgba(181, 0, 255, 0.2);
+}
+
+/* 5. Tabs */
+.tab-container {
+  display: flex;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+  margin-bottom: 24px;
+}
+
+.tab {
+  padding: 12px 24px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 12px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  flex: 1;
+  text-align: center;
+}
+
+.tab.active {
+  color: var(--accent-primary);
+  border-bottom: 2px solid var(--accent-primary);
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+}
+
+/* Legacy Utilities for compatibility while transitioning */
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -347,14 +239,10 @@ button, a, input, textarea, select { transition: all 150ms ease; }
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.03em;
-  background: rgba(52, 211, 153, 0.12);
-  color: #6ee7b7;
-  border: 1px solid rgba(52, 211, 153, 0.2);
+  background: rgba(0, 240, 255, 0.12);
+  color: #00F0FF;
+  border: 1px solid rgba(0, 240, 255, 0.2);
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   FORM EDITOR STYLES
-   ═══════════════════════════════════════════════════════════════ */
 
 .form-section-header {
   transition: background-color 150ms ease, color 150ms ease;
@@ -363,20 +251,36 @@ button, a, input, textarea, select { transition: all 150ms ease; }
 .section-panel { animation: slideUp 200ms ease-out both; }
 .form-card-item { animation: sectionAdded 250ms ease-out both; }
 
-/* ═══════════════════════════════════════════════════════════════
-   FOOTER BRANDING
-   ═══════════════════════════════════════════════════════════════ */
+/* Keyframes */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes shimmer {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  50%, 100% { transform: translateX(200%) skewX(-15deg); }
+}
+@keyframes sectionAdded {
+  0% { opacity: 0; transform: scale(0.98) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes checkPop {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
 
+/* FOOTER BRANDING */
 .app-footer-brand {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   padding: 12px 16px;
-  font-family: "Inter", sans-serif;
+  font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   font-weight: 500;
-  color: rgba(148, 163, 184, 0.5);
+  color: rgba(0, 240, 255, 0.5);
   letter-spacing: 0.04em;
   user-select: none;
 }
@@ -386,15 +290,13 @@ button, a, input, textarea, select { transition: all 150ms ease; }
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #ec4899);
+  background: var(--accent-gradient);
   flex-shrink: 0;
+  box-shadow: 0 0 5px var(--accent-primary);
 }
-.app-footer-brand:hover { color: rgba(148, 163, 184, 0.8); }
+.app-footer-brand:hover { color: var(--accent-primary); }
 
-/* ═══════════════════════════════════════════════════════════════
-   PRINT STYLES
-   ═══════════════════════════════════════════════════════════════ */
-
+/* PRINT STYLES */
 @media print {
   body { background: white; color: black; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
   body::after, body::before, #root::before, #root::after { display: none !important; }
@@ -403,13 +305,13 @@ button, a, input, textarea, select { transition: all 150ms ease; }
   @page { margin: 0; size: letter; }
   #root { display: block; height: auto; overflow: visible; }
   .print-page { box-shadow: none !important; margin: 0 !important; page-break-inside: avoid; break-inside: avoid; break-after: page; page-break-after: always; }
-  .lg\:flex > section:first-child { display: none; }
-  .lg\:flex > section:last-child { background: transparent; padding: 0; }
-  .lg\:flex > section:last-child > div:first-child { display: none; }
+  .lg:flex > section:first-child { display: none; }
+  .lg:flex > section:last-child { background: transparent; padding: 0; }
+  .lg:flex > section:last-child > div:first-child { display: none; }
   .app-footer-brand { display: none !important; }
   * { text-shadow: none !important; box-shadow: none !important; }
   a, a:visited { text-decoration: none; color: inherit; }
   p, li, h2, h3 { orphans: 3; widows: 3; }
-  h2, h3 { page-break-after: avoid; break-after: avoid; }
+  h2, h3 { page-break-after: avoid; break-after: avoid; color: black; }
   img { max-width: 100%; page-break-inside: avoid; break-inside: avoid; }
 }
