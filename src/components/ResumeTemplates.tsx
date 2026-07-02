@@ -954,7 +954,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
   };
 
   const PageBreakHelper = ({ elementId }: { elementId: string }) => {
-    return pageBreaks?.has(elementId) && pageIndex === undefined ? <div className="break-before-page" /> : null;
+    return pageBreaks?.[elementId] && pageIndex === undefined ? <div className="break-before-page" /> : null;
   };
 
   return (
@@ -962,36 +962,36 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
       {/* LEFT COLUMN */}
       <div className="col-span-1 bg-indigo-50 p-8 border-r border-indigo-100 flex flex-col gap-6">
         <div className="flex flex-col items-center text-center">
-          {showProfilePicture && data.personalInfo.profilePicture && (
+          {showProfilePicture && data.personalDetails.profilePictureUrl && (
             <img 
-              src={data.personalInfo.profilePicture} 
+              src={data.personalDetails.profilePictureUrl} 
               alt="Profile" 
               className="w-32 h-32 rounded-full object-cover border-4 border-indigo-200 mb-4"
             />
           )}
-          <h1 className="text-3xl font-black text-indigo-950 uppercase tracking-tight leading-none mb-2">{data.personalInfo.name}</h1>
-          <h2 className="text-sm font-bold text-indigo-600 uppercase tracking-widest">{data.personalInfo.title}</h2>
+          <h1 className="text-3xl font-black text-indigo-950 uppercase tracking-tight leading-none mb-2">{data.personalDetails.name}</h1>
+          <h2 className="text-sm font-bold text-indigo-600 uppercase tracking-widest">{data.personalDetails.title}</h2>
         </div>
 
         <div className="space-y-3 mt-4 text-xs text-indigo-900/80">
-          {data.personalInfo.email && (
+          {data.personalDetails.email && (
             <div className="flex items-center gap-2">
-              <span className="font-bold text-indigo-400">@</span> {data.personalInfo.email}
+              <span className="font-bold text-indigo-400">@</span> {data.personalDetails.email}
             </div>
           )}
-          {data.personalInfo.phone && (
+          {data.personalDetails.phone && (
             <div className="flex items-center gap-2">
-              <span className="font-bold text-indigo-400">#</span> {data.personalInfo.phone}
+              <span className="font-bold text-indigo-400">#</span> {data.personalDetails.phone}
             </div>
           )}
-          {data.personalInfo.location && (
+          {data.personalDetails.location && (
             <div className="flex items-center gap-2">
-              <span className="font-bold text-indigo-400">📍</span> {data.personalInfo.location}
+              <span className="font-bold text-indigo-400">📍</span> {data.personalDetails.location}
             </div>
           )}
-          {data.personalInfo.linkedin && (
+          {data.personalDetails.linkedin && (
             <div className="flex items-center gap-2">
-              <span className="font-bold text-indigo-400">in</span> {data.personalInfo.linkedin}
+              <span className="font-bold text-indigo-400">in</span> {data.personalDetails.linkedin}
             </div>
           )}
         </div>
@@ -1003,8 +1003,8 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
             <div className="flex flex-col gap-2">
               {data.skills.map((skill, index) => (
                 <div key={index} className="flex justify-between items-center text-xs">
-                  <span className="font-medium text-indigo-900">{skill.name}</span>
-                  {skill.level && <span className="text-indigo-400/80 italic text-[10px]">{skill.level}</span>}
+                  <span className="font-medium text-indigo-900">{skill.category}</span>
+                  {skill.items.join(', ') && <span className="text-indigo-400/80 italic text-[10px]">{skill.items.join(', ')}</span>}
                 </div>
               ))}
             </div>
@@ -1019,8 +1019,8 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
               {data.education.map((edu, index) => (
                 <div key={index} className="flex flex-col">
                   <span className="font-bold text-indigo-900 leading-tight">{edu.degree}</span>
-                  <span className="font-medium text-indigo-700">{edu.school}</span>
-                  <span className="text-indigo-500/80 mt-1">{edu.startDate} - {edu.endDate}</span>
+                  <span className="font-medium text-indigo-700">{edu.institution}</span>
+                  <span className="text-indigo-500/80 mt-1">{edu.duration}</span>
                 </div>
               ))}
             </div>
@@ -1030,12 +1030,12 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
 
       {/* RIGHT COLUMN */}
       <div className="col-span-2 p-8 flex flex-col gap-8">
-        {data.summary && (
+        {data.personalDetails.summary && (
           <div>
             <h3 className="text-lg font-black text-indigo-950 uppercase tracking-widest flex items-center gap-2 mb-3">
               <span className="w-4 h-1 bg-indigo-500 rounded-full"></span> Profile
             </h3>
-            <p className="text-sm text-slate-700 leading-relaxed">{data.summary}</p>
+            <p className="text-sm text-slate-700 leading-relaxed">{data.personalDetails.summary}</p>
           </div>
         )}
 
@@ -1050,12 +1050,12 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
                   <PageBreakHelper elementId={`exp-${index}`} />
                   <div className="absolute w-2 h-2 bg-indigo-500 rounded-full -left-[5px] top-1.5 ring-4 ring-white"></div>
                   <div className="flex justify-between items-baseline mb-1">
-                    <h4 className="font-bold text-slate-900 text-base">{exp.title}</h4>
-                    <span className="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">{exp.startDate} - {exp.endDate}</span>
+                    <h4 className="font-bold text-slate-900 text-base">{exp.role}</h4>
+                    <span className="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">{exp.duration}</span>
                   </div>
                   <div className="text-sm font-semibold text-indigo-700 mb-2">{exp.company} {exp.location && <span className="text-slate-400 font-normal">| {exp.location}</span>}</div>
                   <ul className="list-disc list-outside ml-4 space-y-1.5 text-xs text-slate-600">
-                    {exp.description.map((desc, i) => (
+                    {exp.responsibilities.map((desc, i) => (
                       <li key={i} className="pl-1 marker:text-indigo-300">{desc}</li>
                     ))}
                   </ul>
@@ -1100,36 +1100,36 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
   };
 
   const PageBreakHelper = ({ elementId }: { elementId: string }) => {
-    return pageBreaks?.has(elementId) && pageIndex === undefined ? <div className="break-before-page" /> : null;
+    return pageBreaks?.[elementId] && pageIndex === undefined ? <div className="break-before-page" /> : null;
   };
 
   return (
     <div className={getStyle("bg-white min-h-[11in] text-slate-800 p-10 font-mono")}>
       <header className="border-b-2 border-emerald-500 pb-6 mb-6 flex justify-between items-end">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter mb-1">&gt; {data.personalInfo.name}_</h1>
-          <h2 className="text-lg font-bold text-emerald-600">{data.personalInfo.title}</h2>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tighter mb-1">&gt; {data.personalDetails.name}_</h1>
+          <h2 className="text-lg font-bold text-emerald-600">{data.personalDetails.title}</h2>
         </div>
-        {showProfilePicture && data.personalInfo.profilePicture && (
-          <img src={data.personalInfo.profilePicture} alt="Profile" className="w-20 h-20 rounded shadow-sm border border-emerald-200 grayscale" />
+        {showProfilePicture && data.personalDetails.profilePictureUrl && (
+          <img src={data.personalDetails.profilePictureUrl} alt="Profile" className="w-20 h-20 rounded shadow-sm border border-emerald-200 grayscale" />
         )}
       </header>
 
       <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-600 mb-8 pb-4 border-b border-slate-200 border-dashed">
-        {data.personalInfo.email && <div><span className="text-emerald-500 font-bold">email:</span> {data.personalInfo.email}</div>}
-        {data.personalInfo.phone && <div><span className="text-emerald-500 font-bold">tel:</span> {data.personalInfo.phone}</div>}
-        {data.personalInfo.location && <div><span className="text-emerald-500 font-bold">loc:</span> {data.personalInfo.location}</div>}
-        {data.personalInfo.linkedin && <div><span className="text-emerald-500 font-bold">link:</span> {data.personalInfo.linkedin}</div>}
-        {data.personalInfo.website && <div><span className="text-emerald-500 font-bold">web:</span> {data.personalInfo.website}</div>}
+        {data.personalDetails.email && <div><span className="text-emerald-500 font-bold">email:</span> {data.personalDetails.email}</div>}
+        {data.personalDetails.phone && <div><span className="text-emerald-500 font-bold">tel:</span> {data.personalDetails.phone}</div>}
+        {data.personalDetails.location && <div><span className="text-emerald-500 font-bold">loc:</span> {data.personalDetails.location}</div>}
+        {data.personalDetails.linkedin && <div><span className="text-emerald-500 font-bold">link:</span> {data.personalDetails.linkedin}</div>}
+        {data.personalDetails.website && <div><span className="text-emerald-500 font-bold">web:</span> {data.personalDetails.website}</div>}
       </div>
 
       <div className="space-y-6">
         {sectionOrder.map((sectionName) => {
-          if (sectionName === 'summary' && data.summary) {
+          if (sectionName === 'summary' && data.personalDetails.summary) {
             return (
               <section key="summary">
                 <h3 className="text-sm font-bold text-slate-900 uppercase bg-emerald-100 inline-block px-2 py-1 mb-3">~/{sectionName}</h3>
-                <p className="text-sm text-slate-700 leading-relaxed pl-2 border-l-2 border-emerald-200">{data.summary}</p>
+                <p className="text-sm text-slate-700 leading-relaxed pl-2 border-l-2 border-emerald-200">{data.personalDetails.summary}</p>
               </section>
             );
           }
@@ -1142,11 +1142,11 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
                     <div key={index}>
                       <PageBreakHelper elementId={`exp-${index}`} />
                       <div className="flex justify-between items-baseline mb-1">
-                        <h4 className="font-bold text-slate-900 text-sm">## {exp.title} @ {exp.company}</h4>
-                        <span className="text-xs text-slate-500">[{exp.startDate} - {exp.endDate}]</span>
+                        <h4 className="font-bold text-slate-900 text-sm">## {exp.role} @ {exp.company}</h4>
+                        <span className="text-xs text-slate-500">[{exp.duration}]</span>
                       </div>
                       <ul className="list-none space-y-1.5 text-xs text-slate-700 mt-2">
-                        {exp.description.map((desc, i) => (
+                        {exp.responsibilities.map((desc, i) => (
                           <li key={i} className="flex gap-2"><span className="text-emerald-400">*</span> <span>{desc}</span></li>
                         ))}
                       </ul>
@@ -1163,7 +1163,7 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
                 <div className="flex flex-wrap gap-2 pl-2 border-l-2 border-emerald-200">
                   {data.skills.map((skill, index) => (
                     <div key={index} className="text-xs bg-slate-100 text-slate-800 px-2 py-1 rounded border border-slate-200">
-                      {skill.name} {skill.level && <span className="text-emerald-600 font-bold ml-1">({skill.level})</span>}
+                      {skill.category} {skill.items.join(', ') && <span className="text-emerald-600 font-bold ml-1">({skill.items.join(', ')})</span>}
                     </div>
                   ))}
                 </div>
@@ -1179,9 +1179,9 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
                     <div key={index} className="flex justify-between items-baseline">
                       <div>
                         <div className="font-bold text-slate-900 text-sm">{edu.degree}</div>
-                        <div className="text-xs text-slate-600">{edu.school}</div>
+                        <div className="text-xs text-slate-600">{edu.institution}</div>
                       </div>
-                      <div className="text-xs text-slate-500">[{edu.startDate} - {edu.endDate}]</div>
+                      <div className="text-xs text-slate-500">[{edu.duration}]</div>
                     </div>
                   ))}
                 </div>
@@ -1228,31 +1228,31 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
   };
 
   const PageBreakHelper = ({ elementId }: { elementId: string }) => {
-    return pageBreaks?.has(elementId) && pageIndex === undefined ? <div className="break-before-page" /> : null;
+    return pageBreaks?.[elementId] && pageIndex === undefined ? <div className="break-before-page" /> : null;
   };
 
   return (
     <div className={getStyle("bg-[#fdfcfb] min-h-[11in] text-slate-900 p-12")}>
       <header className="text-center mb-8">
-        <h1 className="text-3xl font-normal text-slate-900 mb-2 uppercase tracking-widest">{data.personalInfo.name}</h1>
-        {data.personalInfo.title && <h2 className="text-sm font-italic text-slate-600 mb-4">{data.personalInfo.title}</h2>}
+        <h1 className="text-3xl font-normal text-slate-900 mb-2 uppercase tracking-widest">{data.personalDetails.name}</h1>
+        {data.personalDetails.title && <h2 className="text-sm font-italic text-slate-600 mb-4">{data.personalDetails.title}</h2>}
         
         <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-[11px] text-slate-700 font-sans">
-          {data.personalInfo.email && <span>{data.personalInfo.email}</span>}
-          {data.personalInfo.phone && <><span className="text-slate-300">•</span><span>{data.personalInfo.phone}</span></>}
-          {data.personalInfo.location && <><span className="text-slate-300">•</span><span>{data.personalInfo.location}</span></>}
-          {data.personalInfo.linkedin && <><span className="text-slate-300">•</span><span>{data.personalInfo.linkedin}</span></>}
-          {data.personalInfo.website && <><span className="text-slate-300">•</span><span>{data.personalInfo.website}</span></>}
+          {data.personalDetails.email && <span>{data.personalDetails.email}</span>}
+          {data.personalDetails.phone && <><span className="text-slate-300">•</span><span>{data.personalDetails.phone}</span></>}
+          {data.personalDetails.location && <><span className="text-slate-300">•</span><span>{data.personalDetails.location}</span></>}
+          {data.personalDetails.linkedin && <><span className="text-slate-300">•</span><span>{data.personalDetails.linkedin}</span></>}
+          {data.personalDetails.website && <><span className="text-slate-300">•</span><span>{data.personalDetails.website}</span></>}
         </div>
       </header>
 
       <div className="space-y-6">
         {sectionOrder.map((sectionName) => {
-          if (sectionName === 'summary' && data.summary) {
+          if (sectionName === 'summary' && data.personalDetails.summary) {
             return (
               <section key="summary">
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest border-b border-slate-300 pb-1 mb-3">Curriculum Vitae</h3>
-                <p className="text-sm text-slate-800 leading-relaxed text-justify indent-8">{data.summary}</p>
+                <p className="text-sm text-slate-800 leading-relaxed text-justify indent-8">{data.personalDetails.summary}</p>
               </section>
             );
           }
@@ -1265,9 +1265,9 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
                     <div key={index} className="flex flex-col">
                       <div className="flex justify-between items-baseline">
                         <span className="font-bold text-sm text-slate-900">{edu.degree}</span>
-                        <span className="text-xs text-slate-700">{edu.startDate} – {edu.endDate}</span>
+                        <span className="text-xs text-slate-700">{edu.duration}</span>
                       </div>
-                      <span className="italic text-sm text-slate-800">{edu.school}</span>
+                      <span className="italic text-sm text-slate-800">{edu.institution}</span>
                     </div>
                   ))}
                 </div>
@@ -1283,12 +1283,12 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
                     <div key={index}>
                       <PageBreakHelper elementId={`exp-${index}`} />
                       <div className="flex justify-between items-baseline mb-1">
-                        <h4 className="font-bold text-slate-900 text-sm">{exp.title}</h4>
-                        <span className="text-xs text-slate-700">{exp.startDate} – {exp.endDate}</span>
+                        <h4 className="font-bold text-slate-900 text-sm">{exp.role}</h4>
+                        <span className="text-xs text-slate-700">{exp.duration}</span>
                       </div>
                       <div className="italic text-sm text-slate-800 mb-2">{exp.company}{exp.location && `, ${exp.location}`}</div>
                       <ul className="list-disc list-outside ml-5 space-y-1 text-[13px] text-slate-800 text-justify">
-                        {exp.description.map((desc, i) => (
+                        {exp.responsibilities.map((desc, i) => (
                           <li key={i} className="pl-2">{desc}</li>
                         ))}
                       </ul>
@@ -1303,7 +1303,7 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
               <section key="skills">
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest border-b border-slate-300 pb-1 mb-3">Core Competencies</h3>
                 <div className="text-[13px] text-slate-800 leading-relaxed">
-                  {data.skills.map(s => s.name).join(' • ')}
+                  {data.skills.map(s => s.category).join(' • ')}
                 </div>
               </section>
             );
