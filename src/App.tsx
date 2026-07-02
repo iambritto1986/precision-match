@@ -685,40 +685,39 @@ export default function App() {
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Source Information</h3>
                     
                     <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileUpload} accept=".pdf,.docx,.txt" />
-                    
-                    <div className="grid grid-cols-3 gap-3">
+                                    <div className="grid grid-cols-3 gap-3">
                       <div 
-                        className="border-2 border-dashed border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center text-center hover:border-blue-300 cursor-pointer transition-all bg-slate-50 group hover:bg-blue-50/30"
+                        className="border border-white/10 border-dashed rounded-xl p-3 flex flex-col items-center justify-center text-center hover:border-indigo-500/40 cursor-pointer transition-all bg-white/[0.03] group hover:bg-white/[0.07]"
                         onClick={() => fileInputRef.current?.click()}
                       >
                          {isUploading ? (
-                            <RefreshCw className="w-5 h-5 text-blue-500 mb-2 animate-spin" />
+                            <RefreshCw className="w-5 h-5 text-indigo-400 mb-2 animate-spin" />
                          ) : (
-                            <Upload className="w-5 h-5 text-slate-400 mb-2 group-hover:text-blue-500 transition-colors" />
+                            <Upload className="w-5 h-5 text-slate-400 mb-2 group-hover:text-indigo-400 transition-colors" />
                          )}
-                         <p className="text-[11px] font-semibold text-slate-700 leading-tight">{isUploading ? 'Parsing...' : 'Upload File'}</p>
-                         <p className="text-[9px] text-slate-400 mt-1">PDF/DOCX</p>
+                         <p className="text-[11px] font-semibold text-slate-300 leading-tight">{isUploading ? 'Parsing...' : 'Upload File'}</p>
+                         <p className="text-[9px] text-slate-500 mt-1">PDF/DOCX</p>
                       </div>
                       <div 
                          onClick={() => setIngestionModal('linkedin')}
-                         className="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center text-center bg-white cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition-all shadow-sm"
+                         className="border border-white/10 rounded-xl p-3 flex flex-col items-center justify-center text-center bg-white/[0.03] cursor-pointer hover:border-blue-500/40 hover:bg-white/[0.07] transition-all"
                       >
-                         <Linkedin className="w-5 h-5 text-blue-500 mb-2" />
-                         <p className="text-[11px] font-semibold text-slate-700 leading-tight">Sync LinkedIn</p>
-                         <p className="text-[9px] text-slate-400 mt-1">Paste URL</p>
+                         <Linkedin className="w-5 h-5 text-blue-400 mb-2" />
+                         <p className="text-[11px] font-semibold text-slate-300 leading-tight">Sync LinkedIn</p>
+                         <p className="text-[9px] text-slate-500 mt-1">Paste URL</p>
                       </div>
                       <div 
                          onClick={() => setIngestionModal('paste')}
-                         className="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center text-center bg-white cursor-pointer hover:border-green-300 hover:bg-green-50/30 transition-all shadow-sm"
+                         className="border border-white/10 rounded-xl p-3 flex flex-col items-center justify-center text-center bg-white/[0.03] cursor-pointer hover:border-emerald-500/40 hover:bg-white/[0.07] transition-all"
                       >
-                         <FileText className="w-5 h-5 text-green-500 mb-2" />
-                         <p className="text-[11px] font-semibold text-slate-700 leading-tight">Paste Data</p>
-                         <p className="text-[9px] text-slate-400 mt-1">Manual Entry</p>
+                         <FileText className="w-5 h-5 text-emerald-400 mb-2" />
+                         <p className="text-[11px] font-semibold text-slate-300 leading-tight">Paste Data</p>
+                         <p className="text-[9px] text-slate-500 mt-1">Manual Entry</p>
                       </div>
-                    </div>
+                    </div></div>
                     
                     {baseContext && (
-                       <div className="text-xs text-slate-600 bg-slate-50 p-3 rounded border border-slate-100 max-h-32 overflow-y-auto">
+                       <div className="text-xs text-slate-400 bg-white/[0.03] p-3 rounded-lg border border-white/10 max-h-32 overflow-y-auto">
                          <strong>Extracted text context:</strong><br />
                          {baseContext}
                        </div>
@@ -728,14 +727,14 @@ export default function App() {
                  <div className="space-y-3 flex-1 flex flex-col">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Tailor to Job Description</h3>
                     <textarea 
-                      className="w-full flex-1 p-4 text-xs lg:text-sm border border-slate-200 rounded-lg focus:ring-2 focus:border-blue-500 focus:outline-none placeholder:text-slate-300 resize-none font-inter text-slate-700 shadow-inner min-h-[120px]" 
+                      className="w-full flex-1 p-4 text-xs lg:text-sm glass-input rounded-xl resize-none font-inter min-h-[120px]" 
                       placeholder="Paste the target job description here..."
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
                     />
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mt-2">Custom Instructions</h3>
                     <textarea 
-                      className="w-full p-4 text-xs lg:text-sm border border-slate-200 rounded-lg focus:ring-2 focus:border-blue-500 focus:outline-none placeholder:text-slate-300 resize-none font-inter text-slate-700 shadow-inner min-h-[80px]" 
+                      className="w-full p-4 text-xs lg:text-sm glass-input rounded-xl resize-none font-inter min-h-[80px]" 
                       placeholder="e.g. Keep it strictly to one page, highlight my leadership skills..."
                       value={instructions}
                       onChange={(e) => setInstructions(e.target.value)}
@@ -743,7 +742,7 @@ export default function App() {
                     <button 
                       onClick={generateResume}
                       disabled={isGenerating}
-                      className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-bold rounded shadow-lg shadow-blue-500/10 transition-all flex items-center justify-center disabled:opacity-70 mt-4 shrink-0"
+                      className="w-full py-3.5 glass-button-primary text-sm rounded-xl flex items-center justify-center disabled:opacity-70 mt-4 shrink-0"
                     >
                       {isGenerating ? (
                         <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Generating Magic...</>
@@ -766,14 +765,14 @@ export default function App() {
              {workspaceSubTab === 'layout' && (
                <div className="flex-1 flex flex-col space-y-6">
                  {/* Fonts & Images */}
-                 <div className="space-y-4 border-b pb-6">
+                 <div className="space-y-4 border-b border-white/10 pb-6">
                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Typography & Style</h3>
                    
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <div>
-                       <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Font Family</label>
+                       <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Font Family</label>
                        <select 
-                         className="w-full text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                         className="w-full text-xs font-semibold text-slate-200 bg-white/5 border border-white/10 px-3 py-2 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50"
                          value={fontFamily}
                          onChange={(e) => setFontFamily(e.target.value)}
                        >
@@ -791,14 +790,14 @@ export default function App() {
                      </div>
 
                      <div>
-                       <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Profile Photo</label>
-                       <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg">
-                         <span className="text-xs text-slate-600 flex-1">Show Photo</span>
+                       <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Profile Photo</label>
+                       <div className="flex items-center space-x-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+                         <span className="text-xs text-slate-400 flex-1">Show Photo</span>
                          <button 
                            onClick={() => setShowProfilePicture(!showProfilePicture)}
-                           className={`w-8 h-4 rounded-full relative transition-colors ${showProfilePicture ? 'bg-blue-500' : 'bg-slate-300'}`}
+                           className={`w-8 h-4 rounded-full relative transition-colors ${showProfilePicture ? 'bg-indigo-500' : 'bg-slate-600'}`}
                          >
-                           <div className={`absolute top-0 w-4 h-4 rounded-full bg-white border border-slate-200 transition-all ${showProfilePicture ? 'right-0' : 'left-0'}`}></div>
+                           <div className={`absolute top-0 w-4 h-4 rounded-full bg-white border border-white/20 transition-all ${showProfilePicture ? 'right-0' : 'left-0'}`}></div>
                          </button>
                        </div>
                      </div>
@@ -812,7 +811,7 @@ export default function App() {
                        accept="image/*" 
                        onChange={handleProfilePictureUpload} 
                      />
-                     <label htmlFor="pic-upload-layout" className="flex-1 text-center py-2.5 border border-slate-200 bg-white hover:bg-slate-50 rounded-lg text-xs font-semibold cursor-pointer shadow-sm text-slate-700 transition">
+                     <label htmlFor="pic-upload-layout" className="flex-1 text-center py-2.5 border border-white/10 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-semibold cursor-pointer text-slate-300 transition">
                        Upload Photo
                      </label>
 
@@ -842,7 +841,7 @@ export default function App() {
                              } catch(e) { console.error(e); alert("Failed to enhance photo"); }
                              finally { setIsUploading(false); }
                            }}
-                           className="flex-1 py-2.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg text-xs font-bold text-purple-700 transition flex items-center justify-center gap-1.5"
+                           className="flex-1 py-2.5 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 rounded-lg text-xs font-bold text-purple-300 transition flex items-center justify-center gap-1.5"
                         >
                            {isUploading ? 'Enhancing...' : <>Sparkles <Sparkles className="w-3.5 h-3.5" /> AI Enhance</>}
                         </button>
@@ -856,24 +855,24 @@ export default function App() {
                     <p className="text-[11px] text-slate-400">Reorder sections on your page and set where you want page breaks to begin for multi-page exports.</p>
                     <div className="flex flex-col gap-2">
                        {sectionOrder.map((sec, i) => (
-                          <div key={sec} className="bg-slate-50 border border-slate-200 p-3 rounded-xl hover:bg-slate-100/70 transition-colors">
-                             <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-slate-700 capitalize cursor-default">
+                          <div key={sec} className="bg-white/[0.04] border border-white/10 p-3 rounded-xl hover:bg-white/[0.08] transition-colors">
+                             <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-slate-300 capitalize cursor-default">
                                 <span>{sec}</span>
                                 <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                                    <button disabled={i === 0} onClick={() => {
                                       const newOrder = [...sectionOrder];
                                       [newOrder[i - 1], newOrder[i]] = [newOrder[i], newOrder[i - 1]];
                                       setSectionOrder(newOrder);
-                                   }} className="p-1 hover:bg-slate-200 rounded disabled:opacity-30 transition-opacity text-slate-500"><ChevronUp className="w-3.5 h-3.5"/></button>
+                                   }} className="p-1 hover:bg-white/10 rounded disabled:opacity-30 transition-opacity text-slate-400"><ChevronUp className="w-3.5 h-3.5"/></button>
                                    <button disabled={i === sectionOrder.length - 1} onClick={() => {
                                       const newOrder = [...sectionOrder];
                                       [newOrder[i], newOrder[i + 1]] = [newOrder[i + 1], newOrder[i]];
                                       setSectionOrder(newOrder);
-                                   }} className="p-1 hover:bg-slate-200 rounded disabled:opacity-30 transition-opacity text-slate-500"><ChevronDown className="w-3.5 h-3.5"/></button>
+                                   }} className="p-1 hover:bg-white/10 rounded disabled:opacity-30 transition-opacity text-slate-400"><ChevronDown className="w-3.5 h-3.5"/></button>
                                 </div>
                              </div>
-                             <div className="flex items-center space-x-2 pt-2 mt-2 border-t border-slate-200/60">
-                                 <input type="checkbox" id={`pb-${sec}`} checked={!!pageBreaks[sec]} onChange={(e) => setPageBreaks(p => ({ ...p, [sec]: e.target.checked }))} className="w-3.5 h-3.5 text-blue-600 focus:ring-blue-500 rounded border-gray-300" />
+                             <div className="flex items-center space-x-2 pt-2 mt-2 border-t border-white/[0.06]">
+                                 <input type="checkbox" id={`pb-${sec}`} checked={!!pageBreaks[sec]} onChange={(e) => setPageBreaks(p => ({ ...p, [sec]: e.target.checked }))} className="w-3.5 h-3.5 text-indigo-500 focus:ring-indigo-500/50 rounded border-white/20 bg-white/5" />
                                  <label htmlFor={`pb-${sec}`} className="text-[10px] text-slate-500 uppercase font-bold tracking-wider cursor-pointer">Add Page Break After</label>
                              </div>
                           </div>
@@ -884,10 +883,10 @@ export default function App() {
              )}
           </section>
 
-          <section className="flex-1 bg-slate-100 overflow-y-auto scroll-hide flex flex-col p-6 items-center">
+          <section className="flex-1 bg-white/[0.03] overflow-y-auto scroll-hide flex flex-col p-6 items-center">
              
              {/* PDF Preview Zoom & Nav Toolbar */}
-             <div className="w-full max-w-[816px] flex items-center justify-between mb-4 shrink-0 bg-white px-4 py-2 border border-slate-200 rounded-xl shadow-sm z-10">
+             <div className="w-full max-w-[816px] flex items-center justify-between mb-4 shrink-0 glass px-4 py-2 rounded-xl z-10">
                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-green-500" />
                   PDF Resume Live Preview
@@ -896,25 +895,25 @@ export default function App() {
                <div className="flex items-center space-x-3 text-slate-600">
                   <button 
                     onClick={() => setZoomScale(prev => Math.max(0.5, prev - 0.05))} 
-                    className="p-1.5 hover:bg-slate-50 rounded-lg border border-slate-200 hover:text-slate-800 transition"
+                    className="p-1.5 hover:bg-white/10 rounded-lg border border-white/10 text-slate-400 hover:text-slate-200 transition"
                     title="Zoom Out"
                   >
                      <ZoomOut className="w-3.5 h-3.5" />
                   </button>
-                  <span className="text-[11px] font-mono font-bold bg-slate-50 border border-slate-200 px-2 py-0.5 rounded text-slate-700 select-none">
+                  <span className="text-[11px] font-mono font-bold bg-white/5 border border-white/10 px-2 py-0.5 rounded text-slate-300 select-none">
                      {Math.round(zoomScale * 100)}%
                   </span>
                   <button 
                     onClick={() => setZoomScale(prev => Math.min(1.5, prev + 0.05))} 
-                    className="p-1.5 hover:bg-slate-50 rounded-lg border border-slate-200 hover:text-slate-800 transition"
+                    className="p-1.5 hover:bg-white/10 rounded-lg border border-white/10 text-slate-400 hover:text-slate-200 transition"
                     title="Zoom In"
                   >
                      <ZoomIn className="w-3.5 h-3.5" />
                   </button>
-                  <div className="w-px h-4 bg-slate-200"></div>
+                  <div className="w-px h-4 bg-white/10"></div>
                   <button 
                     onClick={() => setZoomScale(0.85)} 
-                    className="p-1.5 hover:bg-slate-50 rounded-lg border border-slate-200 hover:text-slate-800 transition text-[10px] font-bold uppercase tracking-wider"
+                    className="p-1.5 hover:bg-white/10 rounded-lg border border-white/10 text-slate-400 hover:text-slate-200 transition text-[10px] font-bold uppercase tracking-wider"
                     title="Fit to Page"
                   >
                      <Maximize2 className="w-3.5 h-3.5" />
@@ -962,7 +961,7 @@ export default function App() {
           </section>
         </div>
 
-        <footer className="h-20 bg-white border-t border-slate-200 px-8 flex items-center justify-between shrink-0">
+        <footer className="h-20 glass-header px-8 flex items-center justify-between shrink-0 relative z-10">
            <div className="flex items-center space-x-6">
              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center">
                Templates
@@ -972,19 +971,19 @@ export default function App() {
                  <div 
                    key={t.id}
                    onClick={() => setSelectedTemplate(t.id)}
-                   className={`w-32 h-10 border rounded flex items-center justify-center cursor-pointer transition-all ${
+                   className={`w-32 h-10 border rounded-lg flex items-center justify-center cursor-pointer transition-all ${
                      selectedTemplate === t.id 
-                       ? 'border-blue-500 shadow-[0_0_0_2px_rgba(59,130,246,0.2)] bg-blue-50' 
-                       : 'border-slate-200 hover:border-slate-400 bg-slate-50'
+                       ? 'border-indigo-500/50 shadow-[0_0_0_2px_rgba(99,102,241,0.2)] bg-indigo-500/10' 
+                       : 'border-white/10 hover:border-white/20 bg-white/5'
                    }`}
                  >
                    <span className={`text-[11px] font-bold uppercase tracking-wider ${
-                     selectedTemplate === t.id ? 'text-blue-700' : 'text-slate-500'
+                     selectedTemplate === t.id ? 'text-indigo-300' : 'text-slate-500'
                    }`}>{t.name}</span>
                  </div>
                ))}
                {selectedTemplate === 'aesthetic' && (
-                 <div className="flex items-center space-x-2 pl-4 ml-2 border-l border-slate-200">
+                 <div className="flex items-center space-x-2 pl-4 ml-2 border-l border-white/10">
                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-1">Color:</span>
                    {[
                      { id: 'default', color: 'bg-pink-400' },
@@ -1007,7 +1006,7 @@ export default function App() {
            <button 
              onClick={generateCoverLetter}
              disabled={isCoverLetterGenerating}
-             className="px-6 py-2.5 bg-slate-900 text-white text-xs font-bold rounded shadow-lg shadow-slate-200 hover:bg-slate-800 transition-all disabled:opacity-70 flex items-center"
+             className="px-6 py-2.5 glass-button-primary text-xs rounded-xl disabled:opacity-70 flex items-center"
            >
              {isCoverLetterGenerating ? (
                <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Auto-Writing...</>
@@ -1021,7 +1020,7 @@ export default function App() {
 
         {activeTab === 'edit' && (
           <div className="flex-1 flex flex-col p-8 bg-slate-50 items-center overflow-y-auto">
-             <div className="w-full max-w-4xl bg-white shadow-sm border border-slate-200 rounded-xl flex flex-col h-full overflow-hidden p-6">
+             <div className="w-full max-w-4xl glass-card flex flex-col h-full overflow-hidden p-6">
                 <div className="flex justify-between items-center mb-6">
                    <h2 className="text-xl font-black text-slate-800">Source Data Editor</h2>
                    <button 
@@ -1060,21 +1059,21 @@ export default function App() {
                  </div>
                  
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                        <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Total Users</p>
                        <p className="text-3xl font-black text-slate-900">{adminUsersInfo.length}</p>
                     </div>
-                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                        <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Pro Members</p>
                        <p className="text-3xl font-black text-blue-600">{adminUsersInfo.filter(u => u.isPro).length}</p>
                     </div>
-                    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                        <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Current Active Revenue (MRR)</p>
                        <p className="text-3xl font-black text-green-600">${adminUsersInfo.filter(u => u.isPro).length * 5}</p>
                     </div>
                  </div>
 
-                 <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                 <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
                     <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                        <h3 className="text-sm font-bold text-slate-800">User Registry</h3>
                     </div>
@@ -1110,7 +1109,7 @@ export default function App() {
                                            setAdminUsersInfo(prev => prev.map(user => user.id === u.id ? { ...user, isPro: !user.isPro } : user));
                                          } catch(e) { console.error("Error toggling pro", e); }
                                        }}
-                                       className="text-[10px] uppercase font-bold text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-white border border-slate-200 px-3 py-1.5 rounded transition"
+                                       className="text-[10px] uppercase font-bold text-slate-400 hover:text-blue-400 bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded transition"
                                      >
                                        {u.isPro ? 'Revoke Pro' : 'Grant Pro'}
                                      </button>
@@ -1123,7 +1122,7 @@ export default function App() {
                                            setAdminUsersInfo(prev => prev.map(user => user.id === u.id ? { ...user, credits: newCredits } : user));
                                          } catch(e) { console.error("Error adding credits", e); }
                                        }}
-                                       className="text-[10px] uppercase font-bold text-slate-500 hover:text-green-600 bg-slate-100 hover:bg-white border border-slate-200 px-3 py-1.5 rounded transition"
+                                       className="text-[10px] uppercase font-bold text-slate-400 hover:text-green-400 bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded transition"
                                      >
                                        Add Credits
                                      </button>
@@ -1146,7 +1145,7 @@ export default function App() {
                                            }
                                          } catch(e) { console.error("Error refunding", e); alert("Failed to issue refund."); }
                                        }}
-                                       className="text-[10px] uppercase font-bold text-slate-500 hover:text-red-600 bg-slate-100 hover:bg-white border border-slate-200 px-3 py-1.5 rounded transition"
+                                       className="text-[10px] uppercase font-bold text-slate-400 hover:text-red-400 bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded transition"
                                      >
                                        Refund
                                      </button>
@@ -1387,7 +1386,7 @@ export default function App() {
                     onClick={() => {
                       fileInputRef.current?.click();
                     }}
-                    className="border border-slate-200 hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/5 rounded-xl p-5 bg-white cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
+                    className="border border-white/10 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-500/5 rounded-xl p-5 bg-white/5 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
                   >
                     <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">
                       <Upload className="w-6 h-6" />
@@ -1399,7 +1398,7 @@ export default function App() {
                   {/* Card 2: Sync LinkedIn */}
                   <div 
                     onClick={() => setOnboardingStep('linkedin')}
-                    className="border border-slate-200 hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/5 rounded-xl p-5 bg-white cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
+                    className="border border-white/10 hover:border-indigo-500/40 hover:shadow-xl hover:shadow-indigo-500/5 rounded-xl p-5 bg-white/5 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
                   >
                     <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-100 transition-colors">
                       <Linkedin className="w-6 h-6" />
@@ -1419,7 +1418,7 @@ export default function App() {
                       setIsOnboarding(false);
                       setWorkspaceSubTab('form');
                     }}
-                    className="border border-slate-200 hover:border-emerald-500 hover:shadow-xl hover:shadow-emerald-500/5 rounded-xl p-5 bg-white cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
+                    className="border border-white/10 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/5 rounded-xl p-5 bg-white/5 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
                   >
                     <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 group-hover:bg-emerald-100 transition-colors">
                       <FileText className="w-6 h-6" />
