@@ -243,7 +243,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
               onClick={() => setActiveSection(item.id)}
               className={`flex items-center gap-2.5 px-4 py-3 text-xs font-bold uppercase tracking-wider text-left border-b md:border-b-0 md:border-l-2 transition-all shrink-0 form-section-header ${
                 active
-                  ? 'bg-white/10 border-indigo-400 text-indigo-300 md:border-l-indigo-400 font-bold'
+                  ? 'bg-[var(--accent-primary)]/10 border-indigo-400 text-indigo-300 md:border-l-indigo-400 font-bold'
                   : 'border-transparent text-slate-500 hover:bg-white/5 hover:text-slate-300 font-medium'
               }`}
             >
@@ -266,7 +266,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                   type="text"
                   value={data.personalDetails.name}
                   onChange={e => updatePersonal('name', e.target.value)}
-                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
+                  className="w-full tech-input rounded-lg px-3 py-2 text-sm"
                   placeholder="Alex Rivera"
                 />
               </div>
@@ -276,7 +276,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                   type="text"
                   value={data.personalDetails.title}
                   onChange={e => updatePersonal('title', e.target.value)}
-                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
+                  className="w-full tech-input rounded-lg px-3 py-2 text-sm"
                   placeholder="Software Engineer"
                 />
               </div>
@@ -286,7 +286,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                   type="email"
                   value={data.personalDetails.email}
                   onChange={e => updatePersonal('email', e.target.value)}
-                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
+                  className="w-full tech-input rounded-lg px-3 py-2 text-sm"
                   placeholder="alex@example.com"
                 />
               </div>
@@ -296,7 +296,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                   type="text"
                   value={data.personalDetails.phone}
                   onChange={e => updatePersonal('phone', e.target.value)}
-                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
+                  className="w-full tech-input rounded-lg px-3 py-2 text-sm"
                   placeholder="+1 555 0123"
                 />
               </div>
@@ -306,7 +306,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                   type="text"
                   value={data.personalDetails.location}
                   onChange={e => updatePersonal('location', e.target.value)}
-                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
+                  className="w-full tech-input rounded-lg px-3 py-2 text-sm"
                   placeholder="New York, NY"
                 />
               </div>
@@ -316,7 +316,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                   type="text"
                   value={data.personalDetails.linkedin}
                   onChange={e => updatePersonal('linkedin', e.target.value)}
-                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
+                  className="w-full tech-input rounded-lg px-3 py-2 text-sm"
                   placeholder="linkedin.com/in/alexrivera"
                 />
               </div>
@@ -326,7 +326,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                   type="text"
                   value={data.personalDetails.website || ''}
                   onChange={e => updatePersonal('website', e.target.value)}
-                  className="w-full glass-input rounded-lg px-3 py-2 text-sm"
+                  className="w-full tech-input rounded-lg px-3 py-2 text-sm"
                   placeholder="alexrivera.com"
                 />
               </div>
@@ -336,7 +336,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                   value={data.personalDetails.summary}
                   onChange={e => updatePersonal('summary', e.target.value)}
                   rows={4}
-                  className="w-full glass-input rounded-lg px-3 py-2 text-sm resize-none"
+                  className="w-full tech-input rounded-lg px-3 py-2 text-sm resize-none"
                   placeholder="Write a brief professional summary..."
                 />
               </div>
@@ -361,7 +361,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
             ) : (
               <div className="space-y-4">
                 {(data.experience || []).map((exp, idx) => (
-                  <div key={idx} className="border border-slate-200 rounded-xl p-4 bg-slate-50/30 relative form-card-item">
+                  <div key={idx} className="rounded-xl p-4 bg-transparent relative form-card-item">
                     <button
                       onClick={() => removeListItem('experience', idx)}
                       className="absolute top-4 right-4 text-slate-400 hover:text-red-500 p-1 rounded-lg hover:bg-red-50 transition"
@@ -376,7 +376,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={exp.company}
                           onChange={e => updateListItem('experience', idx, 'company', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="Acme Corp"
                         />
                       </div>
@@ -386,7 +386,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={exp.role}
                           onChange={e => updateListItem('experience', idx, 'role', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="Senior Developer"
                         />
                       </div>
@@ -396,7 +396,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={exp.duration}
                           onChange={e => updateListItem('experience', idx, 'duration', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="Jan 2022 — Present"
                         />
                       </div>
@@ -406,7 +406,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={exp.location}
                           onChange={e => updateListItem('experience', idx, 'location', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="Remote / New York"
                         />
                       </div>
@@ -427,7 +427,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                               type="text"
                               value={resp}
                               onChange={e => updateResponsibility(idx, respIdx, e.target.value)}
-                              className="flex-1 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                              className="flex-1 rounded-lg px-3 py-1.5 text-sm tech-input"
                               placeholder="Led a team of..."
                             />
                             <button
@@ -464,7 +464,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
             ) : (
               <div className="space-y-4">
                 {(data.skills || []).map((skillGroup, idx) => (
-                  <div key={idx} className="flex flex-col md:flex-row gap-4 border border-slate-200 rounded-xl p-4 bg-slate-50/30 relative form-card-item">
+                  <div key={idx} className="flex flex-col md:flex-row gap-4 rounded-xl p-4 bg-transparent relative form-card-item">
                     <button
                       onClick={() => removeSkillCategory(idx)}
                       className="absolute top-4 right-4 text-slate-400 hover:text-red-500 p-1 rounded-lg hover:bg-red-50 transition md:relative md:top-auto md:right-auto md:self-end md:mb-1 shrink-0"
@@ -479,7 +479,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={skillGroup.category}
                           onChange={e => updateSkillCategory(idx, e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="e.g. Design Tools"
                         />
                       </div>
@@ -489,7 +489,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={(skillGroup.items || []).join(', ')}
                           onChange={e => updateSkillItems(idx, e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="Figma, Adobe CC, Sketch"
                         />
                         <span className="text-[9px] text-slate-400 mt-1 block">Separate multiple items with commas.</span>
@@ -519,7 +519,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
             ) : (
               <div className="space-y-4">
                 {(data.education || []).map((edu, idx) => (
-                  <div key={idx} className="border border-slate-200 rounded-xl p-4 bg-slate-50/30 relative form-card-item">
+                  <div key={idx} className="rounded-xl p-4 bg-transparent relative form-card-item">
                     <button
                       onClick={() => removeListItem('education', idx)}
                       className="absolute top-4 right-4 text-slate-400 hover:text-red-500 p-1 rounded-lg hover:bg-red-50 transition"
@@ -534,7 +534,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={edu.institution}
                           onChange={e => updateListItem('education', idx, 'institution', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="Harvard University"
                         />
                       </div>
@@ -544,7 +544,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={edu.degree}
                           onChange={e => updateListItem('education', idx, 'degree', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="B.S. in Computer Science"
                         />
                       </div>
@@ -554,7 +554,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={edu.duration}
                           onChange={e => updateListItem('education', idx, 'duration', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="2018 — 2022"
                         />
                       </div>
@@ -564,7 +564,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={edu.location}
                           onChange={e => updateListItem('education', idx, 'location', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="Cambridge, MA"
                         />
                       </div>
@@ -574,7 +574,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={edu.details}
                           onChange={e => updateListItem('education', idx, 'details', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="GPA 3.9, Honors Program"
                         />
                       </div>
@@ -603,7 +603,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
             ) : (
               <div className="space-y-4">
                 {(data.projects || []).map((proj, idx) => (
-                  <div key={idx} className="border border-slate-200 rounded-xl p-4 bg-slate-50/30 relative form-card-item">
+                  <div key={idx} className="rounded-xl p-4 bg-transparent relative form-card-item">
                     <button
                       onClick={() => removeListItem('projects', idx)}
                       className="absolute top-4 right-4 text-slate-400 hover:text-red-500 p-1 rounded-lg hover:bg-red-50 transition"
@@ -618,7 +618,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={proj.name}
                           onChange={e => updateListItem('projects', idx, 'name', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="AI Tool Dashboard"
                         />
                       </div>
@@ -628,7 +628,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={proj.role}
                           onChange={e => updateListItem('projects', idx, 'role', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="Lead Frontend Engineer"
                         />
                       </div>
@@ -638,7 +638,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={proj.duration}
                           onChange={e => updateListItem('projects', idx, 'duration', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="2024"
                         />
                       </div>
@@ -648,7 +648,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={proj.url || ''}
                           onChange={e => updateListItem('projects', idx, 'url', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="https://github.com/..."
                         />
                       </div>
@@ -658,7 +658,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           value={proj.description}
                           onChange={e => updateListItem('projects', idx, 'description', e.target.value)}
                           rows={3}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white resize-none"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input resize-none"
                           placeholder="Designed and built a web app that..."
                         />
                       </div>
@@ -687,7 +687,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
             ) : (
               <div className="space-y-4">
                 {(data.certifications || []).map((cert, idx) => (
-                  <div key={idx} className="border border-slate-200 rounded-xl p-4 bg-slate-50/30 relative form-card-item">
+                  <div key={idx} className="rounded-xl p-4 bg-transparent relative form-card-item">
                     <button
                       onClick={() => removeListItem('certifications', idx)}
                       className="absolute top-4 right-4 text-slate-400 hover:text-red-500 p-1 rounded-lg hover:bg-red-50 transition"
@@ -702,7 +702,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={cert.name}
                           onChange={e => updateListItem('certifications', idx, 'name', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="AWS Solutions Architect"
                         />
                       </div>
@@ -712,7 +712,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={cert.issuer}
                           onChange={e => updateListItem('certifications', idx, 'issuer', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="Amazon Web Services"
                         />
                       </div>
@@ -722,7 +722,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={cert.date}
                           onChange={e => updateListItem('certifications', idx, 'date', e.target.value)}
-                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          className="w-full rounded-lg px-3 py-1.5 text-sm tech-input"
                           placeholder="2023"
                         />
                       </div>
@@ -751,7 +751,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
             ) : (
               <div className="space-y-4">
                 {(data.customSections || []).map((cs, idx) => (
-                  <div key={cs.id} className="border border-slate-200 rounded-xl p-4 bg-slate-50/30 relative form-card-item">
+                  <div key={cs.id} className="rounded-xl p-4 bg-transparent relative form-card-item">
                     <button
                       onClick={() => removeCustomSection(cs.id)}
                       className="absolute top-4 right-4 text-slate-400 hover:text-red-500 p-1 rounded-lg hover:bg-red-50 transition"
@@ -766,7 +766,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           type="text"
                           value={cs.title}
                           onChange={e => updateCustomSectionTitle(cs.id, e.target.value)}
-                          className="w-full glass-input rounded-lg px-3 py-1.5 text-sm font-bold"
+                          className="w-full tech-input rounded-lg px-3 py-1.5 text-sm font-bold"
                           placeholder="Languages / Awards"
                         />
                       </div>
@@ -783,7 +783,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                         </div>
 
                         {(cs.items || []).map((item, itemIdx) => (
-                          <div key={itemIdx} className="border border-slate-100 rounded-lg p-3 bg-white relative">
+                          <div key={itemIdx} className="border border-slate-100 rounded-lg p-3 tech-input relative">
                             <button
                               onClick={() => removeCustomSectionItem(cs.id, itemIdx)}
                               className="absolute top-2 right-2 text-slate-400 hover:text-red-500 p-1"
@@ -798,7 +798,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                                   type="text"
                                   value={item.title}
                                   onChange={e => updateCustomSectionItemField(cs.id, itemIdx, 'title', e.target.value)}
-                                  className="w-full border border-slate-200 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
+                                  className="w-full rounded-md px-2 py-1 text-xs bg-transparent/50"
                                   placeholder="Item Title"
                                 />
                               </div>
@@ -808,7 +808,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                                   type="text"
                                   value={item.subtitle || ''}
                                   onChange={e => updateCustomSectionItemField(cs.id, itemIdx, 'subtitle', e.target.value)}
-                                  className="w-full border border-slate-200 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
+                                  className="w-full rounded-md px-2 py-1 text-xs bg-transparent/50"
                                   placeholder="Sub description"
                                 />
                               </div>
@@ -818,7 +818,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                                   type="text"
                                   value={item.date || ''}
                                   onChange={e => updateCustomSectionItemField(cs.id, itemIdx, 'date', e.target.value)}
-                                  className="w-full border border-slate-200 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50"
+                                  className="w-full rounded-md px-2 py-1 text-xs bg-transparent/50"
                                   placeholder="2023"
                                 />
                               </div>
@@ -828,7 +828,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                                   value={item.description || ''}
                                   onChange={e => updateCustomSectionItemField(cs.id, itemIdx, 'description', e.target.value)}
                                   rows={2}
-                                  className="w-full border border-slate-200 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50 resize-none"
+                                  className="w-full rounded-md px-2 py-1 text-xs bg-transparent/50 resize-none"
                                   placeholder="Describe the item..."
                                 />
                               </div>

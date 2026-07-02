@@ -470,7 +470,7 @@ export default function App() {
     { id: 'minimalist', name: 'Minimal', previewClass: 'bg-slate-900 border text-white' },
     { id: 'executive', name: 'Executive', previewClass: 'bg-white border text-white' },
     { id: 'aesthetic', name: 'Aesthetic', previewClass: 'bg-pink-50 border text-pink-600' },
-    { id: 'creative', name: 'Creative', previewClass: 'bg-indigo-500/20 border-indigo-200 text-indigo-700' },
+    { id: 'creative', name: 'Creative', previewClass: 'bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/20 border-indigo-200 text-indigo-700' },
     { id: 'tech', name: 'Tech', previewClass: 'bg-slate-950 border-emerald-500/50 text-emerald-400 font-mono' },
     { id: 'academic', name: 'Academic', previewClass: 'bg-[#fcfaf8] border-stone-300 text-stone-800 font-serif' },
   ];
@@ -565,14 +565,14 @@ export default function App() {
                 if (!isPro) { setShowPricing(true); return; }
                 setActiveTab('chat'); 
             }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'chat' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                <MessageCircle className="w-4 h-4 mr-3" /> Career Chat {!isPro && <span className="ml-auto bg-indigo-500/200/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
+                <MessageCircle className="w-4 h-4 mr-3" /> Career Chat {!isPro && <span className="ml-auto bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/200/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
             </a>
             <a href="#" onClick={(e) => { 
                 e.preventDefault(); 
                 if (!isPro) { setShowPricing(true); return; }
                 setActiveTab('interview'); 
             }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'interview' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                <Mic className="w-4 h-4 mr-3"/> Live Interview {!isPro && <span className="ml-auto bg-indigo-500/200/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
+                <Mic className="w-4 h-4 mr-3"/> Live Interview {!isPro && <span className="ml-auto bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/200/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
             </a>
           </div>
           <div className="px-6 py-6 mt-4 border-t border-white/5 flex flex-col overflow-y-auto flex-1 min-h-0">
@@ -758,7 +758,7 @@ export default function App() {
                  <div className="space-y-3 flex-1 flex flex-col">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Tailor to Job Description</h3>
                     <textarea 
-                      className="w-full flex-1 p-4 text-xs lg:text-sm glass-input rounded-xl resize-none font-inter min-h-[120px]" 
+                      className="w-full flex-1 p-4 text-xs lg:text-sm tech-input rounded-xl resize-none font-inter min-h-[120px]" 
                       placeholder="Paste the target job description here..."
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
@@ -820,7 +820,7 @@ export default function App() {
 
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mt-4">Custom Instructions</h3>
                     <textarea 
-                      className="w-full p-4 text-xs lg:text-sm glass-input rounded-xl resize-none font-inter min-h-[80px]" 
+                      className="w-full p-4 text-xs lg:text-sm tech-input rounded-xl resize-none font-inter min-h-[80px]" 
                       placeholder="e.g. Keep it strictly to one page, highlight my leadership skills..."
                       value={instructions}
                       onChange={(e) => setInstructions(e.target.value)}
@@ -858,7 +858,7 @@ export default function App() {
                      <div>
                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Font Family</label>
                        <select 
-                         className="w-full text-xs font-semibold text-slate-200 bg-white/5 border border-white/10 px-3 py-2 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50"
+                         className="w-full text-xs font-semibold text-slate-200 tech-input px-3 py-2 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50"
                          value={fontFamily}
                          onChange={(e) => setFontFamily(e.target.value)}
                        >
@@ -877,11 +877,11 @@ export default function App() {
 
                      <div>
                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Profile Photo</label>
-                       <div className="flex items-center space-x-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+                       <div className="flex items-center space-x-2 tech-input px-3 py-1.5 rounded-lg">
                          <span className="text-xs text-slate-400 flex-1">Show Photo</span>
                          <button 
                            onClick={() => setShowProfilePicture(!showProfilePicture)}
-                           className={`w-8 h-4 rounded-full relative transition-colors ${showProfilePicture ? 'bg-indigo-500/200' : 'bg-slate-600'}`}
+                           className={`w-8 h-4 rounded-full relative transition-colors ${showProfilePicture ? 'bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/200' : 'bg-slate-600'}`}
                          >
                            <div className={`absolute top-0 w-4 h-4 rounded-full bg-white border border-white/20 transition-all ${showProfilePicture ? 'right-0' : 'left-0'}`}></div>
                          </button>
@@ -986,7 +986,7 @@ export default function App() {
                   >
                      <ZoomOut className="w-3.5 h-3.5" />
                   </button>
-                  <span className="text-[11px] font-mono font-bold bg-white/5 border border-white/10 px-2 py-0.5 rounded text-slate-300 select-none">
+                  <span className="text-[11px] font-mono font-bold tech-input px-2 py-0.5 rounded text-slate-300 select-none">
                      {Math.round(zoomScale * 100)}%
                   </span>
                   <button 
@@ -1059,7 +1059,7 @@ export default function App() {
                    onClick={() => setSelectedTemplate(t.id)}
                    className={`w-32 h-10 border rounded-lg flex items-center justify-center cursor-pointer transition-all ${
                      selectedTemplate === t.id 
-                       ? 'border-indigo-500/50 shadow-[0_0_0_2px_rgba(99,102,241,0.2)] bg-indigo-500/200/10' 
+                       ? 'border-indigo-500/50 shadow-[0_0_0_2px_rgba(99,102,241,0.2)] bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/200/10' 
                        : 'border-white/10 hover:border-white/20 bg-white/5'
                    }`}
                  >
@@ -1159,7 +1159,7 @@ export default function App() {
                     </div>
                  </div>
 
-                 <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+                 <div className="tech-input rounded-xl overflow-hidden">
                     <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                        <h3 className="text-sm font-bold text-white">User Registry</h3>
                     </div>
@@ -1328,14 +1328,14 @@ export default function App() {
                    type="text" 
                    value={ingestionInput} 
                    onChange={e => setIngestionInput(e.target.value)}
-                   className="w-full glass-input rounded-xl px-3 py-2 text-sm mb-4"
+                   className="w-full tech-input rounded-xl px-3 py-2 text-sm mb-4"
                    placeholder="https://linkedin.com/in/yourprofile"
                  />
               ) : (
                  <textarea 
                    value={ingestionInput}
                    onChange={e => setIngestionInput(e.target.value)}
-                   className="w-full h-32 glass-input rounded-xl px-3 py-2 text-sm mb-4 resize-none"
+                   className="w-full h-32 tech-input rounded-xl px-3 py-2 text-sm mb-4 resize-none"
                    placeholder="My name is... I have 5 years of experience in..."
                  />
               )}
@@ -1390,7 +1390,7 @@ export default function App() {
                  <textarea
                     value={sectionEditValue}
                     onChange={e => setSectionEditValue(e.target.value)}
-                    className="w-full h-[50vh] font-mono text-sm p-4 glass-input rounded-xl text-slate-200"
+                    className="w-full h-[50vh] font-mono text-sm p-4 tech-input rounded-xl text-slate-200"
                     spellCheck="false"
                  />
               </div>
@@ -1484,7 +1484,7 @@ export default function App() {
                     onClick={() => setOnboardingStep('linkedin')}
                     className="card cursor-pointer flex flex-col items-center justify-center text-center p-5 group" style={{border: "1px solid rgba(181,0,255,0.2)"}}
                   >
-                    <div className="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-500/40 transition-colors">
+                    <div className="w-12 h-12 rounded-full bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/20 text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/40 transition-colors">
                       <Linkedin className="w-6 h-6" />
                     </div>
                     <h3 className="text-sm font-bold text-white">LinkedIn Sync</h3>
@@ -1604,7 +1604,7 @@ export default function App() {
             <textarea
               value={feedbackText}
               onChange={e => setFeedbackText(e.target.value)}
-              className="w-full h-28 glass-input rounded-xl px-3 py-2 text-sm mb-4 resize-none"
+              className="w-full h-28 tech-input rounded-xl px-3 py-2 text-sm mb-4 resize-none"
               placeholder="What's on your mind?"
             />
             <div className="flex justify-end gap-3">
