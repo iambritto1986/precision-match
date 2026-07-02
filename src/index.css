@@ -59,6 +59,12 @@
    The key: background must be colorful enough to see THROUGH glass
    ═══════════════════════════════════════════════════════════════ */
 
+html {
+  font-size: 16px !important;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background: #0f0b1e;
   color: #e2e8f0;
