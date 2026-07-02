@@ -714,7 +714,7 @@ export default function App() {
                          <p className="text-[11px] font-semibold text-slate-300 leading-tight">Paste Data</p>
                          <p className="text-[9px] text-slate-500 mt-1">Manual Entry</p>
                       </div>
-                    </div></div>
+                    </div>
                     
                     {baseContext && (
                        <div className="text-xs text-slate-400 bg-white/[0.03] p-3 rounded-lg border border-white/10 max-h-32 overflow-y-auto">
