@@ -64,11 +64,13 @@ body {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.05) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 100%, rgba(181, 0, 255, 0.05) 0%, transparent 50%);
-  background-color: var(--bg-app);
+  background-image: url('/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: 0;
   pointer-events: none;
+  opacity: 0.85; /* Blend with deep space background color */
 }
 
 h1, h2, h3, h4 {
@@ -77,6 +79,26 @@ h1, h2, h3, h4 {
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
+
+/* Reset typography for resume preview so it stays black-on-white */
+#resume-preview-content h1, 
+#resume-preview-content h2, 
+#resume-preview-content h3, 
+#resume-preview-content h4,
+#resume-preview-content p,
+#resume-preview-content span,
+#resume-preview-content div {
+  color: inherit !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-family: 'Playfair Display', 'Inter', serif !important;
+}
+
+p, span, label { color: var(--text-secondary); }
+
+#resume-preview-content p,
+#resume-preview-content span,
+#resume-preview-content label { color: inherit !important; }
 
 /* Scrollbars */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -89,18 +111,18 @@ h1, h2, h3, h4 {
 
 /* 1. Layouts & Surfaces */
 .sidebar, .panel, .card {
-  background-color: var(--bg-surface);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(3, 7, 18, 0.5); /* Much more transparent */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  box-shadow: var(--border-glow);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.15), inset 0 0 10px rgba(0, 240, 255, 0.05);
   transition: all 250ms ease;
 }
 
 /* 2. Modals */
 .modal-container {
-  background-color: var(--bg-surface);
+  background-color: rgba(3, 7, 18, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(0, 240, 255, 0.4);
@@ -127,17 +149,7 @@ input[type="text"],
 input[type="email"], 
 textarea, 
 select,
-.tech-input {
-  background-color: var(--input-bg) !important;
-  color: var(--accent-primary) !important;
-  font-family: 'JetBrains Mono', monospace !important;
-  border: 1px solid rgba(100, 116, 139, 0.3) !important;
-  border-radius: var(--radius-sm);
-  padding: 12px 16px;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  width: 100%;
-}
+
 
 input[type="text"]:focus, 
 input[type="email"]:focus, 
