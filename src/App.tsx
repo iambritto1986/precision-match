@@ -466,11 +466,11 @@ export default function App() {
 
   const templates: { id: TemplateId, name: string, previewClass: string }[] = [
     { id: 'classic', name: 'Classic', previewClass: 'bg-white border-2 border-blue-500' },
-    { id: 'modern', name: 'Modern', previewClass: 'bg-white border text-blue-600' },
+    { id: 'modern', name: 'Modern', previewClass: 'bg-white border text-blue-400' },
     { id: 'minimalist', name: 'Minimal', previewClass: 'bg-slate-900 border text-white' },
-    { id: 'executive', name: 'Executive', previewClass: 'bg-white border text-slate-800' },
+    { id: 'executive', name: 'Executive', previewClass: 'bg-white border text-white' },
     { id: 'aesthetic', name: 'Aesthetic', previewClass: 'bg-pink-50 border text-pink-600' },
-    { id: 'creative', name: 'Creative', previewClass: 'bg-indigo-50 border-indigo-200 text-indigo-700' },
+    { id: 'creative', name: 'Creative', previewClass: 'bg-indigo-500/20 border-indigo-200 text-indigo-700' },
     { id: 'tech', name: 'Tech', previewClass: 'bg-slate-950 border-emerald-500/50 text-emerald-400 font-mono' },
     { id: 'academic', name: 'Academic', previewClass: 'bg-[#fcfaf8] border-stone-300 text-stone-800 font-serif' },
   ];
@@ -565,14 +565,14 @@ export default function App() {
                 if (!isPro) { setShowPricing(true); return; }
                 setActiveTab('chat'); 
             }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'chat' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                <MessageCircle className="w-4 h-4 mr-3" /> Career Chat {!isPro && <span className="ml-auto bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
+                <MessageCircle className="w-4 h-4 mr-3" /> Career Chat {!isPro && <span className="ml-auto bg-indigo-500/200/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
             </a>
             <a href="#" onClick={(e) => { 
                 e.preventDefault(); 
                 if (!isPro) { setShowPricing(true); return; }
                 setActiveTab('interview'); 
             }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'interview' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                <Mic className="w-4 h-4 mr-3"/> Live Interview {!isPro && <span className="ml-auto bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
+                <Mic className="w-4 h-4 mr-3"/> Live Interview {!isPro && <span className="ml-auto bg-indigo-500/200/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
             </a>
           </div>
           <div className="px-6 py-6 mt-4 border-t border-white/5 flex flex-col overflow-y-auto flex-1 min-h-0">
@@ -595,7 +595,7 @@ export default function App() {
                    >
                      <div onClick={() => setActiveResumeId(resume.id)} className="pr-6">
                        <p className="text-sm font-medium truncate">{resume.name}</p>
-                       <p className="text-[10px] text-slate-400 mt-1 truncate">
+                       <p className="text-[10px] text-slate-300 mt-1 truncate">
                          {resume.data.personalDetails?.title || 'No Title'}
                        </p>
                      </div>
@@ -622,7 +622,7 @@ export default function App() {
             <div className="p-4 bg-white/5 rounded-xl border border-white/10">
               <div className="flex justify-between items-end mb-2">
                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">AI Credits</p>
-                 <p className="text-[10px] text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded-lg cursor-pointer hover:bg-blue-500/20 transition" onClick={() => setShowPricing(true)}>Upgrade</p>
+                 <p className="text-[10px] text-blue-400 font-bold bg-blue-500/200/10 px-2 py-0.5 rounded-lg cursor-pointer hover:bg-blue-500/200/20 transition" onClick={() => setShowPricing(true)}>Upgrade</p>
               </div>
               <p className="text-sm font-medium">{credits} / 3 Free Remaining</p>
               <div className="w-full bg-white/10 h-1.5 mt-3 rounded-full overflow-hidden">
@@ -771,7 +771,7 @@ export default function App() {
                         <button 
                           onClick={handleAtsScan}
                           disabled={isAtsScanning || !jobDescription}
-                          className="text-[10px] uppercase font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-3 py-1.5 rounded transition disabled:opacity-50 flex items-center gap-1"
+                          className="text-[10px] uppercase font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/200/10 hover:bg-emerald-500/200/20 border border-emerald-500/20 px-3 py-1.5 rounded transition disabled:opacity-50 flex items-center gap-1"
                         >
                           {isAtsScanning ? <RefreshCw className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
                           Scan Resume
@@ -783,7 +783,7 @@ export default function App() {
                           <div className="flex items-center gap-4">
                             <div className="relative w-14 h-14 shrink-0 flex items-center justify-center rounded-full bg-slate-900 border-4 border-slate-800">
                                <svg className="absolute inset-0 w-full h-full transform -rotate-90">
-                                 <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="4" fill="none" className="text-slate-800" />
+                                 <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="4" fill="none" className="text-white" />
                                  <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="4" fill="none" 
                                    className={atsScoreData.score > 75 ? "text-emerald-500" : atsScoreData.score > 50 ? "text-amber-500" : "text-rose-500"} 
                                    strokeDasharray="138" strokeDashoffset={138 - (138 * atsScoreData.score) / 100} style={{ transition: 'stroke-dashoffset 1s ease' }} />
@@ -800,7 +800,7 @@ export default function App() {
                             <div className="flex flex-wrap gap-1.5">
                               {atsScoreData.matchedKeywords.length === 0 && <span className="text-xs text-slate-600 italic">None found</span>}
                               {atsScoreData.matchedKeywords.map((kw, i) => (
-                                <span key={i} className="text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">{kw}</span>
+                                <span key={i} className="text-[10px] bg-emerald-500/200/10 border border-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">{kw}</span>
                               ))}
                             </div>
                           </div>
@@ -808,7 +808,7 @@ export default function App() {
                           <div>
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Missing Keywords (Add These)</p>
                             <div className="flex flex-wrap gap-1.5">
-                              {atsScoreData.missingKeywords.length === 0 && <span className="text-xs text-emerald-600 italic">Looks good!</span>}
+                              {atsScoreData.missingKeywords.length === 0 && <span className="text-xs text-emerald-400 italic">Looks good!</span>}
                               {atsScoreData.missingKeywords.map((kw, i) => (
                                 <span key={i} className="text-[10px] bg-rose-500/10 border border-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full">{kw}</span>
                               ))}
@@ -881,7 +881,7 @@ export default function App() {
                          <span className="text-xs text-slate-400 flex-1">Show Photo</span>
                          <button 
                            onClick={() => setShowProfilePicture(!showProfilePicture)}
-                           className={`w-8 h-4 rounded-full relative transition-colors ${showProfilePicture ? 'bg-indigo-500' : 'bg-slate-600'}`}
+                           className={`w-8 h-4 rounded-full relative transition-colors ${showProfilePicture ? 'bg-indigo-500/200' : 'bg-slate-600'}`}
                          >
                            <div className={`absolute top-0 w-4 h-4 rounded-full bg-white border border-white/20 transition-all ${showProfilePicture ? 'right-0' : 'left-0'}`}></div>
                          </button>
@@ -1059,7 +1059,7 @@ export default function App() {
                    onClick={() => setSelectedTemplate(t.id)}
                    className={`w-32 h-10 border rounded-lg flex items-center justify-center cursor-pointer transition-all ${
                      selectedTemplate === t.id 
-                       ? 'border-indigo-500/50 shadow-[0_0_0_2px_rgba(99,102,241,0.2)] bg-indigo-500/10' 
+                       ? 'border-indigo-500/50 shadow-[0_0_0_2px_rgba(99,102,241,0.2)] bg-indigo-500/200/10' 
                        : 'border-white/10 hover:border-white/20 bg-white/5'
                    }`}
                  >
@@ -1108,7 +1108,7 @@ export default function App() {
           <div className="flex-1 flex flex-col p-8 bg-slate-50 items-center overflow-y-auto">
              <div className="w-full max-w-4xl glass-card flex flex-col h-full overflow-hidden p-6">
                 <div className="flex justify-between items-center mb-6">
-                   <h2 className="text-xl font-black text-slate-800">Source Data Editor</h2>
+                   <h2 className="text-xl font-black text-white">Source Data Editor</h2>
                    <button 
                      onClick={() => {
                         try {
@@ -1140,7 +1140,7 @@ export default function App() {
            <div className="flex-1 bg-slate-50 overflow-y-auto p-8 lg:p-12">
               <div className="max-w-5xl mx-auto space-y-8">
                  <div>
-                    <h2 className="text-2xl font-black text-slate-800 tracking-tight">Founder Analytics Dashboard</h2>
+                    <h2 className="text-2xl font-black text-white tracking-tight">Founder Analytics Dashboard</h2>
                     <p className="text-sm text-slate-500 mt-1">Metrics and user acquisition insights.</p>
                  </div>
                  
@@ -1151,7 +1151,7 @@ export default function App() {
                     </div>
                     <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                        <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Pro Members</p>
-                       <p className="text-3xl font-black text-blue-600">{adminUsersInfo.filter(u => u.isPro).length}</p>
+                       <p className="text-3xl font-black text-blue-400">{adminUsersInfo.filter(u => u.isPro).length}</p>
                     </div>
                     <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                        <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Current Active Revenue (MRR)</p>
@@ -1161,7 +1161,7 @@ export default function App() {
 
                  <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
                     <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                       <h3 className="text-sm font-bold text-slate-800">User Registry</h3>
+                       <h3 className="text-sm font-bold text-white">User Registry</h3>
                     </div>
                     <div className="p-0 overflow-x-auto">
                        <table className="w-full text-left border-collapse text-sm text-slate-600">
@@ -1177,7 +1177,7 @@ export default function App() {
                           <tbody className="divide-y divide-slate-100">
                              {adminUsersInfo.map(u => (
                                 <tr key={u.id} className="hover:bg-slate-50/50 transition">
-                                   <td className="px-6 py-4 font-medium text-slate-800">{u.email}</td>
+                                   <td className="px-6 py-4 font-medium text-white">{u.email}</td>
                                    <td className="px-6 py-4 text-slate-500">{new Date(u.createdAt).toLocaleDateString()}</td>
                                    <td className="px-6 py-4">
                                       {u.isPro ? 
@@ -1296,7 +1296,7 @@ export default function App() {
 
                  {/* Pro Tier */}
                  <div className="border-2 border-blue-500/50 glass-card p-6 flex flex-col relative shadow-[0_0_30px_rgba(59,130,246,0.15)]">
-                    <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg rounded-tr-2xl">Most Popular</div>
+                    <div className="absolute top-0 right-0 bg-blue-500/200 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg rounded-tr-2xl">Most Popular</div>
                     <h3 className="text-sm font-bold uppercase tracking-widest text-blue-400 mb-2">Pro Member</h3>
                     <div className="text-4xl font-black text-white mb-1">$5<span className="text-lg text-slate-400 font-normal">/mo</span></div>
                     <p className="text-xs text-slate-500 mb-4">No hidden fees. Cancel anytime.</p>
@@ -1345,7 +1345,7 @@ export default function App() {
                       setIngestionModal(null);
                       setIngestionInput('');
                    }}
-                   className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800"
+                   className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-white"
                  >Cancel</button>
                  <button 
                    onClick={async () => {
@@ -1397,7 +1397,7 @@ export default function App() {
               <div className="p-4 border-t border-white/10 flex justify-end gap-3 rounded-b-xl">
                  <button 
                    onClick={() => setEditingSection(null)}
-                   className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800"
+                   className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-white"
                  >
                     Cancel
                  </button>
@@ -1437,7 +1437,7 @@ export default function App() {
           >
             {toast.type === 'success' && <Check className="w-4 h-4 text-green-600 shrink-0" />}
             {toast.type === 'error' && <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />}
-            {toast.type === 'info' && <Info className="w-4 h-4 text-blue-600 shrink-0" />}
+            {toast.type === 'info' && <Info className="w-4 h-4 text-blue-400 shrink-0" />}
             <span className="flex-1 normal-case font-medium">{toast.message}</span>
           </div>
         ))}
@@ -1449,21 +1449,19 @@ export default function App() {
           <div className="glass-modal max-w-2xl w-full p-8 relative overflow-hidden flex flex-col min-h-[400px] justify-between">
             <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 left-0"></div>
             
-            {resumes.length > 0 && resumes[0].name !== 'Alex Rivera' && (
-              <button 
+                          <button 
                 onClick={() => setIsOnboarding(false)}
-                className="absolute top-6 right-6 text-slate-400 hover:text-white p-1 bg-white/10 rounded-full transition"
+                className="absolute top-6 right-6 text-slate-400 hover:text-white p-1 bg-white/10 rounded-full transition z-50"
               >
                 <X className="w-4 h-4" />
               </button>
-            )}
 
             {onboardingStep === 'options' && (
               <div className="flex-1 flex flex-col justify-between">
                 <div className="text-center mb-8">
-                  <span className="text-xs font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">Precision Match AI</span>
-                  <h2 className="text-2xl font-black text-slate-950 mt-3 tracking-tight">Create a New Resume</h2>
-                  <p className="text-sm text-slate-500 mt-2 max-w-md mx-auto">Select how you'd like to construct your resume. Let AI do the heavy lifting or build it manually step-by-step.</p>
+                  <span className="text-xs font-bold text-blue-400 uppercase tracking-widest bg-blue-500/20 px-3 py-1 rounded-full">Precision Match AI</span>
+                  <h2 className="text-2xl font-black text-white mt-3 tracking-tight">Create a New Resume</h2>
+                  <p className="text-sm text-slate-300 mt-2 max-w-md mx-auto">Select how you'd like to construct your resume. Let AI do the heavy lifting or build it manually step-by-step.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-4">
@@ -1472,25 +1470,25 @@ export default function App() {
                     onClick={() => {
                       fileInputRef.current?.click();
                     }}
-                    className="border border-white/10 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-500/5 rounded-xl p-5 bg-white/5 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
+                    className="border border-white/10 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-500/5 rounded-xl p-5 bg-white/5 hover:bg-white/10 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
                   >
-                    <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">
+                    <div className="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4 group-hover:bg-blue-500/40 transition-colors">
                       <Upload className="w-6 h-6" />
                     </div>
-                    <h3 className="text-sm font-bold text-slate-800">Upload Resume</h3>
-                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">Import from PDF, DOCX, or text file. AI extracts all fields.</p>
+                    <h3 className="text-sm font-bold text-white">Upload Resume</h3>
+                    <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">Import from PDF, DOCX, or text file. AI extracts all fields.</p>
                   </div>
 
                   {/* Card 2: Sync LinkedIn */}
                   <div 
                     onClick={() => setOnboardingStep('linkedin')}
-                    className="border border-white/10 hover:border-indigo-500/40 hover:shadow-xl hover:shadow-indigo-500/5 rounded-xl p-5 bg-white/5 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
+                    className="border border-white/10 hover:border-indigo-500/40 hover:shadow-xl hover:shadow-indigo-500/5 rounded-xl p-5 bg-white/5 hover:bg-white/10 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
                   >
-                    <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-100 transition-colors">
+                    <div className="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-indigo-500/40 transition-colors">
                       <Linkedin className="w-6 h-6" />
                     </div>
-                    <h3 className="text-sm font-bold text-slate-800">LinkedIn Sync</h3>
-                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">Paste your LinkedIn profile URL and sync details instantly.</p>
+                    <h3 className="text-sm font-bold text-white">LinkedIn Sync</h3>
+                    <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">Paste your LinkedIn profile URL and sync details instantly.</p>
                   </div>
 
                   {/* Card 3: Build Manually */}
@@ -1504,13 +1502,13 @@ export default function App() {
                       setIsOnboarding(false);
                       setWorkspaceSubTab('form');
                     }}
-                    className="border border-white/10 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/5 rounded-xl p-5 bg-white/5 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
+                    className="border border-white/10 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/5 rounded-xl p-5 bg-white/5 hover:bg-white/10 cursor-pointer transition-all flex flex-col items-center justify-center text-center group"
                   >
-                    <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 group-hover:bg-emerald-100 transition-colors">
+                    <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4 group-hover:bg-emerald-500/40 transition-colors">
                       <FileText className="w-6 h-6" />
                     </div>
-                    <h3 className="text-sm font-bold text-slate-800">Build Manually</h3>
-                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">Start with a clean slate and type details in our manual form.</p>
+                    <h3 className="text-sm font-bold text-white">Build Manually</h3>
+                    <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">Start with a clean slate and type details in our manual form.</p>
                   </div>
                 </div>
 
@@ -1530,7 +1528,7 @@ export default function App() {
             {onboardingStep === 'linkedin' && (
               <div className="flex-1 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-800 mb-2">Sync LinkedIn Profile</h3>
+                  <h3 className="text-lg font-bold text-white mb-2">Sync LinkedIn Profile</h3>
                   <p className="text-xs text-slate-500 mb-4">Paste your public LinkedIn profile URL below. Our AI scraper will extract your work experience, education, and skills to populate your resume.</p>
                   <input 
                     type="text" 
@@ -1547,7 +1545,7 @@ export default function App() {
                       setOnboardingStep('options');
                       setIngestionInput('');
                     }}
-                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800"
+                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-white"
                   >Back</button>
                   <button 
                     onClick={async () => {
@@ -1585,8 +1583,8 @@ export default function App() {
 
             {onboardingStep === 'loading' && (
               <div className="flex-1 flex flex-col items-center justify-center py-12">
-                <RefreshCw className="w-12 h-12 text-blue-600 animate-spin mb-4 animate-[spin_2s_linear_infinite]" />
-                <h3 className="text-lg font-bold text-slate-800 animate-pulse">AI Is Structuring Your Resume...</h3>
+                <RefreshCw className="w-12 h-12 text-blue-400 animate-spin mb-4 animate-[spin_2s_linear_infinite]" />
+                <h3 className="text-lg font-bold text-white animate-pulse">AI Is Structuring Your Resume...</h3>
                 <p className="text-xs text-slate-400 mt-2 text-center max-w-xs leading-relaxed">
                   We are processing your professional data and structuring it into a beautiful, ATS-optimized layout. This may take up to 20 seconds.
                 </p>
@@ -1610,7 +1608,7 @@ export default function App() {
               placeholder="What's on your mind?"
             />
             <div className="flex justify-end gap-3">
-              <button onClick={() => { setShowFeedback(false); setFeedbackText(''); }} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800">Cancel</button>
+              <button onClick={() => { setShowFeedback(false); setFeedbackText(''); }} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-white">Cancel</button>
               <button
                 onClick={async () => {
                   if (!feedbackText.trim()) return;
@@ -1646,7 +1644,7 @@ export default function App() {
             <h2 className="text-lg font-bold text-red-400 mb-2">Delete Account</h2>
             <p className="text-sm text-slate-400 mb-6">This will permanently delete your account and all associated resume data. This action cannot be undone.</p>
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800">Cancel</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-white">Cancel</button>
               <button
                 onClick={async () => {
                   try {
