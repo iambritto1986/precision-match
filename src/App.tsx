@@ -672,11 +672,11 @@ export default function App() {
             <span className="status-badge pr-3"><CheckCircle2 className="w-3 h-3 inline mr-1 -mt-0.5" />Optimized for ATS</span>
           </div>
           <div className="flex items-center space-x-3">
-             <button onClick={() => exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`)} className="px-4 py-2 text-xs font-medium glass-button-secondary rounded-xl flex items-center">
+             <button onClick={() => exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`)} className="px-4 py-2 text-xs font-medium glass-button-primary rounded-xl flex items-center">
                <FileOutput className="w-3 h-3 mr-2" />
                Export PDF
              </button>
-             <button onClick={() => exportToDocx(resumeData)} className="px-4 py-2 text-xs font-medium glass-button-primary rounded-xl flex items-center">
+             <button onClick={() => exportToDocx(resumeData)} className="px-4 py-2 text-xs font-medium glass-button-secondary rounded-xl flex items-center">
                <Download className="w-3 h-3 mr-2" />
                Download Word
              </button>
