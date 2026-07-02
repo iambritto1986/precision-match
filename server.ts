@@ -173,6 +173,7 @@ async function startServer() {
   // Apply rate limiting to all AI and payment endpoints
   app.use('/api/generate-resume', (req, res, next) => { if (!rateLimit(req, res)) next(); });
   app.use('/api/generate-cover-letter', (req, res, next) => { if (!rateLimit(req, res)) next(); });
+  app.use('/api/ats-score', (req, res, next) => { if (!rateLimit(req, res)) next(); });
   app.use('/api/chat', (req, res, next) => { if (!rateLimit(req, res)) next(); });
   app.use('/api/extract-resume', (req, res, next) => { if (!rateLimit(req, res)) next(); });
   app.use('/api/extract-linkedin', (req, res, next) => { if (!rateLimit(req, res)) next(); });
@@ -449,6 +450,50 @@ Include placeholders like [Hiring Manager Name] or [Company Name] where appropri
     } catch (e: any) {
       console.error(e);
       res.status(500).json({ error: e.message, code: "COVER_LETTER_FAILED" });
+    }
+  });
+
+  app.post("/api/ats-score", async (req, res) => {
+    try {
+      const { resumeData, jobDescription } = req.body;
+      if (!resumeData || !jobDescription) {
+        return res.status(400).json({ error: "Missing resumeData or jobDescription", code: "VALIDATION_ERROR" });
+      }
+
+      const prompt = `
+You are an expert ATS (Applicant Tracking System) algorithm and senior technical recruiter.
+Analyze the provided resume against the job description.
+Return a JSON object with EXACTLY the following structure:
+{
+  "score": number (0-100 indicating how well the resume matches the JD),
+  "matchedKeywords": string[] (important keywords from the JD that are present in the resume),
+  "missingKeywords": string[] (important keywords from the JD that are missing in the resume)
+}
+Be strict and realistic. Do not give a 100% score unless it is a perfect match.
+
+Resume:
+${JSON.stringify(resumeData)}
+
+Job Description:
+${jobDescription}
+      `;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.1-flash-lite",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json"
+        }
+      });
+
+      const text = response.text;
+      if (!text) throw new Error("Empty response from AI");
+      
+      const result = JSON.parse(text);
+      res.json(result);
+    } catch (e: any) {
+      console.error("ATS Score error:", e);
+      res.status(500).json({ error: e.message, code: "ATS_SCORE_FAILED" });
     }
   });
 

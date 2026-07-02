@@ -101,7 +101,10 @@ export default function App() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
   const [showLegalModal, setShowLegalModal] = useState<'privacy' | 'terms' | null>(null);
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [atsScoreData, setAtsScoreData] = useState<{score: number, matchedKeywords: string[], missingKeywords: string[]} | null>(null);
+  const [isAtsScanning, setIsAtsScanning] = useState(false);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Math.random().toString(36).substring(7);
@@ -374,6 +377,31 @@ export default function App() {
     return JSON.stringify(resumeData);
   };
 
+  const handleAtsScan = async () => {
+    if (!jobDescription) {
+      showToast("Please enter a job description to scan against.", "error");
+      return;
+    }
+    setIsAtsScanning(true);
+    setAtsScoreData(null);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/ats-score`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resumeData, jobDescription })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to scan');
+      setAtsScoreData(data);
+      showToast("ATS Scan Complete!", "success");
+    } catch (e: any) {
+      console.error(e);
+      showToast(e.message, "error");
+    } finally {
+      setIsAtsScanning(false);
+    }
+  };
+
   const generateResume = async () => {
     if (credits <= 0) {
        setShowPricing(true);
@@ -442,6 +470,9 @@ export default function App() {
     { id: 'minimalist', name: 'Minimal', previewClass: 'bg-slate-900 border text-white' },
     { id: 'executive', name: 'Executive', previewClass: 'bg-white border text-slate-800' },
     { id: 'aesthetic', name: 'Aesthetic', previewClass: 'bg-pink-50 border text-pink-600' },
+    { id: 'creative', name: 'Creative', previewClass: 'bg-indigo-50 border-indigo-200 text-indigo-700' },
+    { id: 'tech', name: 'Tech', previewClass: 'bg-slate-950 border-emerald-500/50 text-emerald-400 font-mono' },
+    { id: 'academic', name: 'Academic', previewClass: 'bg-[#fcfaf8] border-stone-300 text-stone-800 font-serif' },
   ];
 
   const handleProfilePictureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -732,7 +763,62 @@ export default function App() {
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
                     />
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mt-2">Custom Instructions</h3>
+                    
+                    {/* ATS MATCH SCANNER UI */}
+                    <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 mt-2">
+                      <div className="flex justify-between items-center mb-3">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">ATS Keyword Match</h3>
+                        <button 
+                          onClick={handleAtsScan}
+                          disabled={isAtsScanning || !jobDescription}
+                          className="text-[10px] uppercase font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-3 py-1.5 rounded transition disabled:opacity-50 flex items-center gap-1"
+                        >
+                          {isAtsScanning ? <RefreshCw className="w-3 h-3 animate-spin" /> : <CheckCircle className="w-3 h-3" />}
+                          Scan Resume
+                        </button>
+                      </div>
+                      
+                      {atsScoreData && (
+                        <div className="space-y-4 mt-4 border-t border-white/10 pt-4 animate-fadeIn">
+                          <div className="flex items-center gap-4">
+                            <div className="relative w-14 h-14 shrink-0 flex items-center justify-center rounded-full bg-slate-900 border-4 border-slate-800">
+                               <svg className="absolute inset-0 w-full h-full transform -rotate-90">
+                                 <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="4" fill="none" className="text-slate-800" />
+                                 <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="4" fill="none" 
+                                   className={atsScoreData.score > 75 ? "text-emerald-500" : atsScoreData.score > 50 ? "text-amber-500" : "text-rose-500"} 
+                                   strokeDasharray="138" strokeDashoffset={138 - (138 * atsScoreData.score) / 100} style={{ transition: 'stroke-dashoffset 1s ease' }} />
+                               </svg>
+                               <span className="relative text-sm font-black text-white">{atsScoreData.score}%</span>
+                            </div>
+                            <p className="text-xs text-slate-400 leading-relaxed">
+                              {atsScoreData.score > 80 ? "Excellent match! You're highly aligned with this role." : atsScoreData.score > 50 ? "Good start, but missing some key terminology. Try generating a tailored version." : "Low match. A tailored rewrite is highly recommended."}
+                            </p>
+                          </div>
+                          
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Matched Keywords</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {atsScoreData.matchedKeywords.length === 0 && <span className="text-xs text-slate-600 italic">None found</span>}
+                              {atsScoreData.matchedKeywords.map((kw, i) => (
+                                <span key={i} className="text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">{kw}</span>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Missing Keywords (Add These)</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {atsScoreData.missingKeywords.length === 0 && <span className="text-xs text-emerald-600 italic">Looks good!</span>}
+                              {atsScoreData.missingKeywords.map((kw, i) => (
+                                <span key={i} className="text-[10px] bg-rose-500/10 border border-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full">{kw}</span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mt-4">Custom Instructions</h3>
                     <textarea 
                       className="w-full p-4 text-xs lg:text-sm glass-input rounded-xl resize-none font-inter min-h-[80px]" 
                       placeholder="e.g. Keep it strictly to one page, highlight my leadership skills..."
@@ -1595,39 +1681,39 @@ export default function App() {
             <div className="p-6 overflow-y-auto text-sm text-slate-700 leading-relaxed space-y-4">
               {showLegalModal === 'privacy' ? (
                 <>
-                  <p><strong>Last Updated:</strong> June 2026</p>
-                  <p>Precision Match (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your personal information.</p>
-                  <h3 className="font-bold text-slate-900 text-base">Information We Collect</h3>
+                  <p><strong>Last Updated:</strong> July 2026</p>
+                  <p>Precision Match (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy and ensuring compliance with applicable data protection laws, including the GDPR and CCPA. This Privacy Policy explains how we collect, use, and safeguard your personal information.</p>
+                  <h3 className="font-bold text-white text-base">Information We Collect</h3>
                   <p>We collect information you provide directly: your name, email address (via Google Sign-In), resume content (employment history, education, skills, contact details), and job descriptions you submit for AI tailoring.</p>
-                  <h3 className="font-bold text-slate-900 text-base">How We Use Your Information</h3>
-                  <p>Your data is used solely to: generate and tailor resumes using AI, provide the app&apos;s core functionality, process payments via Stripe, and improve our service. We do <strong>not</strong> sell your personal data to third parties.</p>
-                  <h3 className="font-bold text-slate-900 text-base">Data Storage &amp; Security</h3>
+                  <h3 className="font-bold text-white text-base">How We Use Your Information (AI Consent)</h3>
+                  <p>Your data is used solely to: generate and tailor resumes using AI, provide the app&apos;s core functionality, process payments via Stripe, and improve our service. <strong>By using our service, you explicitly consent to your resume data and job descriptions being processed by Google Gemini AI</strong> to generate tailored content. We do <strong>not</strong> sell your personal data to third parties.</p>
+                  <h3 className="font-bold text-white text-base">Data Storage &amp; Security</h3>
                   <p>Data is stored securely in Google Cloud Firestore with encryption at rest and in transit. Access is restricted by Firebase Security Rules that ensure users can only access their own data.</p>
-                  <h3 className="font-bold text-slate-900 text-base">Third-Party Services</h3>
-                  <p>We use Google Gemini AI (to process resumes), Stripe (to process payments), and Firebase (for authentication and storage). Each service has its own privacy policy.</p>
-                  <h3 className="font-bold text-slate-900 text-base">Data Retention &amp; Deletion</h3>
-                  <p>You may delete your account and all associated data at any time using the &quot;Delete Account&quot; option in the sidebar. Upon deletion, your data is permanently removed from our database.</p>
-                  <h3 className="font-bold text-slate-900 text-base">Contact</h3>
-                  <p>For privacy inquiries, email <a href="mailto:support@precisionmatch.app" className="text-blue-600 underline">support@precisionmatch.app</a>.</p>
+                  <h3 className="font-bold text-white text-base">Third-Party Services</h3>
+                  <p>We use Google Gemini AI (to process resumes), Stripe (to process payments securely—we never store your credit card details), and Firebase (for authentication and storage). Each service operates under its respective strict privacy guidelines.</p>
+                  <h3 className="font-bold text-white text-base">Your Data Rights (GDPR &amp; CCPA)</h3>
+                  <p>You have the right to access, update, or delete your personal data at any time. You may delete your account and all associated data permanently using the &quot;Delete Account&quot; option in the sidebar. To request a copy of your data, please contact us.</p>
+                  <h3 className="font-bold text-white text-base">Contact</h3>
+                  <p>For privacy inquiries or data requests, email <a href="mailto:support@precisionmatch.app" className="text-blue-400 hover:text-blue-300 underline">support@precisionmatch.app</a>.</p>
                 </>
               ) : (
                 <>
-                  <p><strong>Last Updated:</strong> June 2026</p>
+                  <p><strong>Last Updated:</strong> July 2026</p>
                   <p>By using Precision Match, you agree to these Terms of Service. If you do not agree, do not use the service.</p>
-                  <h3 className="font-bold text-slate-900 text-base">Service Description</h3>
-                  <p>Precision Match is an AI-powered resume builder that helps users create and tailor resumes. The service uses artificial intelligence to generate content suggestions.</p>
-                  <h3 className="font-bold text-slate-900 text-base">AI-Generated Content Disclaimer</h3>
-                  <p><strong>Important:</strong> AI-generated resume content is provided as suggestions only. You are solely responsible for reviewing, verifying, and approving all content before using it in job applications. We do not guarantee the accuracy, completeness, or effectiveness of AI-generated content.</p>
-                  <h3 className="font-bold text-slate-900 text-base">User Responsibilities</h3>
-                  <p>You agree to: provide accurate information, review all AI-generated content for accuracy, not use the service for illegal purposes, and not attempt to abuse or circumvent rate limits or security measures.</p>
-                  <h3 className="font-bold text-slate-900 text-base">Payments &amp; Refunds</h3>
-                  <p>Payments are processed securely through Stripe. Subscription charges recur monthly until cancelled. Refund requests are handled on a case-by-case basis — contact support within 7 days of purchase.</p>
-                  <h3 className="font-bold text-slate-900 text-base">Limitation of Liability</h3>
-                  <p>Precision Match is provided &quot;as is&quot; without warranties. We are not liable for any damages arising from the use of AI-generated resume content, including but not limited to job application outcomes.</p>
-                  <h3 className="font-bold text-slate-900 text-base">Changes to Terms</h3>
-                  <p>We may update these terms at any time. Continued use of the service constitutes acceptance of updated terms.</p>
-                  <h3 className="font-bold text-slate-900 text-base">Contact</h3>
-                  <p>For questions about these terms, email <a href="mailto:support@precisionmatch.app" className="text-blue-600 underline">support@precisionmatch.app</a>.</p>
+                  <h3 className="font-bold text-white text-base">Service Description</h3>
+                  <p>Precision Match is an AI-powered resume builder that helps users create and tailor resumes. The service uses advanced artificial intelligence to generate content suggestions based on the information you provide.</p>
+                  <h3 className="font-bold text-white text-base">AI-Generated Content Disclaimer</h3>
+                  <p><strong>Important:</strong> AI-generated resume content is provided as suggestions only. You are solely responsible for reviewing, verifying, and approving all content before using it in job applications. We do not guarantee the accuracy, completeness, or effectiveness of AI-generated content, nor do we guarantee job placement or interview success.</p>
+                  <h3 className="font-bold text-white text-base">User Responsibilities</h3>
+                  <p>You agree to: provide accurate information, review all AI-generated content for accuracy, not use the service for illegal or fraudulent purposes, and not attempt to abuse, scrape, or circumvent rate limits or security measures of the platform.</p>
+                  <h3 className="font-bold text-white text-base">Payments &amp; Billing (Stripe)</h3>
+                  <p>Payments for premium features and credits are processed securely through Stripe. By completing a purchase, you agree to provide current, complete, and accurate billing information. All charges are final. Refund requests are evaluated on a case-by-case basis; please contact support within 7 days of your purchase if you experience a technical failure.</p>
+                  <h3 className="font-bold text-white text-base">Limitation of Liability</h3>
+                  <p>Precision Match is provided &quot;as is&quot; without warranties of any kind. We are not liable for any direct, indirect, incidental, or consequential damages arising from the use of our service or AI-generated resume content.</p>
+                  <h3 className="font-bold text-white text-base">Changes to Terms</h3>
+                  <p>We reserve the right to update these terms at any time. Continued use of the service constitutes acceptance of any updated terms.</p>
+                  <h3 className="font-bold text-white text-base">Contact</h3>
+                  <p>For questions about these terms, email <a href="mailto:support@precisionmatch.app" className="text-blue-400 hover:text-blue-300 underline">support@precisionmatch.app</a>.</p>
                 </>
               )}
             </div>

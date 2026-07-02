@@ -68,7 +68,7 @@ export interface ResumeData {
   customSections?: CustomSection[];
 }
 
-export type TemplateId = 'classic' | 'modern' | 'minimalist' | 'executive' | 'aesthetic';
+export type TemplateId = 'classic' | 'modern' | 'minimalist' | 'executive' | 'aesthetic' | 'creative' | 'tech' | 'academic';
 
 export interface AppState {
   step: 'onboarding' | 'editor';
