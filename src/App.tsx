@@ -11,8 +11,12 @@ import CareerChat from './components/CareerChat';
 import ResumeFormEditor from './components/ResumeFormEditor';
 import { exportToDocx, exportToPdf, exportCoverLetterDocx } from './lib/export';
 import { Upload, FileText, Download, Briefcase, RefreshCw, Layers, CheckCircle2, Image as ImageIcon, MapPin, Phone, Mail, Linkedin, Globe, FileOutput, Mic, MessageCircle, ChevronUp, ChevronDown, Code, X, Users, LogOut, LogIn, ZoomIn, ZoomOut, Maximize2, Sparkles, Check, AlertCircle, Info } from 'lucide-react';
-import { auth, loginWithGoogle, logout, db } from './lib/firebase';
+import { auth, db } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+
+import { useAuth } from './context/AuthContext';
+import { AuthModal } from './components/AuthModal';
+import { FounderDashboard } from './components/FounderDashboard';
 import { doc, onSnapshot, setDoc, getDoc, collection, getDocs, query, updateDoc } from 'firebase/firestore';
 
 const defaultData: ResumeData = {
@@ -135,14 +139,14 @@ export default function App() {
               const data = snapshot.data();
               setUserData(data);
               setCredits(data.credits ?? 3);
-              setIsPro(data.isPro || currentUser.email === 'iambrittothomas@gmail.com');
+              setIsPro(data.isPro || currentUser.email === 'iambritto1986@gmail.com');
            } else {
               // Create user
               setDoc(userRef, { 
                  email: currentUser.email || '',
                  createdAt: new Date().toISOString(),
                  credits: 3,
-                 isPro: currentUser.email === 'iambrittothomas@gmail.com'
+                 isPro: currentUser.email === 'iambritto1986@gmail.com'
               }).catch(e => console.error("Error setting user doc", e));
            }
         }, (error) => {
@@ -154,7 +158,7 @@ export default function App() {
         const adminRef = doc(db, 'admins', currentUser.uid);
         try {
             const adminSnap = await getDoc(adminRef);
-            if (adminSnap.exists() || currentUser.email === 'iambrittothomas@gmail.com') {
+            if (adminSnap.exists() || currentUser.email === 'iambritto1986@gmail.com') {
                setIsAdmin(true);
                // Fetch all users for dashboard
                try {
@@ -168,7 +172,7 @@ export default function App() {
             }
         } catch(e) {
             console.error(e);
-            if (currentUser.email === 'iambrittothomas@gmail.com') {
+            if (currentUser.email === 'iambritto1986@gmail.com') {
                setIsAdmin(true);
             }
         }
@@ -510,7 +514,7 @@ export default function App() {
             <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-6 shadow-lg shadow-indigo-500/30 animate-float">P</div>
             <h1 className="text-2xl font-black tracking-tight text-white mb-2">Precision Match</h1>
             <p className="text-slate-400 text-sm mb-8 font-medium">Please log in to continue building your resume and accessing premium AI features.</p>
-            <button onClick={loginWithGoogle} className="w-full btn-primary py-3 rounded-xl text-sm flex items-center justify-center">
+            <button onClick={() => setIsGuestMode(false)} className="w-full btn-primary py-3 rounded-xl text-sm flex items-center justify-center">
                <LogIn className="w-4 h-4 mr-2" />
                Log in with Google
             </button>
@@ -642,7 +646,7 @@ export default function App() {
              {user ? (
                 <button onClick={logout} className="text-slate-400 hover:text-white p-1" title="Log Out"><LogOut className="w-4 h-4" /></button>
              ) : (
-                <button onClick={loginWithGoogle} className="text-blue-400 hover:text-blue-300 p-1" title="Log In"><LogIn className="w-4 h-4" /></button>
+                <button onClick={() => setIsGuestMode(false)} className="text-blue-400 hover:text-blue-300 p-1" title="Log In"><LogIn className="w-4 h-4" /></button>
              )}
           </div>
         </div>
