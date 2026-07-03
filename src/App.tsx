@@ -139,14 +139,14 @@ export default function App() {
               const data = snapshot.data();
               setUserData(data);
               setCredits(data.credits ?? 3);
-              setIsPro(data.isPro || currentUser.email === 'iambritto1986@gmail.com');
+              setIsPro(data.isPro || currentUser.email === 'iambrittothomas@gmail.com');
            } else {
               // Create user
               setDoc(userRef, { 
                  email: currentUser.email || '',
                  createdAt: new Date().toISOString(),
                  credits: 3,
-                 isPro: currentUser.email === 'iambritto1986@gmail.com'
+                 isPro: currentUser.email === 'iambrittothomas@gmail.com'
               }).catch(e => console.error("Error setting user doc", e));
            }
         }, (error) => {
@@ -158,7 +158,7 @@ export default function App() {
         const adminRef = doc(db, 'admins', currentUser.uid);
         try {
             const adminSnap = await getDoc(adminRef);
-            if (adminSnap.exists() || currentUser.email === 'iambritto1986@gmail.com') {
+            if (adminSnap.exists() || currentUser.email === 'iambrittothomas@gmail.com') {
                setIsAdmin(true);
                // Fetch all users for dashboard
                try {
@@ -172,7 +172,7 @@ export default function App() {
             }
         } catch(e) {
             console.error(e);
-            if (currentUser.email === 'iambritto1986@gmail.com') {
+            if (currentUser.email === 'iambrittothomas@gmail.com') {
                setIsAdmin(true);
             }
         }
