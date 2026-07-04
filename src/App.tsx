@@ -181,9 +181,8 @@ export default function App() {
       setIsPro(false);
       setIsAdmin(false);
       setAdminUsersInfo([]);
-      if (activeTab === 'dashboard') setActiveTab('resume');
     }
-  }, [user, authLoading, activeTab]);
+  }, [user, authLoading]);
 
 
 
