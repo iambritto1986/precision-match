@@ -177,8 +177,7 @@ async function startServer() {
   app.use('/api/chat', (req, res, next) => { if (!rateLimit(req, res)) next(); });
   app.use('/api/extract-resume', (req, res, next) => { if (!rateLimit(req, res)) next(); });
   app.use('/api/extract-linkedin', (req, res, next) => { if (!rateLimit(req, res)) next(); });
-  app.use('/api/enhance-photo', (req, res, next) => { if (!rateLimit(req, res)) next(); });
-
+  
   app.post("/api/refund", async (req, res) => {
     if (!stripeClient) {
       return res.status(500).json({ error: "Stripe is not configured.", code: "STRIPE_NOT_CONFIGURED" });
@@ -280,47 +279,7 @@ async function startServer() {
       res.status(500).json({ error: e.message, code: "LINKEDIN_EXTRACT_FAILED" });
    }
 });
-  app.post("/api/enhance-photo", async (req, res) => {
-    try {
-      const { fileBase64, mimeType, prompt } = req.body;
-      if (!fileBase64 || typeof fileBase64 !== 'string') {
-        return res.status(400).json({ error: "Missing or invalid required field: fileBase64", code: "VALIDATION_ERROR" });
-      }
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-lite',
-        contents: [
-          {
-            inlineData: {
-              data: fileBase64,
-              mimeType: mimeType || 'image/jpeg',
-            },
-          },
-          {
-            text: prompt || 'Edit this picture to look like a highly professional corporate headshot. Use a clean, aesthetic background. Ensure the lighting and quality are professional and modern.',
-          },
-        ],
-      });
-
-      let imageBase64 = null;
-      if (response.candidates && response.candidates[0].content.parts) {
-         for (const part of response.candidates[0].content.parts) {
-           if (part.inlineData) {
-             imageBase64 = part.inlineData.data;
-           }
-         }
-      }
-
-      if (imageBase64) {
-         res.json({ imageBase64 });
-      } else {
-         res.status(500).json({ error: 'Did not return an image', code: "NO_IMAGE_RETURNED" });
-      }
-    } catch (e: any) {
-      console.error(e);
-      res.status(500).json({ error: e.message, code: "PHOTO_ENHANCE_FAILED" });
-    }
-  });
 
   app.post("/api/extract-resume", async (req, res) => {
     try {

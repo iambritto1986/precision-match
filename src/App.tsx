@@ -988,38 +988,6 @@ export default function App() {
                      <label htmlFor="pic-upload-layout" className="flex-1 text-center py-2.5 border border-white/10 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-semibold cursor-pointer text-slate-300 transition">
                        Upload Photo
                      </label>
-
-                     {resumeData.personalDetails.profilePictureUrl && (
-                        <button 
-                           onClick={async () => {
-                             const url = resumeData.personalDetails.profilePictureUrl;
-                             if(!url || isUploading) return;
-                             setIsUploading(true);
-                             try {
-                                const base64Code = url.split(',')[1];
-                                const mimeType = url.substring(url.indexOf(':') + 1, url.indexOf(';'));
-                                const customPrompt = window.prompt("How would you like to edit the picture? (e.g. professional corporate headshot, clean background)");
-                                if(!customPrompt) { setIsUploading(false); return; }
-                                const res = await fetch('/api/enhance-photo', {
-                                   method: 'POST',
-                                   headers: {'Content-Type': 'application/json'},
-                                   body: JSON.stringify({ fileBase64: base64Code, mimeType, prompt: customPrompt })
-                                });
-                                const data = await res.json();
-                                if(data.imageBase64) {
-                                   setResumeData(prev => ({ ...prev, personalDetails: { ...prev.personalDetails, profilePictureUrl: `data:image/jpeg;base64,${data.imageBase64}`} }));
-                                   alert("Photo enhanced successfully!");
-                                } else {
-                                   alert("Error enhancing photo.");
-                                }
-                             } catch(e) { console.error(e); alert("Failed to enhance photo"); }
-                             finally { setIsUploading(false); }
-                           }}
-                           className="flex-1 py-2.5 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 rounded-lg text-xs font-bold text-purple-300 transition flex items-center justify-center gap-1.5"
-                        >
-                           {isUploading ? 'Enhancing...' : <>Sparkles <Sparkles className="w-3.5 h-3.5" /> AI Enhance</>}
-                        </button>
-                     )}
                    </div>
                  </div>
 
