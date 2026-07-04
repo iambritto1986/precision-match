@@ -566,39 +566,39 @@ export default function App() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-[#0f0b1e] font-inter relative overflow-hidden">
-         <div className="max-w-md w-full glass-modal p-8 text-center relative z-10">
-            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-6 shadow-lg shadow-indigo-500/30 animate-float">P</div>
-            <h1 className="text-2xl font-black tracking-tight text-white mb-2">Precision Match</h1>
-            <p className="text-slate-400 text-sm mb-8 font-medium">Please log in to continue building your resume and accessing premium AI features.</p>
-            <button onClick={() => setIsGuestMode(false)} className="w-full btn-primary py-3 rounded-xl text-sm flex items-center justify-center">
-               <LogIn className="w-4 h-4 mr-2" />
-               Log in with Google
-            </button>
-            <button 
-              onClick={() => {
-                setIsGuestMode(true);
-                setUser({
-                  uid: 'local-guest-uid',
-                  displayName: 'Local Guest',
-                  email: 'guest@example.com',
-                  photoURL: ''
-                });
-                setIsPro(true);
-                setCredits(100);
-                setAuthLoading(false);
-              }}
-              className="w-full mt-3 btn-secondary py-3 rounded-xl text-sm font-bold flex items-center justify-center"
-            >
-               <Users className="w-4 h-4 mr-2 text-slate-400" />
-               Continue as Guest (Local Test)
-            </button>
-         </div>
-      </div>
-    );
-  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   return (
     <div className="flex h-screen w-full bg-[#0f0b1e] text-slate-100 overflow-hidden font-inter relative">
@@ -1780,6 +1780,10 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {(!user && !isGuestMode && !authLoading) && (
+        <AuthModal onGuest={() => { setIsGuestMode(true); setIsPro(true); setCredits(100); }} />
       )}
     </div>
   );
