@@ -1200,119 +1200,121 @@ export default function App() {
         {activeTab === 'interview' && <div className="flex-1 overflow-hidden h-full"><VoiceInterview resumeData={resumeData} /></div>}
         
         {activeTab === 'dashboard' && isAdmin && (
-           <div className="flex-1 bg-slate-50 overflow-y-auto p-8 lg:p-12">
-              <div className="max-w-5xl mx-auto space-y-8">
-                 <div>
-                    <h2 className="text-2xl font-black text-white tracking-tight">Founder Analytics Dashboard</h2>
-                    <p className="text-sm text-slate-500 mt-1">Metrics and user acquisition insights.</p>
-                 </div>
-                 
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white/5 p-6 rounded-xl border border-white/10">
-                       <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Total Users</p>
-                       <p className="text-3xl font-black text-slate-900">{adminUsersInfo.length}</p>
-                    </div>
-                    <div className="bg-white/5 p-6 rounded-xl border border-white/10">
-                       <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Pro Members</p>
-                       <p className="text-3xl font-black text-blue-400">{adminUsersInfo.filter(u => u.isPro).length}</p>
-                    </div>
-                    <div className="bg-white/5 p-6 rounded-xl border border-white/10">
-                       <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Current Active Revenue (MRR)</p>
-                       <p className="text-3xl font-black text-green-600">${adminUsersInfo.filter(u => u.isPro).length * 5}</p>
-                    </div>
-                 </div>
-
-                 <div className="tech-input rounded-xl overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                       <h3 className="text-sm font-bold text-white">User Registry</h3>
-                    </div>
-                    <div className="p-0 overflow-x-auto">
-                       <table className="w-full text-left border-collapse text-sm text-slate-600">
-                          <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-semibold">
-                             <tr>
-                                <th className="px-6 py-3">User Email</th>
-                                <th className="px-6 py-3">Joined Date</th>
-                                <th className="px-6 py-3">Status</th>
-                                <th className="px-6 py-3">Credits</th>
-                                <th className="px-6 py-3 text-right">Actions</th>
-                             </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100">
-                             {adminUsersInfo.map(u => (
-                                <tr key={u.id} className="hover:bg-slate-50/50 transition">
-                                   <td className="px-6 py-4 font-medium text-white">{u.email}</td>
-                                   <td className="px-6 py-4 text-slate-500">{new Date(u.createdAt).toLocaleDateString()}</td>
-                                   <td className="px-6 py-4">
-                                      {u.isPro ? 
-                                         <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100 rounded-full">Pro</span> : 
-                                         <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 rounded-full">Free</span>
-                                      }
-                                   </td>
-                                   <td className="px-6 py-4 font-mono text-xs">{u.credits}</td>
-                                   <td className="px-6 py-4 text-right space-x-2">
-                                     <button 
-                                       onClick={async () => {
-                                         if (!u.id) return;
-                                         try {
-                                           await updateDoc(doc(db, 'users', u.id), { isPro: !u.isPro });
-                                           setAdminUsersInfo(prev => prev.map(user => user.id === u.id ? { ...user, isPro: !user.isPro } : user));
-                                         } catch(e) { console.error("Error toggling pro", e); }
-                                       }}
-                                       className="text-[10px] uppercase font-bold text-slate-400 hover:text-blue-400 bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded transition"
-                                     >
-                                       {u.isPro ? 'Revoke Pro' : 'Grant Pro'}
-                                     </button>
-                                     <button 
-                                       onClick={async () => {
-                                         if (!u.id) return;
-                                         try {
-                                           const newCredits = (u.credits || 0) + 10;
-                                           await updateDoc(doc(db, 'users', u.id), { credits: newCredits });
-                                           setAdminUsersInfo(prev => prev.map(user => user.id === u.id ? { ...user, credits: newCredits } : user));
-                                         } catch(e) { console.error("Error adding credits", e); }
-                                       }}
-                                       className="text-[10px] uppercase font-bold text-slate-400 hover:text-green-400 bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded transition"
-                                     >
-                                       Add Credits
-                                     </button>
-                                     <button
-                                       onClick={async () => {
-                                         if (!u.id) return;
-                                         try {
-                                           const res = await fetch('/api/refund', {
-                                             method: 'POST',
-                                             headers: { 'Content-Type': 'application/json' },
-                                             body: JSON.stringify({ userId: u.id })
-                                           });
-                                           const data = await res.json();
-                                           if (data.success) {
-                                              alert("Refund issued successfully!");
-                                              // Ensure UI updates properly
-                                              setAdminUsersInfo(prev => prev.map(user => user.id === u.id ? { ...user, isPro: false } : user));
-                                           } else {
-                                              alert("Refund failed: " + data.error);
-                                           }
-                                         } catch(e) { console.error("Error refunding", e); alert("Failed to issue refund."); }
-                                       }}
-                                       className="text-[10px] uppercase font-bold text-slate-400 hover:text-red-400 bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded transition"
-                                     >
-                                       Refund
-                                     </button>
-                                   </td>
-                                </tr>
-                             ))}
-                             {adminUsersInfo.length === 0 && (
-                                <tr>
-                                   <td colSpan={4} className="px-6 py-8 text-center text-slate-400">No users found.</td>
-                                </tr>
-                             )}
-                          </tbody>
-                       </table>
-                    </div>
-                 </div>
-              </div>
-           </div>
+          <FounderDashboard adminUsersInfo={adminUsersInfo} setAdminUsersInfo={setAdminUsersInfo} />
         )}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       </main>
 
       {showPricing && (

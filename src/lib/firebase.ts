@@ -22,6 +22,7 @@ export const loginWithGoogle = async () => {
     } catch (error: any) {
         if (error?.code !== 'auth/popup-closed-by-user') {
             console.error("Error logging in", error);
+            throw error;
         }
     }
 };

@@ -1,4 +1,6 @@
-import React from 'react';
+const fs = require('fs');
+
+const content = `import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Activity, Users, ShieldAlert, Zap } from 'lucide-react';
 import { db } from '../lib/firebase';
@@ -60,7 +62,7 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active MRR</p>
-                <h3 className="text-3xl font-black mt-1 text-green-500">$${mrr}</h3>
+                <h3 className="text-3xl font-black mt-1 text-green-500">$\${mrr}</h3>
               </div>
               <Zap className="w-6 h-6 text-yellow-500" />
             </div>
@@ -138,3 +140,7 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
     </div>
   );
 };
+`;
+
+fs.writeFileSync('src/components/FounderDashboard.tsx', content);
+console.log("FounderDashboard updated.");
