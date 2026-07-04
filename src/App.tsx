@@ -77,8 +77,8 @@ const blankData: ResumeData = {
 };
 
 export default function App() {
-  const [authLoading, setAuthLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+    const { user, logout, loading: authLoading } = useAuth();
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [userData, setUserData] = useState<any>(null);
   const [adminUsersInfo, setAdminUsersInfo] = useState<any[]>([]);
@@ -125,69 +125,128 @@ export default function App() {
     showToast(msg, type);
   };
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser((prev: any) => {
-         if (prev && prev.uid === 'local-guest-uid') return prev;
-         return currentUser;
-      });
-      if (currentUser) {
-        // Read user doc
-        const userRef = doc(db, 'users', currentUser.uid);
-        onSnapshot(userRef, (snapshot) => {
-           if (snapshot.exists()) {
-              const data = snapshot.data();
-              setUserData(data);
-              setCredits(data.credits ?? 3);
-              setIsPro(data.isPro || currentUser.email === 'iambrittothomas@gmail.com');
-           } else {
-              // Create user
-              setDoc(userRef, { 
-                 email: currentUser.email || '',
-                 createdAt: new Date().toISOString(),
-                 credits: 3,
-                 isPro: currentUser.email === 'iambrittothomas@gmail.com'
-              }).catch(e => console.error("Error setting user doc", e));
-           }
-        }, (error) => {
-           console.error("Firestore Error User Profile: ", error);
-        });
 
-        // Check Admin
-        setIsAdmin(false); // Default to false before checking
-        const adminRef = doc(db, 'admins', currentUser.uid);
-        try {
-            const adminSnap = await getDoc(adminRef);
-            if (adminSnap.exists() || currentUser.email === 'iambrittothomas@gmail.com') {
-               setIsAdmin(true);
-               // Fetch all users for dashboard
-               try {
-                  const userSnap = await getDocs(collection(db, 'users'));
-                  const users: any[] = [];
-                  userSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
-                  setAdminUsersInfo(users);
-               } catch(e) {
-                  console.error("Error fetching users for dashboard", e);
-               }
+  useEffect(() => {
+    if (authLoading) return;
+    
+    if (user) {
+      const userRef = doc(db, 'users', user.uid);
+      const unsubscribeUser = onSnapshot(userRef, (snapshot) => {
+         if (snapshot.exists()) {
+            const data = snapshot.data();
+            setUserData(data);
+            setCredits(data.credits ?? 3);
+            setIsPro(data.isPro || user.email === 'iambrittothomas@gmail.com');
+            
+            if (!data.onboardingCompleted) {
+              setIsOnboarding(true);
+              setOnboardingStep('options');
+              updateDoc(userRef, { onboardingCompleted: true });
             }
-        } catch(e) {
-            console.error(e);
-            if (currentUser.email === 'iambrittothomas@gmail.com') {
-               setIsAdmin(true);
-            }
-        }
-      } else {
-        setUserData(null);
-        setCredits(3);
-        setIsPro(false);
-        setIsAdmin(false);
-        setAdminUsersInfo([]);
-        if (activeTab === 'dashboard') setActiveTab('resume');
-      }
-      setAuthLoading(false);
-    });
-    return () => unsubscribe();
-  }, [activeTab]);
+         } else {
+            setDoc(userRef, { 
+               email: user.email || '',
+               createdAt: new Date().toISOString(),
+               credits: 3,
+               isPro: user.email === 'iambrittothomas@gmail.com',
+               onboardingCompleted: true
+            }).catch(e => console.error("Error setting user doc", e));
+            setIsOnboarding(true);
+            setOnboardingStep('options');
+         }
+      }, (error) => {
+         console.error("Firestore Error User Profile: ", error);
+      });
+
+      setIsAdmin(false);
+      const adminRef = doc(db, 'admins', user.uid);
+      getDoc(adminRef).then(adminSnap => {
+          if (adminSnap.exists() || user.email === 'iambrittothomas@gmail.com') {
+             setIsAdmin(true);
+             getDocs(collection(db, 'users')).then(userSnap => {
+                const users = [];
+                userSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+                setAdminUsersInfo(users);
+             }).catch(e => console.error("Error fetching users for dashboard", e));
+          }
+      }).catch(e => {
+          console.error(e);
+          if (user.email === 'iambrittothomas@gmail.com') setIsAdmin(true);
+      });
+      
+      return () => unsubscribeUser();
+    } else {
+      setUserData(null);
+      setCredits(3);
+      setIsPro(false);
+      setIsAdmin(false);
+      setAdminUsersInfo([]);
+      if (activeTab === 'dashboard') setActiveTab('resume');
+    }
+  }, [user, authLoading, activeTab]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const handlePurchase = async (priceId: string) => {
     if (!user) {
