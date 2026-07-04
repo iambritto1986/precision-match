@@ -85,6 +85,7 @@ export default function App() {
 
   const [fontFamily, setFontFamily] = useState<string>('');
   const [credits, setCredits] = useState<number>(3);
+  const [downloadsRemaining, setDownloadsRemaining] = useState<number>(1);
   const [isPro, setIsPro] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
   const defaultOrder = ['summary', 'experience', 'skills', 'education', 'projects'];
@@ -136,6 +137,7 @@ export default function App() {
             const data = snapshot.data();
             setUserData(data);
             setCredits(data.credits ?? 3);
+            setDownloadsRemaining(data.downloadsRemaining ?? 1);
             setIsPro(data.isPro || user.email === 'iambrittothomas@gmail.com');
             
             if (!data.onboardingCompleted) {
@@ -148,6 +150,7 @@ export default function App() {
                email: user.email || '',
                createdAt: new Date().toISOString(),
                credits: 3,
+                 downloadsRemaining: 1,
                isPro: user.email === 'iambrittothomas@gmail.com',
                onboardingCompleted: true
             }).catch(e => console.error("Error setting user doc", e));
@@ -178,6 +181,7 @@ export default function App() {
     } else {
       setUserData(null);
       setCredits(3);
+        setDownloadsRemaining(1);
       setIsPro(false);
       setIsAdmin(false);
       setAdminUsersInfo([]);
@@ -299,6 +303,28 @@ export default function App() {
       }
       return r;
     }));
+  };
+
+  
+  const handleExport = async (type: 'pdf' | 'docx') => {
+    if (isPro) {
+      if (type === 'pdf') exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`);
+      else exportToDocx(resumeData);
+    } else {
+      if (downloadsRemaining > 0) {
+        if (type === 'pdf') exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`);
+        else exportToDocx(resumeData);
+        
+        const newCount = downloadsRemaining - 1;
+        setDownloadsRemaining(newCount);
+        if (user && user.uid !== 'local-guest-uid') {
+          updateDoc(doc(db, 'users', user.uid), { downloadsRemaining: newCount }).catch(console.error);
+        }
+      } else {
+        showToast("You've used your free download. Upgrade to Pro for unlimited exports.", "error");
+        setShowPricing(true);
+      }
+    }
   };
 
   const handleStartNewResume = () => {
@@ -734,11 +760,11 @@ export default function App() {
             <span className="status-badge pr-3"><CheckCircle2 className="w-3 h-3 inline mr-1 -mt-0.5" />Optimized for ATS</span>
           </div>
           <div className="flex items-center space-x-3">
-             <button onClick={() => exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`)} className="px-4 py-2 text-xs font-medium btn-primary rounded-xl flex items-center">
+             <button onClick={() => handleExport('pdf')} className="px-4 py-2 text-xs font-medium btn-primary rounded-xl flex items-center">
                <FileOutput className="w-3 h-3 mr-2" />
                Export PDF
              </button>
-             <button onClick={() => exportToDocx(resumeData)} className="px-4 py-2 text-xs font-medium btn-secondary rounded-xl flex items-center">
+             <button onClick={() => handleExport('docx')} className="px-4 py-2 text-xs font-medium btn-secondary rounded-xl flex items-center">
                <Download className="w-3 h-3 mr-2" />
                Download Word
              </button>
@@ -1339,7 +1365,7 @@ export default function App() {
                     <p className="text-sm text-slate-400 mb-6">Perfect for trying out the platform and generating a quick resume.</p>
                     <ul className="space-y-3 text-sm text-slate-700 flex-1 mb-8">
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> 3 AI Generation Credits</li>
-                       <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> Export to PDF</li>
+                       <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> 1 Free Download (PDF/Word)</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> Standard Templates</li>
                     </ul>
                     <button onClick={() => setShowPricing(false)} className="w-full py-2.5 rounded-xl btn-secondary font-bold">{user ? 'Current Plan' : 'Dismiss'}</button>
