@@ -22,11 +22,17 @@ export const ParticleNetworkBackground: React.FC = () => {
 
     window.addEventListener('resize', resizeCanvas);
     
-    const handleMouseMove = (e: MouseEvent) => {
-      mouse.x = e.x;
-      mouse.y = e.y;
+    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
+      if ('touches' in e) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+      } else {
+        mouse.x = (e as MouseEvent).x;
+        mouse.y = (e as MouseEvent).y;
+      }
     };
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove as any);
+    window.addEventListener('touchmove', handleMouseMove as any);
 
     class Particle {
       x: number;
@@ -130,7 +136,8 @@ export const ParticleNetworkBackground: React.FC = () => {
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousemove', handleMouseMove as any);
+      window.removeEventListener('touchmove', handleMouseMove as any);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
