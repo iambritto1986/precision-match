@@ -144,9 +144,10 @@ async function startServer() {
             if (session.mode === 'subscription') {
               await userRef.update({
                   isPro: true,
+                  credits: 100, // Grant 100 credits upon subscription
                   stripeCustomerId: session.customer as string
               });
-              console.log(`Upgraded user ${userId} to Pro`);
+              console.log(`Upgraded user ${userId} to Pro and granted 100 credits`);
             } else if (session.mode === 'payment') {
               await userRef.update({
                   credits: FieldValue.increment(10)

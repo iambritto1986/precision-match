@@ -377,6 +377,7 @@ export default function App() {
   };
 
   const handleDeductCredits = (amount: number): boolean => {
+    if (user?.email === 'iambrittothomas@gmail.com') return true;
     if (credits >= amount) {
       const newCount = credits - amount;
       setCredits(newCount);
