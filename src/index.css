@@ -82,19 +82,6 @@ body {
   100% { transform: scale(1.0) rotate(-5deg) translate(-2%, -2%); }
 }
 
-#root::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url('/background.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.6; /* Let the nebula glow bleed through */
-  mix-blend-mode: screen;
-}
 
 h1, h2, h3, h4 {
   color: #FFFFFF;

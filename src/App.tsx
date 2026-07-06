@@ -13,6 +13,7 @@ import { exportToDocx, exportToPdf, exportCoverLetterDocx } from './lib/export';
 import { Upload, FileText, Download, Briefcase, RefreshCw, Layers, CheckCircle2, Image as ImageIcon, MapPin, Phone, Mail, Linkedin, Globe, FileOutput, Mic, MessageCircle, ChevronUp, ChevronDown, Code, X, Users, LogOut, LogIn, ZoomIn, ZoomOut, Maximize2, Sparkles, Check, AlertCircle, Info, Menu } from 'lucide-react';
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { ParticleNetworkBackground } from './components/ParticleNetworkBackground';
 
 import { useAuth } from './context/AuthContext';
 
@@ -648,11 +649,13 @@ export default function App() {
         .scroll-hide::-webkit-scrollbar { display: none; }
       ` }} />
       
+      <ParticleNetworkBackground />
+
       {/* Mobile Top Bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#0f0b1e]/90 backdrop-blur-md z-50 border-b border-white/10 flex items-center px-4 justify-between">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-500/25">P</div>
-          <h1 className="text-lg font-bold leading-none truncate">Precision Match</h1>
+          <img src="/logo.png" alt="Precision Match Logo" className="w-8 h-8 rounded-lg shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/20" />
+          <h1 className="text-lg font-bold leading-none truncate tracking-wide">Precision Match</h1>
         </div>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 text-slate-300 hover:text-white">
           {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -661,11 +664,11 @@ export default function App() {
 
       <aside className={`fixed md:relative md:flex w-64 glass-sidebar text-white flex-col shrink-0 z-40 overflow-y-auto scroll-hide h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0 pt-14 md:pt-0' : '-translate-x-full md:translate-x-0'} bg-[#0f0b1e] md:bg-transparent`}>
         <div className="p-6">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-500/25">P</div>
+          <div className="flex items-center space-x-3">
+            <img src="/logo.png" alt="Precision Match Logo" className="w-9 h-9 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/30" />
             <div>
-              <h1 className="text-lg font-bold leading-none">Precision Match</h1>
-              <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Resume Builder</p>
+              <h1 className="text-lg font-bold leading-none tracking-wide text-white">Precision Match</h1>
+              <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1.5 font-semibold text-[#00F0FF]">Resume Builder</p>
             </div>
           </div>
         </div>
