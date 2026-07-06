@@ -18,6 +18,8 @@ import { useAuth } from './context/AuthContext';
 import { AuthModal } from './components/AuthModal';
 import { FounderDashboard } from './components/FounderDashboard';
 import { doc, onSnapshot, setDoc, getDoc, collection, getDocs, query, updateDoc } from 'firebase/firestore';
+import { useLocation } from 'react-router-dom';
+import { AuthPortal } from './pages/AuthPortal';
 
 const defaultData: ResumeData = {
   personalDetails: {
@@ -77,7 +79,7 @@ const blankData: ResumeData = {
 };
 
 export default function App() {
-    const { user, logout, loading: authLoading } = useAuth();
+    const { user, logout, loading: authLoading, loginWithGoogle } = useAuth();
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [userData, setUserData] = useState<any>(null);
@@ -589,6 +591,11 @@ export default function App() {
         </div>
       </div>
     );
+  }
+
+  const location = useLocation();
+  if (location.pathname === '/auth/register') {
+    return <AuthPortal />;
   }
 
 
