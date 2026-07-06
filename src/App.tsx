@@ -689,7 +689,7 @@ export default function App() {
 
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full bg-[#0f0b1e] text-slate-100 font-inter relative md:overflow-hidden">
+    <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full bg-[#0f0b1e] text-slate-100 font-inter relative overflow-x-hidden md:overflow-hidden">
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         .font-inter { font-family: 'Inter', sans-serif; }
@@ -865,10 +865,10 @@ export default function App() {
           </div>
         </header>
 
-        <div className="flex-1 flex flex-col lg:flex-row md:overflow-hidden min-h-0">
+        <div className="flex-1 flex flex-col lg:flex-row md:overflow-hidden min-h-0 min-w-0 w-full">
           <section className={`${
             workspaceSubTab === 'form' ? 'w-full lg:w-[50%]' : 'w-full lg:w-[40%] xl:w-[35%]'
-          } border-r border-white/[0.06] p-4 lg:p-6 flex flex-col bg-[rgba(15,11,30,0.35)] backdrop-blur-xl shrink-0 overflow-y-visible md:overflow-y-auto transition-all duration-300 h-auto no-print`}>
+          } border-r border-white/[0.06] p-4 lg:p-6 flex flex-col bg-[rgba(15,11,30,0.35)] backdrop-blur-sm md:backdrop-blur-xl shrink-0 overflow-y-visible md:overflow-y-auto transition-all duration-300 h-auto no-print`}>
              
              {/* Sub-tab Navigation */}
              <div className="flex border-b border-white/10 mb-6 shrink-0">
@@ -1119,7 +1119,7 @@ export default function App() {
              )}
           </section>
 
-          <section className="flex-1 bg-white/[0.03] overflow-y-auto scroll-hide flex flex-col p-6 items-center">
+          <section className="flex-1 bg-white/[0.03] overflow-y-auto scroll-hide flex flex-col p-6 items-center min-w-0 min-h-0 relative z-0">
              
              {/* PDF Preview Zoom & Nav Toolbar */}
              <div className="w-full max-w-[816px] flex items-center justify-between mb-4 shrink-0 glass px-4 py-2 rounded-xl z-10">
