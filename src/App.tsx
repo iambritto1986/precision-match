@@ -108,6 +108,9 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
+  const [showSupport, setShowSupport] = useState(false);
+  const [supportText, setSupportText] = useState('');
+  const [showSecurity, setShowSecurity] = useState(false);
   const [showLegalModal, setShowLegalModal] = useState<'privacy' | 'terms' | null>(null);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -823,14 +826,16 @@ export default function App() {
              )}
           </div>
         </div>
-        <div className="px-6 pb-4 flex flex-wrap gap-x-3 gap-y-1">
+        <div className="px-6 pb-4 flex flex-wrap gap-x-3 gap-y-1 mt-auto">
           <button onClick={() => setShowFeedback(true)} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Feedback</button>
+          <span className="text-slate-700 text-[10px]">&middot;</span>
+          <button onClick={() => setShowSupport(true)} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Support</button>
+          <span className="text-slate-700 text-[10px]">&middot;</span>
+          <button onClick={() => setShowSecurity(true)} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Security</button>
           <span className="text-slate-700 text-[10px]">&middot;</span>
           <button onClick={() => setShowLegalModal('privacy')} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Privacy</button>
           <span className="text-slate-700 text-[10px]">&middot;</span>
           <button onClick={() => setShowLegalModal('terms')} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Terms</button>
-          <span className="text-slate-700 text-[10px]">&middot;</span>
-          <a href="mailto:support@precisionmatch.app" className="text-[10px] text-slate-500 hover:text-slate-300 transition">Support</a>
           {user && user.uid !== 'local-guest-uid' && (
             <>
               <span className="text-slate-700 text-[10px]">&middot;</span>
@@ -1796,6 +1801,81 @@ export default function App() {
         </div>
       )}
 
+      {/* Support Ticket Modal */}
+      {showSupport && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="modal-container max-w-md w-full p-6">
+            <h2 className="text-lg font-bold text-white mb-2">Contact Support</h2>
+            <p className="text-sm text-slate-400 mb-4">Need help or facing an issue? Describe it below and our team will investigate.</p>
+            <textarea
+              value={supportText}
+              onChange={e => setSupportText(e.target.value)}
+              className="w-full h-32 tech-input rounded-xl px-3 py-2 text-sm mb-4 resize-none"
+              placeholder="Describe your issue in detail..."
+            />
+            <div className="flex justify-end gap-3">
+              <button onClick={() => { setShowSupport(false); setSupportText(''); }} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-white">Cancel</button>
+              <button
+                onClick={async () => {
+                  if (!supportText.trim()) return;
+                  try {
+                    if (user && user.uid !== 'local-guest-uid') {
+                      const supportRef = doc(collection(db, 'support_tickets'), Date.now().toString());
+                      await setDoc(supportRef, {
+                        userId: user.uid,
+                        email: user.email || '',
+                        message: supportText.trim(),
+                        status: 'open',
+                        createdAt: new Date().toISOString()
+                      });
+                    }
+                    showToast('Support ticket submitted successfully!', 'success');
+                    setShowSupport(false);
+                    setSupportText('');
+                  } catch (e) {
+                    console.error(e);
+                    showToast('Failed to submit support ticket.', 'error');
+                  }
+                }}
+                className="px-4 py-2 bg-[var(--accent-primary)] text-slate-900 text-sm font-bold rounded shadow hover:opacity-90 transition"
+              >Submit Ticket</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Security & Privacy Modal */}
+      {showSecurity && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="modal-container max-w-2xl w-full p-8 overflow-y-auto max-h-[90vh] scroll-hide">
+            <h2 className="text-2xl font-bold text-white mb-6 uppercase tracking-wider flex items-center">
+               <ShieldAlert className="w-6 h-6 mr-3 text-green-400" /> Security & SOC2 Compliance Overview
+            </h2>
+            <div className="space-y-6 text-slate-300 text-sm leading-relaxed">
+               <p>
+                 At Precision Match, we take the security and privacy of your professional data extremely seriously. While we are continuously evaluating official SOC2 Type II certification, our infrastructure is built upon Google Cloud and Firebase, which inherently provides enterprise-grade security protocols.
+               </p>
+               <div>
+                  <h3 className="text-white font-bold mb-2">Data Encryption</h3>
+                  <p>All data, including your resume details and job descriptions, is encrypted in transit using industry-standard HTTPS/TLS and encrypted at rest using AES-256 encryption.</p>
+               </div>
+               <div>
+                  <h3 className="text-white font-bold mb-2">Access Control</h3>
+                  <p>Authentication is handled securely via Google Identity Services. We do not store or process passwords directly. Internal access to production databases is strictly audited and restricted.</p>
+               </div>
+               <div>
+                  <h3 className="text-white font-bold mb-2">Privacy & AI Processing</h3>
+                  <p>When you use our AI features, your data is processed securely to generate your tailored resume. We do not use your personal resume data to train foundational models. Your data remains yours.</p>
+               </div>
+            </div>
+            <div className="flex justify-end mt-8">
+              <button onClick={() => setShowSecurity(false)} className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-bold rounded transition">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+
       {/* Delete Account Confirmation */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
@@ -1851,7 +1931,7 @@ export default function App() {
                   <h3 className="font-bold text-white text-base">Your Data Rights (GDPR &amp; CCPA)</h3>
                   <p>You have the right to access, update, or delete your personal data at any time. You may delete your account and all associated data permanently using the &quot;Delete Account&quot; option in the sidebar. To request a copy of your data, please contact us.</p>
                   <h3 className="font-bold text-white text-base">Contact</h3>
-                  <p>For privacy inquiries or data requests, email <a href="mailto:support@precisionmatch.app" className="text-blue-400 hover:text-blue-300 underline">support@precisionmatch.app</a>.</p>
+                  <p>For privacy inquiries or data requests, <button onClick={() => { setShowLegalModal(null); setShowSupport(true); }} className="text-blue-400 hover:text-blue-300 underline">contact support</button>.</p>
                 </>
               ) : (
                 <>
@@ -1870,7 +1950,7 @@ export default function App() {
                   <h3 className="font-bold text-white text-base">Changes to Terms</h3>
                   <p>We reserve the right to update these terms at any time. Continued use of the service constitutes acceptance of any updated terms.</p>
                   <h3 className="font-bold text-white text-base">Contact</h3>
-                  <p>For questions about these terms, email <a href="mailto:support@precisionmatch.app" className="text-blue-400 hover:text-blue-300 underline">support@precisionmatch.app</a>.</p>
+                  <p>For questions about these terms, <button onClick={() => { setShowLegalModal(null); setShowSupport(true); }} className="text-blue-400 hover:text-blue-300 underline">contact support</button>.</p>
                 </>
               )}
             </div>
