@@ -1119,7 +1119,7 @@ export default function App() {
                     if (pages.length === 0) pages.push([]); // ensure at least 1 page
 
                     return pages.map((pageSections, i) => (
-                       <div key={i} className="shadow-2xl ring-1 ring-slate-900/5 bg-white overflow-hidden print-page relative break-inside-avoid w-[816px] h-[1056px]" style={{ pageBreakAfter: 'always' }}>
+                       <div key={i} className="shadow-2xl ring-1 ring-slate-900/5 bg-white print-page relative w-[816px] min-h-[1056px]" style={{ pageBreakAfter: 'always' }}>
                          <TemplateRenderer 
                             template={selectedTemplate} 
                             data={resumeData} 

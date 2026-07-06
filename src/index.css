@@ -95,6 +95,28 @@ h1, h2, h3, h4 {
   color: #0f172a !important;
 }
 
+/* Intelligent Print Formatting */
+#resume-preview-content section,
+#resume-preview-content article,
+#resume-preview-content .group,
+#resume-preview-content > div > div > div {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+@media screen {
+  .print-page {
+    /* Visual page break guide every 1056px (US Letter height) */
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 1054px,
+      rgba(239, 68, 68, 0.4) 1054px,
+      rgba(239, 68, 68, 0.4) 1056px
+    );
+  }
+}
+
 #resume-preview-content h1, 
 #resume-preview-content h2, 
 #resume-preview-content h3, 
