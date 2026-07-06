@@ -4,7 +4,7 @@ import Markdown from 'react-markdown';
 
 import { ResumeData } from '../types';
 
-export default function CareerChat({ resumeData }: { resumeData: ResumeData }) {
+export default function CareerChat({ resumeData, deductCredits }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean }) {
   const [messages, setMessages] = useState<{role: 'user'|'model', text: string}[]>([{
       role: 'model',
       text: 'Hello! I am your Career Coach. Ask me anything to prepare for your next big role. You can enable **High Thinking Mode** below for complex inquiries like mock technical rounds or salary negotiation planning. I have your current resume handy.'
@@ -16,6 +16,7 @@ export default function CareerChat({ resumeData }: { resumeData: ResumeData }) {
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
+    if (!deductCredits(1)) return;
 
     const newMessages = [...messages, { role: 'user' as const, text: input }];
     setMessages(newMessages);

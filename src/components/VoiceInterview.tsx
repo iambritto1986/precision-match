@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Loader2, Play, Square, Video, Volume2, ShieldAlert } from 'lucide-react';
 import { ResumeData } from '../types';
 
-export default function VoiceInterview({ resumeData }: { resumeData: ResumeData }) {
+export default function VoiceInterview({ resumeData, deductCredits }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean }) {
   const [isConnected, setIsConnected] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +65,7 @@ export default function VoiceInterview({ resumeData }: { resumeData: ResumeData 
   };
 
   const connectVoice = async () => {
+    if (!deductCredits(5)) return;
     try {
       setError(null);
       setIsConnecting(true);

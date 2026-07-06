@@ -359,7 +359,26 @@ export default function App() {
     }
   };
 
+  const handleDeductCredits = (amount: number): boolean => {
+    if (credits >= amount) {
+      const newCount = credits - amount;
+      setCredits(newCount);
+      if (user) {
+        updateDoc(doc(db, 'users', user.uid), { credits: newCount }).catch(console.error);
+      }
+      return true;
+    }
+    showToast(`You need ${amount} AI Credits to perform this action.`, "error");
+    setShowPricing(true);
+    return false;
+  };
+
   const handleStartNewResume = () => {
+    if (!isPro && resumes.length >= 1) {
+       showToast("Free users are limited to 1 active resume. Upgrade to Pro for unlimited resumes.", "error");
+       setShowPricing(true);
+       return;
+    }
     setIsOnboarding(true);
     setOnboardingStep('options');
   };
@@ -766,11 +785,23 @@ export default function App() {
                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">AI Credits</p>
                  <p className="text-[10px] text-blue-400 font-bold bg-blue-500/200/10 px-2 py-0.5 rounded-lg cursor-pointer hover:bg-blue-500/200/20 transition" onClick={() => setShowPricing(true)}>Upgrade</p>
               </div>
-              <p className="text-sm font-medium">{credits} / 3 Free Remaining</p>
+              <p className="text-sm font-medium">{isPro ? `${credits} Credits` : `${credits} / 3 Free Remaining`}</p>
               <div className="w-full bg-white/10 h-1.5 mt-3 rounded-full overflow-hidden">
-                <div className={`h-full rounded-full transition-all ${credits > 0 ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(248,113,113,0.4)]'}`} style={{ width: `${(credits/3)*100}%` }}></div>
+                <div className={`h-full rounded-full transition-all ${credits > 0 ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(248,113,113,0.4)]'}`} style={{ width: `${isPro ? Math.min((credits/100)*100, 100) : (credits/3)*100}%` }}></div>
               </div>
-              <p className="text-[10px] mt-2 text-slate-500">1 Credit deducted per generation</p>
+              <p className="text-[10px] mt-2 text-slate-500 mb-4">1 Credit / Generation</p>
+              
+              {!isPro && (
+                <>
+                  <div className="flex justify-between items-end mb-2 mt-4 pt-4 border-t border-white/10">
+                     <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Free Exports</p>
+                  </div>
+                  <p className="text-sm font-medium">{downloadsRemaining} / 1 Free Remaining</p>
+                  <div className="w-full bg-white/10 h-1.5 mt-3 rounded-full overflow-hidden mb-2">
+                     <div className={`h-full rounded-full transition-all ${downloadsRemaining > 0 ? 'bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(248,113,113,0.4)]'}`} style={{ width: `${downloadsRemaining * 100}%` }}></div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </nav>
@@ -1248,8 +1279,8 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'chat' && <div className="flex-1 overflow-hidden h-full"><CareerChat resumeData={resumeData} /></div>}
-        {activeTab === 'interview' && <div className="flex-1 overflow-hidden h-full"><VoiceInterview resumeData={resumeData} /></div>}
+        {activeTab === 'chat' && <div className="flex-1 overflow-hidden h-full"><CareerChat resumeData={resumeData} deductCredits={handleDeductCredits} /></div>}
+        {activeTab === 'interview' && <div className="flex-1 overflow-hidden h-full"><VoiceInterview resumeData={resumeData} deductCredits={handleDeductCredits} /></div>}
         
         {activeTab === 'dashboard' && isAdmin && (
           <FounderDashboard adminUsersInfo={adminUsersInfo} setAdminUsersInfo={setAdminUsersInfo} />
@@ -1408,7 +1439,7 @@ export default function App() {
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-slate-600 mr-2 mt-0.5 shrink-0"/> +10 AI Generations</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-slate-600 mr-2 mt-0.5 shrink-0"/> Never expires</li>
                     </ul>
-                    <button onClick={() => handlePurchase('price_1TjhoWKc3d6UbNauMyXLfggD')} className="w-full py-2.5 rounded-xl btn-secondary font-bold">Buy Credits</button>
+                    <button onClick={() => isPro ? handlePurchase('price_1TjhoWKc3d6UbNauMyXLfggD') : null} disabled={!isPro} className={`w-full py-2.5 rounded-xl font-bold transition-all ${isPro ? 'btn-secondary' : 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-70'}`}>{isPro ? 'Buy Credits' : 'Requires Pro Subscription'}</button>
                  </div>
 
                  {/* Pro Tier */}
