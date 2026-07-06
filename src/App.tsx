@@ -10,7 +10,7 @@ import VoiceInterview from './components/VoiceInterview';
 import CareerChat from './components/CareerChat';
 import ResumeFormEditor from './components/ResumeFormEditor';
 import { exportToDocx, exportToPdf, exportCoverLetterDocx } from './lib/export';
-import { Upload, FileText, Download, Briefcase, RefreshCw, Layers, CheckCircle2, Image as ImageIcon, MapPin, Phone, Mail, Linkedin, Globe, FileOutput, Mic, MessageCircle, ChevronUp, ChevronDown, Code, X, Users, LogOut, LogIn, ZoomIn, ZoomOut, Maximize2, Sparkles, Check, AlertCircle, Info, Menu } from 'lucide-react';
+import { Upload, FileText, Download, Briefcase, RefreshCw, Layers, CheckCircle2, Image as ImageIcon, MapPin, Phone, Mail, Linkedin, Globe, FileOutput, Mic, MessageCircle, ChevronUp, ChevronDown, Code, X, Users, LogOut, LogIn, ZoomIn, ZoomOut, Maximize2, Sparkles, Check, AlertCircle, Info, Menu, ShieldAlert } from 'lucide-react';
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { ParticleNetworkBackground } from './components/ParticleNetworkBackground';
