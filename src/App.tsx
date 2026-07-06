@@ -286,6 +286,31 @@ export default function App() {
   const [resumes, setResumes] = useState<{id: string, name: string, data: ResumeData}[]>([{id: '1', name: defaultData.personalDetails.name || 'Untitled Resume', data: defaultData}]);
   const [activeResumeId, setActiveResumeId] = useState<string>('1');
 
+  React.useEffect(() => {
+    if (user?.uid) {
+      const stored = localStorage.getItem(`resumes_${user.uid}`);
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          setResumes(parsed);
+          if (parsed.length > 0) setActiveResumeId(parsed[0].id);
+        } catch(e) {
+          setResumes([{id: '1', name: defaultData.personalDetails.name || 'Untitled Resume', data: defaultData}]);
+        }
+      } else {
+        setResumes([{id: '1', name: defaultData.personalDetails.name || 'Untitled Resume', data: defaultData}]);
+      }
+    } else {
+      setResumes([{id: '1', name: defaultData.personalDetails.name || 'Untitled Resume', data: defaultData}]);
+    }
+  }, [user?.uid]);
+
+  React.useEffect(() => {
+    if (user?.uid && resumes.length > 0) {
+      localStorage.setItem(`resumes_${user.uid}`, JSON.stringify(resumes));
+    }
+  }, [resumes, user?.uid]);
+
   const resumeData = resumes.find(r => r.id === activeResumeId)?.data || blankData;
   
   React.useEffect(() => {
@@ -589,13 +614,12 @@ export default function App() {
 
   if (authLoading || (user && profileLoading)) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#0f0b1e] font-inter">
-        <div className="text-center">
-          <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-4 animate-pulse shadow-lg shadow-blue-500/30">P</div>
-          <p className="text-sm text-slate-400 animate-pulse">Loading Precision Match...</p>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-[#0a0612] relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#00F0FF]/10 to-[#B500FF]/10 blur-[100px] -z-10 animate-pulse"></div>
+          <img src="/logo.png" alt="Precision Match Logo" className="w-16 h-16 rounded-2xl shadow-[0_0_30px_rgba(0,240,255,0.3)] object-cover border border-[#00F0FF]/30 animate-pulse mb-6" />
+          <p className="text-[10px] text-[#00F0FF] uppercase font-black tracking-[0.2em] animate-pulse">Loading Precision Match...</p>
         </div>
-      </div>
-    );
+      );
   }
 
   const location = useLocation();
@@ -1550,38 +1574,41 @@ export default function App() {
               </button>
 
             {onboardingStep === 'options' && (
-              <div className="flex-1 flex flex-col justify-between">
-                <div className="text-center mb-8">
-                  <span className="text-xs font-bold text-blue-400 uppercase tracking-widest bg-blue-500/20 px-3 py-1 rounded-full">Precision Match AI</span>
-                  <h2 className="text-2xl font-black text-white mt-3 tracking-tight">Create a New Resume</h2>
-                  <p className="text-sm text-slate-300 mt-2 max-w-md mx-auto">Select how you'd like to construct your resume. Let AI do the heavy lifting or build it manually step-by-step.</p>
+              <div className="flex-1 flex flex-col justify-center max-w-4xl mx-auto w-full px-4">
+                <div className="text-center mb-10">
+                  <div className="inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-[#00F0FF]/20 to-[#B500FF]/20 px-4 py-1.5 rounded-full border border-white/10 mb-6 backdrop-blur-md">
+                    <Sparkles className="w-4 h-4 text-[#00F0FF]" />
+                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Precision Match AI</span>
+                  </div>
+                  <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4 drop-shadow-[0_0_15px_rgba(0,240,255,0.3)]">Create Your Next Resume</h2>
+                  <p className="text-sm md:text-base text-slate-400 max-w-lg mx-auto leading-relaxed">Choose how you want to build your resume. Let our AI do the heavy lifting from an existing source, or start with a clean slate.</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-4 perspective-1000">
                   {/* Card 1: Upload File */}
                   <div 
-                    onClick={() => {
-                      fileInputRef.current?.click();
-                    }}
-                    className="card cursor-pointer flex flex-col items-center justify-center text-center p-5 group" style={{border: "1px solid rgba(0,240,255,0.2)"}}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-8 rounded-2xl glass-sidebar border border-white/10 hover:border-[#00F0FF]/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl overflow-hidden"
                   >
-                    <div className="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4 group-hover:bg-blue-500/40 transition-colors">
-                      <Upload className="w-6 h-6" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#00F0FF]/0 to-[#00F0FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                    <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center mb-6 group-hover:bg-[#00F0FF]/20 group-hover:text-[#00F0FF] group-hover:border-[#00F0FF]/50 transition-all shadow-lg">
+                      <Upload className="w-8 h-8" />
                     </div>
-                    <h3 className="text-sm font-bold text-white">Upload Resume</h3>
-                    <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">Import from PDF, DOCX, or text file. AI extracts all fields.</p>
+                    <h3 className="text-lg font-bold text-white mb-2">Upload File</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed px-2">Import an existing PDF or DOCX. AI will extract and structure all your data.</p>
                   </div>
 
                   {/* Card 2: Sync LinkedIn */}
                   <div 
                     onClick={() => setOnboardingStep('linkedin')}
-                    className="card cursor-pointer flex flex-col items-center justify-center text-center p-5 group" style={{border: "1px solid rgba(181,0,255,0.2)"}}
+                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-8 rounded-2xl glass-sidebar border border-white/10 hover:border-[#B500FF]/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl overflow-hidden"
                   >
-                    <div className="w-12 h-12 rounded-full bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/20 text-indigo-400 flex items-center justify-center mb-4 group-hover:bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/40 transition-colors">
-                      <Linkedin className="w-6 h-6" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#B500FF]/0 to-[#B500FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                    <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center mb-6 group-hover:bg-[#B500FF]/20 group-hover:text-[#B500FF] group-hover:border-[#B500FF]/50 transition-all shadow-lg">
+                      <Linkedin className="w-8 h-8" />
                     </div>
-                    <h3 className="text-sm font-bold text-white">LinkedIn Sync</h3>
-                    <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">Paste your LinkedIn profile URL and sync details instantly.</p>
+                    <h3 className="text-lg font-bold text-white mb-2">LinkedIn Sync</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed px-2">Paste your LinkedIn URL and magically sync your entire professional history.</p>
                   </div>
 
                   {/* Card 3: Build Manually */}
@@ -1595,23 +1622,24 @@ export default function App() {
                       setIsOnboarding(false);
                       setWorkspaceSubTab('form');
                     }}
-                    className="card cursor-pointer flex flex-col items-center justify-center text-center p-5 group" style={{border: "1px solid rgba(0,240,255,0.2)"}}
+                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-8 rounded-2xl glass-sidebar border border-white/10 hover:border-emerald-500/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl overflow-hidden"
                   >
-                    <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4 group-hover:bg-emerald-500/40 transition-colors">
-                      <FileText className="w-6 h-6" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                    <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center mb-6 group-hover:bg-emerald-500/20 group-hover:text-emerald-400 group-hover:border-emerald-500/50 transition-all shadow-lg">
+                      <FileText className="w-8 h-8" />
                     </div>
-                    <h3 className="text-sm font-bold text-white">Build Manually</h3>
-                    <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">Start with a clean slate and type details in our manual form.</p>
+                    <h3 className="text-lg font-bold text-white mb-2">Build Manually</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed px-2">Start with a clean slate and type your details step-by-step.</p>
                   </div>
                 </div>
 
-                <div className="text-center mt-6">
+                <div className="text-center mt-10">
                   {resumes.length > 0 && resumes[0].name !== 'Alex Rivera' && (
                     <button 
                       onClick={() => setIsOnboarding(false)}
-                      className="text-xs font-semibold text-slate-400 hover:text-slate-600 transition underline"
+                      className="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
                     >
-                      Cancel and return to workspace
+                      ← Cancel and return to workspace
                     </button>
                   )}
                 </div>
