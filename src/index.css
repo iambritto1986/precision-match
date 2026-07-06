@@ -345,16 +345,20 @@ input::placeholder, textarea::placeholder {
 
 /* PRINT STYLES */
 @media print {
-  body { background: white; color: black; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
+  body, html, #root { display: block; height: auto; overflow: visible !important; min-height: auto; background: white; color: black; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
   body::after, body::before, #root::before, #root::after { display: none !important; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .no-print { display: none !important; }
   @page { margin: 0; size: letter; }
-  #root { display: block; height: auto; overflow: visible; }
-  .print-page { box-shadow: none !important; margin: 0 !important; page-break-inside: avoid; break-inside: avoid; break-after: page; page-break-after: always; }
-  .lg:flex > section:first-child { display: none; }
-  .lg:flex > section:last-child { background: transparent; padding: 0; }
-  .lg:flex > section:last-child > div:first-child { display: none; }
+  
+  .print-page { 
+    box-shadow: none !important; 
+    margin: 0 !important; 
+    page-break-inside: avoid; 
+    break-inside: avoid; 
+    break-after: page; 
+    page-break-after: always; 
+  }
   .app-footer-brand { display: none !important; }
   * { text-shadow: none !important; box-shadow: none !important; }
   a, a:visited { text-decoration: none; color: inherit; }

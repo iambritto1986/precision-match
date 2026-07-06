@@ -340,11 +340,15 @@ export default function App() {
   
   const handleExport = async (type: 'pdf' | 'docx') => {
     if (isPro) {
-      if (type === 'pdf') exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`);
+      if (type === 'pdf') {
+        window.print();
+      }
       else exportToDocx(resumeData);
     } else {
       if (downloadsRemaining > 0) {
-        if (type === 'pdf') exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`);
+        if (type === 'pdf') {
+          window.print();
+        }
         else exportToDocx(resumeData);
         
         const newCount = downloadsRemaining - 1;
@@ -685,7 +689,7 @@ export default function App() {
 
 
   return (
-    <div className="flex h-screen w-full bg-[#0f0b1e] text-slate-100 overflow-hidden font-inter relative">
+    <div className="flex min-h-screen md:h-screen w-full bg-[#0f0b1e] text-slate-100 font-inter relative md:overflow-hidden">
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         .font-inter { font-family: 'Inter', sans-serif; }
@@ -695,7 +699,7 @@ export default function App() {
       <ParticleNetworkBackground />
 
       {/* Mobile Top Bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#0f0b1e]/90 backdrop-blur-md z-50 border-b border-white/10 flex items-center px-4 justify-between">
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#0f0b1e]/90 backdrop-blur-md z-50 border-b border-white/10 flex items-center px-4 justify-between no-print">
         <div className="flex items-center space-x-2">
           <img src="/logo.png" alt="Precision Match Logo" className="w-8 h-8 rounded-lg shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/20" />
           <h1 className="text-lg font-bold leading-none truncate tracking-wide">Precision Match</h1>
@@ -705,7 +709,7 @@ export default function App() {
         </button>
       </div>
 
-      <aside className={`fixed md:relative md:flex w-64 glass-sidebar text-white flex-col shrink-0 z-40 overflow-y-auto scroll-hide h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0 pt-14 md:pt-0' : '-translate-x-full md:translate-x-0'} bg-[#0f0b1e] md:bg-transparent`}>
+      <aside className={`fixed md:relative md:flex w-64 glass-sidebar text-white flex-col shrink-0 z-40 overflow-y-auto scroll-hide h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0 pt-14 md:pt-0' : '-translate-x-full md:translate-x-0'} bg-[#0f0b1e] md:bg-transparent no-print`}>
         <div className="p-6">
           <div className="flex items-center space-x-3">
             <img src="/logo.png" alt="Precision Match Logo" className="w-9 h-9 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/30" />
@@ -841,10 +845,10 @@ export default function App() {
         <div className="fixed inset-0 bg-black/50 z-30 md:hidden backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <main className="flex-1 flex flex-col overflow-hidden relative z-10 min-w-0 min-h-0 pt-14 md:pt-0">
+      <main className="flex-1 flex flex-col relative z-10 min-w-0 min-h-0 pt-14 md:pt-0 overflow-y-auto md:overflow-hidden">
         {activeTab === 'resume' && (
-           <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-        <header className="h-16 border-b border-white/5 glass-header flex items-center justify-between px-8 shrink-0">
+           <div className="flex-1 flex flex-col overflow-y-visible md:overflow-hidden min-h-0">
+        <header className="h-16 border-b border-white/5 glass-header flex items-center justify-between px-8 shrink-0 no-print">
           <div className="flex items-center space-x-4">
             <h2 className="text-sm font-semibold text-slate-200">Workspace: Tailoring {resumeData.personalDetails.name}'s Resume</h2>
             <span className="status-badge pr-3"><CheckCircle2 className="w-3 h-3 inline mr-1 -mt-0.5" />Optimized for ATS</span>
@@ -861,10 +865,10 @@ export default function App() {
           </div>
         </header>
 
-        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-0">
+        <div className="flex-1 flex flex-col lg:flex-row md:overflow-hidden min-h-0">
           <section className={`${
             workspaceSubTab === 'form' ? 'w-full lg:w-[50%]' : 'w-full lg:w-[40%] xl:w-[35%]'
-          } border-r border-white/[0.06] p-4 lg:p-6 flex flex-col bg-[rgba(15,11,30,0.35)] backdrop-blur-xl overflow-y-auto transition-all duration-300 h-1/2 lg:h-auto`}>
+          } border-r border-white/[0.06] p-4 lg:p-6 flex flex-col bg-[rgba(15,11,30,0.35)] backdrop-blur-xl shrink-0 overflow-y-visible md:overflow-y-auto transition-all duration-300 h-auto no-print`}>
              
              {/* Sub-tab Navigation */}
              <div className="flex border-b border-white/10 mb-6 shrink-0">
@@ -1594,52 +1598,54 @@ export default function App() {
       {/* Onboarding Wizard Modal */}
       {isOnboarding && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="modal-container max-w-2xl w-full p-8 relative overflow-hidden flex flex-col min-h-[400px] justify-between">
+          <div className="modal-container max-w-2xl w-full p-8 relative overflow-hidden flex flex-col min-h-[300px] justify-center shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 rounded-3xl">
             <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 left-0"></div>
             
-                          <button 
+            <button 
                 onClick={() => setIsOnboarding(false)}
-                className="absolute top-6 right-6 text-slate-400 hover:text-white p-1 bg-white/10 rounded-full transition z-50"
+                className="absolute top-6 right-6 text-slate-400 hover:text-white p-2 bg-white/5 hover:bg-white/10 rounded-full transition z-50"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
 
             {onboardingStep === 'options' && (
               <div className="flex-1 flex flex-col justify-center max-w-4xl mx-auto w-full px-4">
-                <div className="text-center mb-10">
-                  <div className="inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-[#00F0FF]/20 to-[#B500FF]/20 px-4 py-1.5 rounded-full border border-white/10 mb-6 backdrop-blur-md">
+                <div className="text-center mb-8 mt-2">
+                  <div className="inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-[#00F0FF]/20 to-[#B500FF]/20 px-4 py-1.5 rounded-full border border-white/10 mb-5 backdrop-blur-md">
                     <Sparkles className="w-4 h-4 text-[#00F0FF]" />
                     <span className="text-[10px] font-black text-white uppercase tracking-widest">Precision Match AI</span>
                   </div>
-                  <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4 drop-shadow-[0_0_15px_rgba(0,240,255,0.3)]">Create Your Next Resume</h2>
+                  <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-2 drop-shadow-[0_0_15px_rgba(0,240,255,0.2)]">Create Your Next Resume</h2>
                   <p className="text-sm md:text-base text-slate-400 max-w-lg mx-auto leading-relaxed">Choose how you want to build your resume. Let our AI do the heavy lifting from an existing source, or start with a clean slate.</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-4 perspective-1000">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-2 perspective-1000">
                   {/* Card 1: Upload File */}
                   <div 
                     onClick={() => fileInputRef.current?.click()}
-                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-8 rounded-2xl glass-sidebar border border-white/10 hover:border-[#00F0FF]/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl overflow-hidden"
+                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-6 rounded-2xl glass-sidebar border border-white/10 hover:border-[#00F0FF]/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl bg-[#0f0b1e]/60"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#00F0FF]/0 to-[#00F0FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center mb-6 group-hover:bg-[#00F0FF]/20 group-hover:text-[#00F0FF] group-hover:border-[#00F0FF]/50 transition-all shadow-lg">
-                      <Upload className="w-8 h-8" />
+                    <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center mb-4 group-hover:bg-[#00F0FF]/20 group-hover:text-[#00F0FF] group-hover:border-[#00F0FF]/50 transition-all shadow-lg">
+                      <Upload className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">Upload File</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed px-2">Import an existing PDF or DOCX. AI will extract and structure all your data.</p>
+                    <h3 className="text-sm font-bold text-white mb-0 group-hover:mb-2 transition-all duration-300">Upload File</h3>
+                    <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-all duration-300">
+                       <p className="text-[10px] text-slate-400 leading-relaxed overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">Import an existing PDF or DOCX. AI will extract and structure all your data.</p>
+                    </div>
                   </div>
 
                   {/* Card 2: Sync LinkedIn */}
                   <div 
                     onClick={() => setOnboardingStep('linkedin')}
-                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-8 rounded-2xl glass-sidebar border border-white/10 hover:border-[#B500FF]/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl overflow-hidden"
+                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-6 rounded-2xl glass-sidebar border border-white/10 hover:border-[#B500FF]/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl bg-[#0f0b1e]/60"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#B500FF]/0 to-[#B500FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center mb-6 group-hover:bg-[#B500FF]/20 group-hover:text-[#B500FF] group-hover:border-[#B500FF]/50 transition-all shadow-lg">
-                      <Linkedin className="w-8 h-8" />
+                    <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center mb-4 group-hover:bg-[#B500FF]/20 group-hover:text-[#B500FF] group-hover:border-[#B500FF]/50 transition-all shadow-lg">
+                      <Linkedin className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">LinkedIn Sync</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed px-2">Paste your LinkedIn URL and magically sync your entire professional history.</p>
+                    <h3 className="text-sm font-bold text-white mb-0 group-hover:mb-2 transition-all duration-300">LinkedIn Sync</h3>
+                    <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-all duration-300">
+                       <p className="text-[10px] text-slate-400 leading-relaxed overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">Paste your LinkedIn URL and magically sync your entire professional history.</p>
+                    </div>
                   </div>
 
                   {/* Card 3: Build Manually */}
@@ -1653,14 +1659,15 @@ export default function App() {
                       setIsOnboarding(false);
                       setWorkspaceSubTab('form');
                     }}
-                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-8 rounded-2xl glass-sidebar border border-white/10 hover:border-emerald-500/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl overflow-hidden"
+                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-6 rounded-2xl glass-sidebar border border-white/10 hover:border-emerald-500/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl bg-[#0f0b1e]/60"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center mb-6 group-hover:bg-emerald-500/20 group-hover:text-emerald-400 group-hover:border-emerald-500/50 transition-all shadow-lg">
-                      <FileText className="w-8 h-8" />
+                    <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center mb-4 group-hover:bg-emerald-500/20 group-hover:text-emerald-400 group-hover:border-emerald-500/50 transition-all shadow-lg">
+                      <FileText className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">Build Manually</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed px-2">Start with a clean slate and type your details step-by-step.</p>
+                    <h3 className="text-sm font-bold text-white mb-0 group-hover:mb-2 transition-all duration-300">Build Manually</h3>
+                    <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-all duration-300">
+                       <p className="text-[10px] text-slate-400 leading-relaxed overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">Start with a clean slate and type your details step-by-step.</p>
+                    </div>
                   </div>
                 </div>
 
