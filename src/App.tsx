@@ -1598,7 +1598,7 @@ export default function App() {
       {/* Onboarding Wizard Modal */}
       {isOnboarding && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="modal-container max-w-2xl w-full p-8 relative overflow-hidden flex flex-col min-h-[300px] justify-center shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 rounded-3xl">
+          <div className="modal-container max-w-2xl w-full p-6 md:p-8 relative flex flex-col min-h-[300px] max-h-[90vh] overflow-y-auto scroll-hide justify-center shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 rounded-3xl">
             <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 left-0"></div>
             
             <button 
@@ -1619,7 +1619,7 @@ export default function App() {
                   <p className="text-sm md:text-base text-slate-400 max-w-lg mx-auto leading-relaxed">Choose how you want to build your resume. Let our AI do the heavy lifting from an existing source, or start with a clean slate.</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-2 perspective-1000">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 my-2 perspective-1000">
                   {/* Card 1: Upload File */}
                   <div 
                     onClick={() => fileInputRef.current?.click()}
