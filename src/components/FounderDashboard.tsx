@@ -28,7 +28,7 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
   const mrr = proCount * 5;
 
   return (
-    <div className="flex-1 overflow-y-auto p-8 bg-[var(--bg-app)] text-white">
+    <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-[var(--bg-app)] text-white">
       <div className="max-w-6xl mx-auto">
         <header className="mb-10">
           <h1 className="text-3xl font-bold text-[var(--accent-primary)] mb-2 uppercase tracking-widest">Founder Control Panel</h1>

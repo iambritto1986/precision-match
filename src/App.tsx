@@ -10,15 +10,15 @@ import VoiceInterview from './components/VoiceInterview';
 import CareerChat from './components/CareerChat';
 import ResumeFormEditor from './components/ResumeFormEditor';
 import { exportToDocx, exportToPdf, exportCoverLetterDocx } from './lib/export';
-import { Upload, FileText, Download, Briefcase, RefreshCw, Layers, CheckCircle2, Image as ImageIcon, MapPin, Phone, Mail, Linkedin, Globe, FileOutput, Mic, MessageCircle, ChevronUp, ChevronDown, Code, X, Users, LogOut, LogIn, ZoomIn, ZoomOut, Maximize2, Sparkles, Check, AlertCircle, Info } from 'lucide-react';
+import { Upload, FileText, Download, Briefcase, RefreshCw, Layers, CheckCircle2, Image as ImageIcon, MapPin, Phone, Mail, Linkedin, Globe, FileOutput, Mic, MessageCircle, ChevronUp, ChevronDown, Code, X, Users, LogOut, LogIn, ZoomIn, ZoomOut, Maximize2, Sparkles, Check, AlertCircle, Info, Menu } from 'lucide-react';
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
 import { useAuth } from './context/AuthContext';
-import { AuthModal } from './components/AuthModal';
+
 import { FounderDashboard } from './components/FounderDashboard';
 import { doc, onSnapshot, setDoc, getDoc, collection, getDocs, query, updateDoc } from 'firebase/firestore';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 import { AuthPortal } from './pages/AuthPortal';
 
 const defaultData: ResumeData = {
@@ -112,6 +112,7 @@ export default function App() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [atsScoreData, setAtsScoreData] = useState<{score: number, matchedKeywords: string[], missingKeywords: string[]} | null>(null);
   const [isAtsScanning, setIsAtsScanning] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Math.random().toString(36).substring(7);
@@ -159,8 +160,10 @@ export default function App() {
             setIsOnboarding(true);
             setOnboardingStep('options');
          }
+         setProfileLoading(false);
       }, (error) => {
          console.error("Firestore Error User Profile: ", error);
+         setProfileLoading(false);
       });
 
       setIsAdmin(false);
@@ -187,6 +190,7 @@ export default function App() {
       setIsPro(false);
       setIsAdmin(false);
       setAdminUsersInfo([]);
+      setProfileLoading(false);
     }
   }, [user, authLoading]);
 
@@ -582,7 +586,7 @@ export default function App() {
     }
   };
 
-  if (authLoading) {
+  if (authLoading || (user && profileLoading)) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#0f0b1e] font-inter">
         <div className="text-center">
@@ -596,6 +600,10 @@ export default function App() {
   const location = useLocation();
   if (location.pathname === '/auth/register') {
     return <AuthPortal />;
+  }
+
+  if (!user && !isGuestMode && !authLoading) {
+    return <Navigate to="/auth/register" replace />;
   }
 
 
@@ -639,7 +647,19 @@ export default function App() {
         .font-inter { font-family: 'Inter', sans-serif; }
         .scroll-hide::-webkit-scrollbar { display: none; }
       ` }} />
-      <aside className="w-64 glass-sidebar text-white flex flex-col shrink-0 relative z-10 overflow-y-auto scroll-hide">
+      
+      {/* Mobile Top Bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#0f0b1e]/90 backdrop-blur-md z-50 border-b border-white/10 flex items-center px-4 justify-between">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-500/25">P</div>
+          <h1 className="text-lg font-bold leading-none truncate">Precision Match</h1>
+        </div>
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 text-slate-300 hover:text-white">
+          {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
+
+      <aside className={`fixed md:relative md:flex w-64 glass-sidebar text-white flex-col shrink-0 z-40 overflow-y-auto scroll-hide h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0 pt-14 md:pt-0' : '-translate-x-full md:translate-x-0'} bg-[#0f0b1e] md:bg-transparent`}>
         <div className="p-6">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-500/25">P</div>
@@ -758,7 +778,12 @@ export default function App() {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col overflow-hidden relative z-10 min-w-0 min-h-0">
+      {/* Mobile overlay for when sidebar is open */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black/50 z-30 md:hidden backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      <main className="flex-1 flex flex-col overflow-hidden relative z-10 min-w-0 min-h-0 pt-14 md:pt-0">
         {activeTab === 'resume' && (
            <div className="flex-1 flex flex-col overflow-hidden min-h-0">
         <header className="h-16 border-b border-white/5 glass-header flex items-center justify-between px-8 shrink-0">
@@ -778,10 +803,10 @@ export default function App() {
           </div>
         </header>
 
-        <div className="flex-1 flex overflow-hidden min-h-0">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-0">
           <section className={`${
-            workspaceSubTab === 'form' ? 'w-[55%] lg:w-[50%]' : 'w-[45%] lg:w-[40%] xl:w-[35%]'
-          } border-r border-white/[0.06] p-6 flex flex-col bg-[rgba(15,11,30,0.35)] backdrop-blur-xl overflow-y-auto transition-all duration-300`}>
+            workspaceSubTab === 'form' ? 'w-full lg:w-[50%]' : 'w-full lg:w-[40%] xl:w-[35%]'
+          } border-r border-white/[0.06] p-4 lg:p-6 flex flex-col bg-[rgba(15,11,30,0.35)] backdrop-blur-xl overflow-y-auto transition-all duration-300 h-1/2 lg:h-auto`}>
              
              {/* Sub-tab Navigation */}
              <div className="flex border-b border-white/10 mb-6 shrink-0">
@@ -1784,9 +1809,7 @@ export default function App() {
         </div>
       )}
 
-      {(!user && !isGuestMode && !authLoading) && (
-        <AuthModal onGuest={() => { setIsGuestMode(true); setIsPro(true); setCredits(100); }} />
-      )}
+
     </div>
   );
 }
