@@ -709,7 +709,7 @@ export default function App() {
                  {resumes.map(resume => (
                    <div 
                       key={resume.id}
-                      className={`group relative p-3 rounded-xl cursor-pointer transition-all ${resume.id === activeResumeId ? 'bg-white/10 ring-1 ring-blue-500/50' : 'bg-white/[0.03] hover:bg-white/[0.07]'}`}
+                      className={`group relative p-3 rounded-xl cursor-pointer transition-all ${resume.id === activeResumeId ? 'bg-gradient-to-r from-[#00F0FF]/10 to-[#B500FF]/10 ring-1 ring-[#00F0FF]/50 shadow-[0_0_15px_rgba(0,240,255,0.15)] text-white' : 'bg-white/[0.03] hover:bg-white/[0.07]'}`}
                    >
                      <div onClick={() => setActiveResumeId(resume.id)} className="pr-6">
                        <p className="text-sm font-medium truncate">{resume.name}</p>
@@ -1119,7 +1119,7 @@ export default function App() {
                     if (pages.length === 0) pages.push([]); // ensure at least 1 page
 
                     return pages.map((pageSections, i) => (
-                       <div key={i} className="shadow-2xl ring-1 ring-slate-900/5 bg-white overflow-hidden print-page relative break-inside-avoid" style={{ pageBreakAfter: 'always' }}>
+                       <div key={i} className="shadow-2xl ring-1 ring-slate-900/5 bg-white overflow-hidden print-page relative break-inside-avoid w-[816px] h-[1056px]" style={{ pageBreakAfter: 'always' }}>
                          <TemplateRenderer 
                             template={selectedTemplate} 
                             data={resumeData} 
