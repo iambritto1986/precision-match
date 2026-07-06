@@ -170,23 +170,33 @@ export default function App() {
          setProfileLoading(false);
       });
 
+      let unsubscribeAdminUsers: (() => void) | undefined;
       setIsAdmin(false);
+      
+      const setupAdminListener = () => {
+         setIsAdmin(true);
+         unsubscribeAdminUsers = onSnapshot(collection(db, 'users'), (userSnap) => {
+            const users: any[] = [];
+            userSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+            // Optional: sort by createdAt if needed, but registry usually handles it
+            setAdminUsersInfo(users);
+         }, (e) => console.error("Error fetching users for dashboard", e));
+      };
+
       const adminRef = doc(db, 'admins', user.uid);
       getDoc(adminRef).then(adminSnap => {
           if (adminSnap.exists() || user.email === 'iambrittothomas@gmail.com') {
-             setIsAdmin(true);
-             getDocs(collection(db, 'users')).then(userSnap => {
-                const users = [];
-                userSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
-                setAdminUsersInfo(users);
-             }).catch(e => console.error("Error fetching users for dashboard", e));
+             setupAdminListener();
           }
       }).catch(e => {
           console.error(e);
-          if (user.email === 'iambrittothomas@gmail.com') setIsAdmin(true);
+          if (user.email === 'iambrittothomas@gmail.com') setupAdminListener();
       });
       
-      return () => unsubscribeUser();
+      return () => {
+        unsubscribeUser();
+        if (unsubscribeAdminUsers) unsubscribeAdminUsers();
+      };
     } else {
       setUserData(null);
       setCredits(3);
@@ -1777,15 +1787,13 @@ export default function App() {
                 onClick={async () => {
                   if (!feedbackText.trim()) return;
                   try {
-                    if (user && user.uid !== 'local-guest-uid') {
-                      const feedbackRef = doc(collection(db, 'feedback'), Date.now().toString());
-                      await setDoc(feedbackRef, {
-                        userId: user.uid,
-                        email: user.email || '',
-                        text: feedbackText.trim(),
-                        createdAt: new Date().toISOString()
-                      });
-                    }
+                    const feedbackRef = doc(collection(db, 'feedback'), Date.now().toString());
+                    await setDoc(feedbackRef, {
+                      userId: (user && user.uid !== 'local-guest-uid') ? user.uid : 'anonymous',
+                      email: (user && user.email) ? user.email : 'Anonymous',
+                      text: feedbackText.trim(),
+                      createdAt: new Date().toISOString()
+                    });
                     showToast('Thank you for your feedback!', 'success');
                     setShowFeedback(false);
                     setFeedbackText('');
@@ -1819,16 +1827,14 @@ export default function App() {
                 onClick={async () => {
                   if (!supportText.trim()) return;
                   try {
-                    if (user && user.uid !== 'local-guest-uid') {
-                      const supportRef = doc(collection(db, 'support_tickets'), Date.now().toString());
-                      await setDoc(supportRef, {
-                        userId: user.uid,
-                        email: user.email || '',
-                        message: supportText.trim(),
-                        status: 'open',
-                        createdAt: new Date().toISOString()
-                      });
-                    }
+                    const supportRef = doc(collection(db, 'support_tickets'), Date.now().toString());
+                    await setDoc(supportRef, {
+                      userId: (user && user.uid !== 'local-guest-uid') ? user.uid : 'anonymous',
+                      email: (user && user.email) ? user.email : 'Anonymous',
+                      message: supportText.trim(),
+                      status: 'open',
+                      createdAt: new Date().toISOString()
+                    });
                     showToast('Support ticket submitted successfully!', 'success');
                     setShowSupport(false);
                     setSupportText('');

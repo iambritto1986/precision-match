@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Activity, Users, ShieldAlert, Zap, MessageSquare, LifeBuoy } from 'lucide-react';
 import { db } from '../lib/firebase';
-import { doc, updateDoc, collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { doc, updateDoc, collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 
 interface FounderDashboardProps {
   adminUsersInfo: any[];
@@ -17,22 +17,33 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
   const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
+    let unsubFeedback: () => void;
+    let unsubSupport: () => void;
+    
     if (user?.email === 'iambrittothomas@gmail.com') {
-      const fetchData = async () => {
-        setLoadingData(true);
-        try {
-          const feedbackSnap = await getDocs(query(collection(db, 'feedback'), orderBy('createdAt', 'desc')));
-          setFeedbacks(feedbackSnap.docs.map(d => ({ id: d.id, ...d.data() })));
-          
-          const supportSnap = await getDocs(query(collection(db, 'support_tickets'), orderBy('createdAt', 'desc')));
-          setSupportTickets(supportSnap.docs.map(d => ({ id: d.id, ...d.data() })));
-        } catch (e) {
-          console.error("Error fetching admin data", e);
-        }
+      setLoadingData(true);
+      
+      const feedbackQuery = query(collection(db, 'feedback'), orderBy('createdAt', 'desc'));
+      unsubFeedback = onSnapshot(feedbackQuery, (snapshot) => {
+        setFeedbacks(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
         setLoadingData(false);
-      };
-      fetchData();
+      }, (error) => {
+        console.error("Error fetching feedback stream", error);
+        setLoadingData(false);
+      });
+
+      const supportQuery = query(collection(db, 'support_tickets'), orderBy('createdAt', 'desc'));
+      unsubSupport = onSnapshot(supportQuery, (snapshot) => {
+        setSupportTickets(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+      }, (error) => {
+        console.error("Error fetching support stream", error);
+      });
     }
+
+    return () => {
+      if (unsubFeedback) unsubFeedback();
+      if (unsubSupport) unsubSupport();
+    };
   }, [user]);
 
   if (user?.email !== 'iambrittothomas@gmail.com') {
