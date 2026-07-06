@@ -81,33 +81,51 @@ export const exportToPdf = async (elementId: string, filename: string) => {
   const element = document.getElementById(elementId);
   if (!element) return;
 
-  const canvas = await html2canvas(element, { scale: 2 });
-  const imgData = canvas.toDataURL('image/png');
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'px',
-    format: [816, 1056]
-  });
+  // Temporarily reset transform to avoid html2canvas scale bug cutting off layout and losing styles
+  const originalTransform = element.style.transform;
+  element.style.transform = 'none';
   
-  const pdfWidth = 816;
-  const pdfHeight = 1056;
-  const imgProps = pdf.getImageProperties(imgData);
-  const totalImgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  // A small delay allows the DOM to reflow properly before capturing
+  await new Promise(resolve => setTimeout(resolve, 100));
 
-  let heightLeft = totalImgHeight;
-  let position = 0;
+  try {
+    const canvas = await html2canvas(element, { 
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff'
+    });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'px',
+      format: [816, 1056]
+    });
+    
+    const pdfWidth = 816;
+    const pdfHeight = 1056;
+    const imgProps = pdf.getImageProperties(imgData);
+    const totalImgHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-  pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, totalImgHeight);
-  heightLeft -= pdfHeight;
+    let heightLeft = totalImgHeight;
+    let position = 0;
 
-  while (heightLeft > 0) {
-    position = position - pdfHeight;
-    pdf.addPage();
     pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, totalImgHeight);
     heightLeft -= pdfHeight;
+
+    while (heightLeft > 0) {
+      position = position - pdfHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, totalImgHeight);
+      heightLeft -= pdfHeight;
+    }
+    
+    pdf.save(filename);
+  } catch (error) {
+    console.error("PDF Export failed:", error);
+  } finally {
+    element.style.transform = originalTransform;
   }
-  
-  pdf.save(filename);
 };
 
 export const exportCoverLetterDocx = async (text: string, filename: string) => {

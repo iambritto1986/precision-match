@@ -341,13 +341,13 @@ export default function App() {
   const handleExport = async (type: 'pdf' | 'docx') => {
     if (isPro) {
       if (type === 'pdf') {
-        window.print();
+        exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`);
       }
       else exportToDocx(resumeData);
     } else {
       if (downloadsRemaining > 0) {
         if (type === 'pdf') {
-          window.print();
+          exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`);
         }
         else exportToDocx(resumeData);
         
@@ -689,7 +689,7 @@ export default function App() {
 
 
   return (
-    <div className="flex min-h-screen md:h-screen w-full bg-[#0f0b1e] text-slate-100 font-inter relative md:overflow-hidden">
+    <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full bg-[#0f0b1e] text-slate-100 font-inter relative md:overflow-hidden">
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         .font-inter { font-family: 'Inter', sans-serif; }
@@ -845,10 +845,10 @@ export default function App() {
         <div className="fixed inset-0 bg-black/50 z-30 md:hidden backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <main className="flex-1 flex flex-col relative z-10 min-w-0 min-h-0 pt-14 md:pt-0 overflow-y-auto md:overflow-hidden">
+      <main className="flex-1 flex flex-col relative z-10 w-full min-w-0 min-h-0 pt-14 md:pt-0 overflow-y-auto md:overflow-hidden">
         {activeTab === 'resume' && (
-           <div className="flex-1 flex flex-col overflow-y-visible md:overflow-hidden min-h-0">
-        <header className="h-16 border-b border-white/5 glass-header flex items-center justify-between px-8 shrink-0 no-print">
+           <div className="flex-1 flex flex-col w-full overflow-y-visible md:overflow-hidden min-h-0">
+        <header className="h-16 border-b border-white/5 glass-header flex items-center justify-between px-4 md:px-8 shrink-0 no-print">
           <div className="flex items-center space-x-4">
             <h2 className="text-sm font-semibold text-slate-200">Workspace: Tailoring {resumeData.personalDetails.name}'s Resume</h2>
             <span className="status-badge pr-3"><CheckCircle2 className="w-3 h-3 inline mr-1 -mt-0.5" />Optimized for ATS</span>
