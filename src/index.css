@@ -317,6 +317,42 @@ input::placeholder, textarea::placeholder {
   100% { transform: scale(1); opacity: 1; }
 }
 
+/* Liquid Glass — Iridescent hue cycling (UI/UX Pro Max Style #14) */
+@keyframes hue-cycle {
+  from { filter: hue-rotate(0deg) brightness(1.1); }
+  to { filter: hue-rotate(360deg) brightness(1.1); }
+}
+
+/* Liquid Glass — Blob morphing via border-radius (400-600ms per spec) */
+@keyframes blob-morph-1 {
+  0%, 100% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+  25% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; }
+  50% { border-radius: 50% 60% 30% 60% / 60% 40% 60% 40%; }
+  75% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+}
+
+@keyframes blob-morph-2 {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  50% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+  75% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; }
+}
+
+@keyframes blob-morph-3 {
+  0%, 100% { border-radius: 50% 50% 40% 60% / 70% 30% 60% 40%; }
+  33% { border-radius: 60% 40% 60% 40% / 40% 60% 40% 60%; }
+  66% { border-radius: 30% 70% 50% 50% / 50% 50% 30% 70%; }
+}
+
+/* Accessibility: respect user motion preferences (UX Guideline Row 9/99) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* FOOTER BRANDING */
 .app-footer-brand {
   display: flex;
