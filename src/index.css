@@ -45,6 +45,13 @@ html {
   text-size-adjust: 100%;
 }
 
+/* High-density dashboard scaling for desktop */
+@media (min-width: 1024px) {
+  html {
+    font-size: 11px !important; /* Approximately 68% scale to fit more tools natively */
+  }
+}
+
 body {
   background-color: var(--bg-app);
   color: var(--text-primary);

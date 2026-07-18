@@ -1,8 +1,21 @@
+import { logger } from './src/lib/logger.js';
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, LiveServerMessage, Modality } from "@google/genai";
 import 'dotenv/config';
+
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN || "",
+  integrations: [
+    nodeProfilingIntegration(),
+  ],
+  tracesSampleRate: 1.0,
+  profilesSampleRate: 1.0,
+});
 import { WebSocketServer } from 'ws';
 import mammoth from 'mammoth';
 import Stripe from 'stripe';
@@ -52,7 +65,7 @@ try {
       if (fs.existsSync(saPath)) {
         credential = cert(JSON.parse(fs.readFileSync(saPath, 'utf8')));
       } else {
-        console.warn(`FIREBASE_SERVICE_ACCOUNT_PATH set to "${saPath}" but file not found. Falling back.`);
+        logger.warn(`FIREBASE_SERVICE_ACCOUNT_PATH set to "${saPath}" but file not found. Falling back.`);
       }
     }
 
@@ -60,7 +73,7 @@ try {
       try {
         credential = applicationDefault();
       } catch {
-        console.warn('Application Default Credentials not available. Firebase Admin will not be initialised.');
+        logger.warn('Application Default Credentials not available. Firebase Admin will not be initialised.');
       }
     }
 
@@ -73,10 +86,10 @@ try {
       firebaseAdminApp.customDatabaseId = config.firestoreDatabaseId;
     }
   } else {
-    console.warn('firebase-applet-config.json not found – Firebase Admin is disabled.');
+    logger.warn('firebase-applet-config.json not found – Firebase Admin is disabled.');
   }
 } catch (e) {
-  console.warn("Failed to initialize Firebase Admin (non-fatal):", e);
+  logger.warn("Failed to initialize Firebase Admin (non-fatal):", e);
 }
 
 const getDb = () => {
@@ -92,6 +105,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 async function startServer() {
   const app = express();
+  Sentry.setupExpressErrorHandler(app);
   const PORT = parseInt(process.env.PORT || '3000', 10);
 
   // --------------- CORS ---------------
@@ -118,7 +132,7 @@ async function startServer() {
   // Stripe webhook needs raw body
   app.post("/api/webhooks/stripe", express.raw({type: 'application/json'}), async (req, res) => {
     if (!stripeClient || !process.env.STRIPE_WEBHOOK_SECRET) {
-      console.warn("Stripe webhook received but keys missing.");
+      logger.warn("Stripe webhook received but keys missing.");
       return res.status(400).json({ error: "Stripe webhook not configured.", code: "WEBHOOK_NOT_CONFIGURED" });
     }
     const signature = req.headers['stripe-signature'] as string;
@@ -134,7 +148,7 @@ async function startServer() {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.client_reference_id;
         
-        console.log(`Payment successful for user ID: ${userId}`);
+        logger.info(`Payment successful for user ID: ${userId}`);
         
         if (userId) {
           const db = getDb();
@@ -147,24 +161,24 @@ async function startServer() {
                   credits: 100, // Grant 100 credits upon subscription
                   stripeCustomerId: session.customer as string
               });
-              console.log(`Upgraded user ${userId} to Pro and granted 100 credits`);
+              logger.info(`Upgraded user ${userId} to Pro and granted 100 credits`);
             } else if (session.mode === 'payment') {
               await userRef.update({
                   credits: FieldValue.increment(10)
               });
-              console.log(`Added 10 credits to user ${userId}`);
+              logger.info(`Added 10 credits to user ${userId}`);
             }
           } else {
-             console.error("Firebase Admin DB not initialized to fulfill order.");
+             logger.error("Firebase Admin DB not initialized to fulfill order.");
           }
         }
       } else {
-        console.log(`Unhandled event type ${event.type}`);
+        logger.info(`Unhandled event type ${event.type}`);
       }
 
       res.status(200).end();
     } catch (err: any) {
-      console.error(`Webhook Error: ${err.message}`);
+      logger.error(`Webhook Error: ${err.message}`);
       res.status(400).json({ error: err.message, code: "WEBHOOK_SIGNATURE_FAILED" });
     }
   });
@@ -218,7 +232,7 @@ async function startServer() {
 
       return res.json({ success: true, refundId: refund.id });
     } catch (e: any) {
-      console.error("Refund error:", e);
+      logger.error("Refund error:", e);
       return res.status(500).json({ error: "Failed to issue refund", code: "REFUND_FAILED" });
     }
   });
@@ -252,7 +266,7 @@ async function startServer() {
 
       res.json({ url: session.url });
     } catch (err: any) {
-      console.error('Checkout session error:', err);
+      logger.error('Checkout session error:', err);
       res.status(500).json({ error: err.message, code: "CHECKOUT_FAILED" });
     }
   });
@@ -288,7 +302,7 @@ async function startServer() {
 
       res.json({ url: portalSession.url });
     } catch (err: any) {
-      console.error('Portal session error:', err);
+      logger.error('Portal session error:', err);
       res.status(500).json({ error: err.message, code: "PORTAL_FAILED" });
     }
   });
@@ -312,7 +326,7 @@ async function startServer() {
 
       res.json({ text: response.text });
    } catch(e: any) {
-      console.error(e);
+      logger.error(e);
       res.status(500).json({ error: e.message, code: "LINKEDIN_EXTRACT_FAILED" });
    }
 });
@@ -355,7 +369,7 @@ async function startServer() {
 
       res.json({ text: response.text });
     } catch (e: any) {
-      console.error(e);
+      logger.error(e);
       res.status(500).json({ error: e.message, code: "RESUME_EXTRACT_FAILED" });
     }
   });
@@ -408,7 +422,7 @@ Respond only with valid JSON.
 
       res.json({ data: JSON.parse(response.text || '{}') });
     } catch (e: any) {
-      console.error(e);
+      logger.error(e);
       res.status(500).json({ error: e.message, code: "RESUME_GENERATE_FAILED" });
     }
   });
@@ -444,7 +458,7 @@ Include placeholders like [Hiring Manager Name] or [Company Name] where appropri
 
       res.json({ text: response.text });
     } catch (e: any) {
-      console.error(e);
+      logger.error(e);
       res.status(500).json({ error: e.message, code: "COVER_LETTER_FAILED" });
     }
   });
@@ -488,7 +502,7 @@ ${jobDescription}
       const result = JSON.parse(text);
       res.json(result);
     } catch (e: any) {
-      console.error("ATS Score error:", e);
+      logger.error("ATS Score error:", e);
       res.status(500).json({ error: e.message, code: "ATS_SCORE_FAILED" });
     }
   });
@@ -522,7 +536,7 @@ ${jobDescription}
 
         res.json({ text: response.text });
      } catch (e: any) {
-         console.error('Chat error:', e);
+         logger.error('Chat error:', e);
          res.status(500).json({ error: e.message, code: "CHAT_FAILED" });
      }
   });
@@ -543,7 +557,7 @@ ${jobDescription}
   }
 
   const server = app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    logger.info(`Server running on http://localhost:${PORT}`);
   });
 
   const wss = new WebSocketServer({ server });
@@ -587,7 +601,7 @@ ${jobDescription}
               });
             }
           } catch (e) {
-            console.error('Error handling WS message:', e);
+            logger.error('Error handling WS message:', e);
           }
         });
 
@@ -596,7 +610,7 @@ ${jobDescription}
         });
       }
     } catch(err) {
-       console.error("Failed to connect to Live API", err);
+       logger.error("Failed to connect to Live API", err);
        clientWs.close();
     }
   });
