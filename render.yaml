@@ -17,3 +17,9 @@ services:
         sync: false
       - key: APP_URL
         sync: false
+      - key: VITE_ADMIN_EMAIL
+        sync: false
+      - key: VITE_STRIPE_PRICE_PRO
+        sync: false
+      - key: VITE_STRIPE_PRICE_CREDITS
+        sync: false

@@ -21,54 +21,29 @@ import { FounderDashboard } from './components/FounderDashboard';
 import { doc, onSnapshot, setDoc, getDoc, collection, getDocs, query, updateDoc } from 'firebase/firestore';
 import { useLocation, Navigate } from 'react-router-dom';
 import { AuthPortal } from './pages/AuthPortal';
+import { NotFoundPage } from './pages/NotFoundPage';
+
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || '';
+const STRIPE_PRICE_PRO = import.meta.env.VITE_STRIPE_PRICE_PRO || '';
+const STRIPE_PRICE_CREDITS = import.meta.env.VITE_STRIPE_PRICE_CREDITS || '';
 
 const defaultData: ResumeData = {
   personalDetails: {
-    name: "Alex Rivera",
-    title: "Senior Product Designer",
-    email: "arivera@email.com",
-    phone: "+1 555 0123",
-    location: "New York, NY",
-    linkedin: "linkedin.com/in/arivera",
+    name: "",
+    title: "",
+    email: "",
+    phone: "",
+    location: "",
+    linkedin: "",
     website: "",
-    summary: "Innovative Product Designer with over 7 years of experience in creating scalable SaaS solutions. Expert in building design systems that increased engineering velocity by 30%. Passionate about mentoring junior designers and bridging the gap between design and engineering teams.",
+    summary: "",
     profilePictureUrl: ""
   },
-  experience: [
-    {
-      company: "TechFlow Inc.",
-      role: "Lead Product Designer",
-      duration: "2019 — Present",
-      location: "New York, NY",
-      responsibilities: [
-        "Architected the v3 design system adopted by 14 cross-functional product squads.",
-        "Led UX research initiative that reduced user churn by 12% in the first quarter."
-      ]
-    },
-    {
-      company: "CreativeSols",
-      role: "Product Designer",
-      duration: "2016 — 2019",
-      location: "San Francisco, CA",
-      responsibilities: [
-        "Designed end-to-end features for core B2B platform.",
-        "Collaborated closely with PMs and engineers."
-      ]
-    }
-  ],
-  education: [
-    {
-      institution: "State University",
-      degree: "B.S. in Design",
-      duration: "2012 — 2016",
-      location: "State College, PA",
-      details: ""
-    }
-  ],
-  skills: [
-    { category: "Design Tools", items: ["Figma", "Sketch", "Adobe CC"] },
-    { category: "Methods", items: ["User Research", "Wireframing", "Prototyping"] }
-  ]
+  experience: [],
+  education: [],
+  skills: [],
+  certifications: [],
+  projects: []
 };
 
 const blankData: ResumeData = {
@@ -81,6 +56,7 @@ const blankData: ResumeData = {
 
 export default function App() {
     const { user, logout, loading: authLoading, loginWithGoogle } = useAuth();
+  const location = useLocation();
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [userData, setUserData] = useState<any>(null);
@@ -145,7 +121,7 @@ export default function App() {
             setUserData(data);
             setCredits(data.credits ?? 3);
             setDownloadsRemaining(data.downloadsRemaining ?? 1);
-            setIsPro(data.isPro || user.email === 'iambrittothomas@gmail.com');
+            setIsPro(data.isPro || user.email === ADMIN_EMAIL);
             
             if (!data.onboardingCompleted) {
               setIsOnboarding(true);
@@ -158,7 +134,7 @@ export default function App() {
                createdAt: new Date().toISOString(),
                credits: 3,
                  downloadsRemaining: 1,
-               isPro: user.email === 'iambrittothomas@gmail.com',
+               isPro: user.email === ADMIN_EMAIL,
                onboardingCompleted: true
             }).catch(e => console.error("Error setting user doc", e));
             setIsOnboarding(true);
@@ -185,12 +161,12 @@ export default function App() {
 
       const adminRef = doc(db, 'admins', user.uid);
       getDoc(adminRef).then(adminSnap => {
-          if (adminSnap.exists() || user.email === 'iambrittothomas@gmail.com') {
+          if (adminSnap.exists() || user.email === ADMIN_EMAIL) {
              setupAdminListener();
           }
       }).catch(e => {
           console.error(e);
-          if (user.email === 'iambrittothomas@gmail.com') setupAdminListener();
+          if (user.email === ADMIN_EMAIL) setupAdminListener();
       });
       
       return () => {
@@ -294,7 +270,7 @@ export default function App() {
     }
   };
 
-  const [jobDescription, setJobDescription] = useState('Seeking a Senior Product Designer with 5+ years experience in SaaS. Proficient in Figma, Design Systems, and User Research. Experience with React/Frontend is a plus. Must lead complex projects and mentor junior staff.');
+  const [jobDescription, setJobDescription] = useState('');
   const [instructions, setInstructions] = useState('');
   const [resumes, setResumes] = useState<{id: string, name: string, data: ResumeData}[]>([{id: '1', name: defaultData.personalDetails.name || 'Untitled Resume', data: defaultData}]);
   const [activeResumeId, setActiveResumeId] = useState<string>('1');
@@ -377,7 +353,7 @@ export default function App() {
   };
 
   const handleDeductCredits = (amount: number): boolean => {
-    if (user?.email === 'iambrittothomas@gmail.com') return true;
+    if (user?.email === ADMIN_EMAIL) return true;
     if (credits >= amount) {
       const newCount = credits - amount;
       setCredits(newCount);
@@ -659,7 +635,6 @@ export default function App() {
       );
   }
 
-  const location = useLocation();
   if (location.pathname === '/auth/register') {
     return <AuthPortal />;
   }
@@ -668,39 +643,11 @@ export default function App() {
     return <Navigate to="/auth/register" replace />;
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  // 404 for unknown paths
+  const knownPaths = ['/', '/auth/register'];
+  if (!knownPaths.includes(location.pathname)) {
+    return <NotFoundPage />;
+  }
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full bg-[#0f0b1e] text-slate-100 font-inter relative overflow-x-hidden md:overflow-hidden">
@@ -1271,7 +1218,7 @@ export default function App() {
         )}
 
         {activeTab === 'edit' && (
-          <div className="flex-1 flex flex-col p-8 bg-slate-50 items-center overflow-y-auto">
+          <div className="flex-1 flex flex-col p-8 bg-slate-900/50 items-center overflow-y-auto">
              <div className="w-full max-w-4xl card flex flex-col h-full overflow-hidden p-6">
                 <div className="flex justify-between items-center mb-6">
                    <h2 className="text-xl font-black text-white">Source Data Editor</h2>
@@ -1292,7 +1239,7 @@ export default function App() {
                 <p className="text-sm text-slate-500 mb-4 font-medium">Edit the raw JSON data that powers your resume. Be careful to maintain valid JSON syntax.</p>
                 <textarea 
                    id="json-editor"
-                   className="w-full flex-1 p-4 font-mono text-xs border border-slate-200 rounded-lg focus:ring-2 focus:border-blue-500 outline-none resize-none bg-slate-50 text-slate-700"
+                   className="w-full flex-1 p-4 font-mono text-xs border border-slate-700 rounded-lg focus:ring-2 focus:border-blue-500 outline-none resize-none bg-slate-900/50 text-slate-300"
                    defaultValue={JSON.stringify(resumeData, null, 2)}
                 />
              </div>
@@ -1441,7 +1388,7 @@ export default function App() {
                     <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-2">Free Tier</h3>
                     <div className="text-4xl font-black text-white mb-4">$0</div>
                     <p className="text-sm text-slate-400 mb-6">Perfect for trying out the platform and generating a quick resume.</p>
-                    <ul className="space-y-3 text-sm text-slate-700 flex-1 mb-8">
+                    <ul className="space-y-3 text-sm text-slate-300 flex-1 mb-8">
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> 3 AI Generation Credits</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> 1 Free Download (PDF/Word)</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> Standard Templates</li>
@@ -1455,11 +1402,11 @@ export default function App() {
                     <div className="text-4xl font-black text-white mb-1">$3<span className="text-lg text-slate-400 font-normal">/pack</span></div>
                     <p className="text-xs text-slate-500 mb-4">One-time purchase.</p>
                     <p className="text-sm text-slate-600 mb-6 border-b border-slate-100 pb-4">Need a few more edits? Grab a top-up.</p>
-                    <ul className="space-y-3 text-sm text-slate-700 flex-1 mb-8">
+                    <ul className="space-y-3 text-sm text-slate-300 flex-1 mb-8">
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-slate-600 mr-2 mt-0.5 shrink-0"/> +10 AI Generations</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-slate-600 mr-2 mt-0.5 shrink-0"/> Never expires</li>
                     </ul>
-                    <button onClick={() => isPro ? handlePurchase('price_1TjhoWKc3d6UbNauMyXLfggD') : null} disabled={!isPro} className={`w-full py-2.5 rounded-xl font-bold transition-all ${isPro ? 'btn-secondary' : 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-70'}`}>{isPro ? 'Buy Credits' : 'Requires Pro Subscription'}</button>
+                    <button onClick={() => isPro ? handlePurchase(STRIPE_PRICE_CREDITS) : null} disabled={!isPro} className={`w-full py-2.5 rounded-xl font-bold transition-all ${isPro ? 'btn-secondary' : 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-70'}`}>{isPro ? 'Buy Credits' : 'Requires Pro Subscription'}</button>
                  </div>
 
                  {/* Pro Tier */}
@@ -1469,13 +1416,13 @@ export default function App() {
                     <div className="text-4xl font-black text-white mb-1">$5<span className="text-lg text-slate-400 font-normal">/mo</span></div>
                     <p className="text-xs text-slate-500 mb-4">No hidden fees. Cancel anytime.</p>
                     <p className="text-sm text-slate-600 mb-6 border-b border-slate-100 pb-4">Everything you need to land your dream job.</p>
-                    <ul className="space-y-3 text-sm text-slate-700 flex-1 mb-8">
+                    <ul className="space-y-3 text-sm text-slate-300 flex-1 mb-8">
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> <strong>100</strong> AI Generations / mo</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Auto-Cover Letters</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Live AI Voice Interview Practice</li>
                        <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Export to MS Word (DOCX)</li>
                     </ul>
-                    <button onClick={() => handlePurchase('price_1TjhnmKc3d6UbNauXULxTxrh')} className="w-full py-2.5 rounded-xl btn-primary">{isPro ? 'Manage Subscription' : 'Upgrade to Pro'}</button>
+                    <button onClick={() => handlePurchase(STRIPE_PRICE_PRO)} className="w-full py-2.5 rounded-xl btn-primary">{isPro ? 'Manage Subscription' : 'Upgrade to Pro'}</button>
                  </div>
               </div>
            </div>
@@ -1688,7 +1635,7 @@ export default function App() {
                 </div>
 
                 <div className="text-center mt-10">
-                  {resumes.length > 0 && resumes[0].name !== 'Alex Rivera' && (
+                  {resumes.length > 0 && resumes[0].name !== '' && (
                     <button 
                       onClick={() => setIsOnboarding(false)}
                       className="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
@@ -1922,7 +1869,7 @@ export default function App() {
               <h2 className="text-lg font-bold text-white">{showLegalModal === 'privacy' ? 'Privacy Policy' : 'Terms of Service'}</h2>
               <button onClick={() => setShowLegalModal(null)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
             </div>
-            <div className="p-6 overflow-y-auto text-sm text-slate-700 leading-relaxed space-y-4">
+            <div className="p-6 overflow-y-auto text-sm text-slate-300 leading-relaxed space-y-4">
               {showLegalModal === 'privacy' ? (
                 <>
                   <p><strong>Last Updated:</strong> July 2026</p>

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { ParticleNetworkBackground } from '../components/ParticleNetworkBackground';
@@ -26,6 +28,10 @@ export const AuthPortal: React.FC = () => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSent, setResetSent] = useState(false);
+  const [resetError, setResetError] = useState('');
 
   useEffect(() => {
     if (user && user.uid !== 'local-guest-uid') {
@@ -230,9 +236,9 @@ export const AuthPortal: React.FC = () => {
                     />
                     <span className="text-slate-400 group-hover:text-slate-300 transition-colors">Remember Me</span>
                   </label>
-                  <a href="#" className="text-cyan-500 hover:text-cyan-400 transition-colors font-medium">
+                  <button type="button" onClick={() => { setShowResetPassword(true); setResetEmail(email); setResetSent(false); setResetError(''); }} className="text-cyan-500 hover:text-cyan-400 transition-colors font-medium">
                     Forgot Password?
-                  </a>
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -271,6 +277,104 @@ export const AuthPortal: React.FC = () => {
           </motion.button>
         </div>
       </motion.div>
+
+      {/* Forgot Password Modal */}
+      <AnimatePresence>
+        {showResetPassword && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowResetPassword(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="w-full max-w-sm mx-4 rounded-2xl p-8"
+              style={extrudedCardStyle}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {!resetSent ? (
+                <>
+                  <h2 className="text-xl font-bold text-white mb-2">Reset Password</h2>
+                  <p className="text-slate-400 text-sm mb-6">Enter your email address and we'll send you a link to reset your password.</p>
+
+                  {resetError && (
+                    <div className="w-full p-3 mb-4 rounded-lg bg-red-900/30 border border-red-500/20 text-red-300 text-xs text-center font-medium">
+                      {resetError}
+                    </div>
+                  )}
+
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    className="w-full rounded-lg px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 focus:bg-[#0c101d] transition-all duration-200 border border-transparent mb-4"
+                    style={insetInputStyle}
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    autoFocus
+                  />
+
+                  <div className="flex gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.01, filter: 'brightness(1.1)' }}
+                      whileTap={{ scale: 0.98, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}
+                      type="button"
+                      onClick={() => setShowResetPassword(false)}
+                      className="flex-1 bg-gradient-to-b from-slate-800 to-slate-900 text-white font-medium py-3 rounded-lg transition-all duration-200 border border-slate-700"
+                      style={extrudedButtonStyle}
+                    >
+                      Cancel
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.01, filter: 'brightness(1.1)' }}
+                      whileTap={{ scale: 0.98, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}
+                      type="button"
+                      onClick={async () => {
+                        setResetError('');
+                        try {
+                          await sendPasswordResetEmail(auth, resetEmail);
+                          setResetSent(true);
+                        } catch (err: any) {
+                          setResetError(err.message || 'Failed to send reset email');
+                        }
+                      }}
+                      className="flex-1 bg-gradient-to-b from-cyan-600 to-cyan-800 text-white font-bold py-3 rounded-lg transition-all duration-200 border border-cyan-500/20"
+                      style={extrudedButtonStyle}
+                    >
+                      Send Link
+                    </motion.button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
+                    <svg className="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-bold text-white mb-2">Check Your Email</h2>
+                  <p className="text-slate-400 text-sm mb-6">We've sent a password reset link to <span className="text-cyan-400 font-medium">{resetEmail}</span>. Check your inbox and follow the instructions.</p>
+                  <motion.button
+                    whileHover={{ scale: 1.01, filter: 'brightness(1.1)' }}
+                    whileTap={{ scale: 0.98, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}
+                    type="button"
+                    onClick={() => setShowResetPassword(false)}
+                    className="w-full bg-gradient-to-b from-indigo-500 to-indigo-700 text-white font-bold py-3 rounded-lg transition-all duration-200 border border-indigo-400/20"
+                    style={extrudedButtonStyle}
+                  >
+                    Back to Login
+                  </motion.button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

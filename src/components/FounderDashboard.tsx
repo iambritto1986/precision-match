@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || '';
 import { useAuth } from '../context/AuthContext';
 import { Activity, Users, ShieldAlert, Zap, MessageSquare, LifeBuoy } from 'lucide-react';
 import { db } from '../lib/firebase';
@@ -20,7 +22,7 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
     let unsubFeedback: () => void;
     let unsubSupport: () => void;
     
-    if (user?.email === 'iambrittothomas@gmail.com') {
+    if (user?.email === ADMIN_EMAIL) {
       setLoadingData(true);
       
       const feedbackQuery = query(collection(db, 'feedback'), orderBy('createdAt', 'desc'));
@@ -46,7 +48,7 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
     };
   }, [user]);
 
-  if (user?.email !== 'iambrittothomas@gmail.com') {
+  if (user?.email !== ADMIN_EMAIL) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="card p-12 text-center flex flex-col items-center">
