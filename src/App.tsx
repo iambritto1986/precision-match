@@ -192,15 +192,16 @@ export default function App() {
          }, (e) => console.error("Error fetching users for dashboard", e));
       };
 
-      const adminRef = doc(db, 'admins', user.uid);
-      getDoc(adminRef).then(adminSnap => {
-          if (adminSnap.exists() || user.email === ADMIN_EMAIL) {
-             setupAdminListener();
-          }
-      }).catch(e => {
-          console.error(e);
-          if (user.email === ADMIN_EMAIL) setupAdminListener();
-      });
+      if (user.email === ADMIN_EMAIL) {
+         setupAdminListener();
+      } else {
+         const adminRef = doc(db, 'admins', user.uid);
+         getDoc(adminRef).then(adminSnap => {
+             if (adminSnap.exists()) {
+                setupAdminListener();
+             }
+         }).catch(e => console.error(e));
+      }
       
       return () => {
         unsubscribeUser();
