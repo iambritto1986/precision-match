@@ -5,7 +5,6 @@ import { X, Menu, Users, FileText, Code, MessageCircle, Mic, Compass, Plus, File
 import { ResumeData } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import ParticleText from '../ParticleText';
-import TextMorph from '../TextMorph';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -73,19 +72,9 @@ export function Sidebar({
         <div className="p-6">
           <div className="flex items-center space-x-3">
             <img src="/logo.png" alt="Precision Match Logo" className="w-9 h-9 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/30 glow-pulse shrink-0" />
-            <div className="h-8 w-full relative -ml-1">
-              <TextMorph
-                words="PRECISION MATCH\nRESUME BUILDER"
-                color="#FFFFFF"
-                font={{
-                  fontFamily: "Inter, sans-serif",
-                  fontSize: 14,
-                  fontWeight: "700",
-                  textAlign: "left",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em"
-                }}
-              />
+            <div>
+              <h1 className="text-lg font-bold leading-none tracking-wide text-white">Precision Match</h1>
+              <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1.5 font-semibold text-[#00F0FF]">Resume Builder</p>
             </div>
           </div>
         </div>
@@ -208,12 +197,9 @@ export function Sidebar({
         {/* Singularity Insight Footer */}
         <div className="px-6 pb-6 w-full flex flex-col items-center justify-center border-t border-white/5 pt-4">
            <p className="text-[8px] uppercase tracking-widest text-slate-500 mb-1 font-semibold">A product of</p>
-           <div className="h-6 w-full flex items-center justify-center relative opacity-80 hover:opacity-100 transition-opacity cursor-default">
-             <TextMorph
-                words="SINGULARITY\nINSIGHT"
-                color="#00F0FF"
-             />
-           </div>
+           <h3 className="text-xs font-black tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#B500FF] uppercase opacity-80 hover:opacity-100 transition-opacity">
+             Singularity Insight
+           </h3>
         </div>
       </aside>
 
