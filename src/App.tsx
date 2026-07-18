@@ -742,7 +742,7 @@ export default function App() {
                ].map(tab => (
                  <button
                    key={tab.id}
-                   id={tab.id === 'ai' ? 'tour-ai-tailor' : undefined}
+                   id={'tour-tab-' + tab.id}
                    onClick={() => setWorkspaceSubTab(tab.id as 'form' | 'ai' | 'layout')}
                    className={`flex-1 pb-3 text-xs font-bold uppercase tracking-wider border-b-2 text-center transition-all ${
                      workspaceSubTab === tab.id
@@ -764,6 +764,7 @@ export default function App() {
                     <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileUpload} accept=".pdf,.docx,.txt" />
                                     <div className="grid grid-cols-3 gap-3">
                       <div 
+                        id="tour-upload"
                         className="border border-white/10 border-dashed rounded-xl p-3 flex flex-col items-center justify-center text-center hover:border-indigo-500/40 cursor-pointer transition-all bg-white/[0.03] group hover:bg-white/[0.07]"
                         onClick={() => fileInputRef.current?.click()}
                       >
@@ -804,6 +805,7 @@ export default function App() {
                  <div className="space-y-3 flex-1 flex flex-col">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Tailor to Job Description</h3>
                     <textarea 
+                      id="tour-jd-paste"
                       className="w-full flex-1 p-4 text-xs lg:text-sm tech-input rounded-xl resize-none font-inter min-h-[120px]" 
                       placeholder="Paste the target job description here..."
                       value={jobDescription}
@@ -950,7 +952,7 @@ export default function App() {
                  </div>
 
                  {/* Sections Reordering & Page Breaks */}
-                 <div className="space-y-4 flex-1">
+                 <div id="tour-pagination" className="space-y-4 flex-1">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Section Order & Page Breaks</h3>
                     <p className="text-[11px] text-slate-400">Reorder sections on your page and set where you want page breaks to begin for multi-page exports.</p>
                     <div className="flex flex-col gap-2">

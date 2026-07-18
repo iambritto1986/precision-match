@@ -31,7 +31,7 @@ export const OnboardingTour = () => {
             element: '#tour-sidebar',
             popover: {
               title: 'Welcome to Precision Match!',
-              description: 'Navigate easily between the Resume Builder, AI Career Coach, and your Founder Dashboard using this sidebar.',
+              description: 'Navigate easily between the Resume Builder, Career Chat, and your Founder Dashboard using this sidebar.',
               side: 'right',
               align: 'start'
             }
@@ -46,12 +46,54 @@ export const OnboardingTour = () => {
             }
           },
           {
-            element: '#tour-ai-tailor',
+            element: '#tour-tab-ai',
             popover: {
               title: 'The AI Tailor',
-              description: 'Use the AI Tailor to automatically customize your entire resume to match specific job descriptions in seconds.',
+              description: 'Start by uploading your file here, then paste a target job description to curate your resume specifically for that role.',
               side: 'bottom',
               align: 'center'
+            },
+            onHighlightStarted: () => {
+              document.getElementById('tour-tab-ai')?.click();
+            }
+          },
+          {
+            element: '#tour-upload',
+            popover: {
+              title: 'Upload File',
+              description: 'Click here to upload your existing PDF or DOCX resume to be parsed instantly.',
+              side: 'right',
+              align: 'center'
+            }
+          },
+          {
+            element: '#tour-jd-paste',
+            popover: {
+              title: 'Target Job Description',
+              description: 'Paste the job description changes if you need it. The AI will analyze it to suggest keyword changes and optionally rewrite your resume.',
+              side: 'left',
+              align: 'start'
+            }
+          },
+          {
+            element: '#tour-tab-layout',
+            popover: {
+              title: 'Page Layout',
+              description: 'While the preview shows on the right, when you go to the page layout, that\'s where you need to be able to select your segmentation and format.',
+              side: 'bottom',
+              align: 'center'
+            },
+            onHighlightStarted: () => {
+              document.getElementById('tour-tab-layout')?.click();
+            }
+          },
+          {
+            element: '#tour-pagination',
+            popover: {
+              title: 'How to Segment',
+              description: 'Hey, if you select this checkbox, this will go into the next page. This is how you actually segment it perfectly for an A4 export.',
+              side: 'left',
+              align: 'start'
             }
           }
         ]
