@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ResumeData, TemplateId } from './types';
 import { TemplateRenderer } from './components/ResumeTemplates';
 import VoiceInterview from './components/VoiceInterview';
@@ -670,10 +671,10 @@ export default function App() {
         </button>
       </div>
 
-      <aside className={`fixed md:relative md:flex w-64 glass-sidebar text-white flex-col shrink-0 z-40 overflow-y-auto scroll-hide h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0 pt-14 md:pt-0' : '-translate-x-full md:translate-x-0'} bg-[#0f0b1e] md:bg-transparent no-print`}>
+      <aside style={{ perspective: '800px' }} className={`fixed md:relative md:flex w-64 glass-sidebar text-white flex-col shrink-0 z-40 overflow-y-auto scroll-hide h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0 pt-14 md:pt-0' : '-translate-x-full md:translate-x-0'} bg-[#0f0b1e] md:bg-transparent no-print`}>
         <div className="p-6">
           <div className="flex items-center space-x-3">
-            <img src="/logo.png" alt="Precision Match Logo" className="w-9 h-9 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/30" />
+            <img src="/logo.png" alt="Precision Match Logo" className="w-9 h-9 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/30 glow-pulse" />
             <div>
               <h1 className="text-lg font-bold leading-none tracking-wide text-white">Precision Match</h1>
               <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1.5 font-semibold text-[#00F0FF]">Resume Builder</p>
@@ -681,7 +682,7 @@ export default function App() {
           </div>
         </div>
         <nav className="flex-1 mt-4 flex flex-col overflow-hidden min-h-0">
-          <div className="flex-shrink-0 space-y-1">
+          <div className="flex-shrink-0 space-y-1 stagger-enter">
             <div className="px-6 py-3 text-slate-500 text-[11px] uppercase font-semibold tracking-wider">Main Menu</div>
             {isAdmin && <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'dashboard' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><Users className="w-4 h-4 mr-3"/> Founder Hub</a>}
             <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('resume'); }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'resume' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><FileText className="w-4 h-4 mr-3"/> Resume Builder</a>
@@ -809,8 +810,16 @@ export default function App() {
       )}
 
       <main className="flex-1 flex flex-col relative z-10 w-full min-w-0 min-h-0 pt-14 md:pt-0 overflow-y-auto md:overflow-hidden">
+        <AnimatePresence mode="wait">
         {activeTab === 'resume' && (
-           <div className="flex-1 flex flex-col w-full overflow-y-visible md:overflow-hidden min-h-0">
+           <motion.div
+            key="resume"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="flex-1 flex flex-col w-full overflow-y-visible md:overflow-hidden min-h-0"
+           >
         <header className="h-16 border-b border-white/5 glass-header flex items-center justify-between px-4 md:px-8 shrink-0 no-print">
           <div className="flex items-center space-x-4">
             <h2 className="text-sm font-semibold text-slate-200">Workspace: Tailoring {resumeData.personalDetails.name}'s Resume</h2>
@@ -1214,11 +1223,18 @@ export default function App() {
              )}
            </button>
         </footer>
-        </div>
-        )}
+         </motion.div>
+         )}
 
         {activeTab === 'edit' && (
-          <div className="flex-1 flex flex-col p-8 bg-slate-900/50 items-center overflow-y-auto">
+           <motion.div
+            key="edit"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="flex-1 flex flex-col p-8 bg-slate-900/50 items-center overflow-y-auto"
+           >
              <div className="w-full max-w-4xl card flex flex-col h-full overflow-hidden p-6">
                 <div className="flex justify-between items-center mb-6">
                    <h2 className="text-xl font-black text-white">Source Data Editor</h2>
@@ -1243,15 +1259,33 @@ export default function App() {
                    defaultValue={JSON.stringify(resumeData, null, 2)}
                 />
              </div>
-          </div>
+          </motion.div>
         )}
 
-        {activeTab === 'chat' && <div className="flex-1 overflow-hidden h-full"><CareerChat resumeData={resumeData} deductCredits={handleDeductCredits} /></div>}
-        {activeTab === 'interview' && <div className="flex-1 overflow-hidden h-full"><VoiceInterview resumeData={resumeData} deductCredits={handleDeductCredits} /></div>}
+        {activeTab === 'chat' && (
+          <motion.div key="chat" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="flex-1 overflow-hidden h-full">
+            <CareerChat resumeData={resumeData} deductCredits={handleDeductCredits} />
+          </motion.div>
+        )}
+        {activeTab === 'interview' && (
+          <motion.div key="interview" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="flex-1 overflow-hidden h-full">
+            <VoiceInterview resumeData={resumeData} deductCredits={handleDeductCredits} />
+          </motion.div>
+        )}
         
         {activeTab === 'dashboard' && isAdmin && (
-          <FounderDashboard adminUsersInfo={adminUsersInfo} setAdminUsersInfo={setAdminUsersInfo} />
+          <motion.div
+            key="dashboard"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="flex-1 overflow-hidden h-full"
+          >
+            <FounderDashboard adminUsersInfo={adminUsersInfo} setAdminUsersInfo={setAdminUsersInfo} />
+          </motion.div>
         )}
+        </AnimatePresence>
 
 
 
@@ -1368,8 +1402,8 @@ export default function App() {
       </main>
 
       {showPricing && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-           <div className="modal-container max-w-5xl w-full p-8 relative overflow-hidden">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 backdrop-enter">
+           <div className="modal-container max-w-5xl w-full p-8 relative overflow-hidden modal-enter">
               <button className="absolute top-6 right-6 text-slate-400 hover:text-slate-600" onClick={() => setShowPricing(false)}>
                  <span className="sr-only">Close</span>
                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -1384,7 +1418,7 @@ export default function App() {
 
               <div className="grid md:grid-cols-3 gap-6">
                  {/* Free Tier */}
-                 <div className="card p-6 flex flex-col">
+                 <div className="card p-6 flex flex-col lift-3d">
                     <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-2">Free Tier</h3>
                     <div className="text-4xl font-black text-white mb-4">$0</div>
                     <p className="text-sm text-slate-400 mb-6">Perfect for trying out the platform and generating a quick resume.</p>
@@ -1397,7 +1431,7 @@ export default function App() {
                  </div>
 
                  {/* Top Up Credits */}
-                 <div className="card p-6 flex flex-col">
+                 <div className="card p-6 flex flex-col lift-3d">
                     <h3 className="text-sm font-bold uppercase tracking-widest text-slate-300 mb-2">Additional Credits</h3>
                     <div className="text-4xl font-black text-white mb-1">$3<span className="text-lg text-slate-400 font-normal">/pack</span></div>
                     <p className="text-xs text-slate-500 mb-4">One-time purchase.</p>
@@ -1410,7 +1444,7 @@ export default function App() {
                  </div>
 
                  {/* Pro Tier */}
-                 <div className="border-2 border-blue-500/50 card p-6 flex flex-col relative shadow-[0_0_30px_rgba(59,130,246,0.15)]">
+                 <div className="border-2 border-blue-500/50 card p-6 flex flex-col relative shadow-[0_0_30px_rgba(59,130,246,0.15)] lift-3d">
                     <div className="absolute top-0 right-0 bg-blue-500/200 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg rounded-tr-2xl">Most Popular</div>
                     <h3 className="text-sm font-bold uppercase tracking-widest text-blue-400 mb-2">Pro Member</h3>
                     <div className="text-4xl font-black text-white mb-1">$5<span className="text-lg text-slate-400 font-normal">/mo</span></div>
@@ -1560,8 +1594,8 @@ export default function App() {
 
       {/* Onboarding Wizard Modal */}
       {isOnboarding && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="modal-container max-w-2xl w-full p-6 md:p-8 relative flex flex-col min-h-[300px] max-h-[90vh] overflow-y-auto scroll-hide justify-center shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 rounded-3xl">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 backdrop-enter">
+          <div className="modal-container max-w-2xl w-full p-6 md:p-8 relative flex flex-col min-h-[300px] max-h-[90vh] overflow-y-auto scroll-hide justify-center shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 rounded-3xl modal-enter">
             <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 left-0"></div>
             
             <button 
@@ -1586,7 +1620,7 @@ export default function App() {
                   {/* Card 1: Upload File */}
                   <div 
                     onClick={() => fileInputRef.current?.click()}
-                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-6 rounded-2xl glass-sidebar border border-white/10 hover:border-[#00F0FF]/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl bg-[#0f0b1e]/60"
+                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-6 rounded-2xl glass-sidebar border border-white/10 hover:border-[#00F0FF]/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl bg-[#0f0b1e]/60 lift-3d"
                   >
                     <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center mb-4 group-hover:bg-[#00F0FF]/20 group-hover:text-[#00F0FF] group-hover:border-[#00F0FF]/50 transition-all shadow-lg">
                       <Upload className="w-6 h-6" />
@@ -1600,7 +1634,7 @@ export default function App() {
                   {/* Card 2: Sync LinkedIn */}
                   <div 
                     onClick={() => setOnboardingStep('linkedin')}
-                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-6 rounded-2xl glass-sidebar border border-white/10 hover:border-[#B500FF]/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl bg-[#0f0b1e]/60"
+                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-6 rounded-2xl glass-sidebar border border-white/10 hover:border-[#B500FF]/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl bg-[#0f0b1e]/60 lift-3d"
                   >
                     <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center mb-4 group-hover:bg-[#B500FF]/20 group-hover:text-[#B500FF] group-hover:border-[#B500FF]/50 transition-all shadow-lg">
                       <Linkedin className="w-6 h-6" />
@@ -1622,7 +1656,7 @@ export default function App() {
                       setIsOnboarding(false);
                       setWorkspaceSubTab('form');
                     }}
-                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-6 rounded-2xl glass-sidebar border border-white/10 hover:border-emerald-500/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl bg-[#0f0b1e]/60"
+                    className="group relative cursor-pointer flex flex-col items-center justify-center text-center p-6 rounded-2xl glass-sidebar border border-white/10 hover:border-emerald-500/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl bg-[#0f0b1e]/60 lift-3d"
                   >
                     <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center mb-4 group-hover:bg-emerald-500/20 group-hover:text-emerald-400 group-hover:border-emerald-500/50 transition-all shadow-lg">
                       <FileText className="w-6 h-6" />
@@ -1719,8 +1753,8 @@ export default function App() {
 
       {/* Feedback Modal */}
       {showFeedback && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="modal-container max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 backdrop-enter">
+          <div className="modal-container max-w-md w-full p-6 modal-enter">
             <h2 className="text-lg font-bold text-white mb-2">Send Feedback</h2>
             <p className="text-sm text-slate-400 mb-4">Found a bug? Have a feature request? Let us know.</p>
             <textarea
@@ -1759,8 +1793,8 @@ export default function App() {
 
       {/* Support Ticket Modal */}
       {showSupport && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="modal-container max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 backdrop-enter">
+          <div className="modal-container max-w-md w-full p-6 modal-enter">
             <h2 className="text-lg font-bold text-white mb-2">Contact Support</h2>
             <p className="text-sm text-slate-400 mb-4">Need help or facing an issue? Describe it below and our team will investigate.</p>
             <textarea
@@ -1800,8 +1834,8 @@ export default function App() {
 
       {/* Security & Privacy Modal */}
       {showSecurity && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="modal-container max-w-2xl w-full p-8 overflow-y-auto max-h-[90vh] scroll-hide">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 backdrop-enter">
+          <div className="modal-container max-w-2xl w-full p-8 overflow-y-auto max-h-[90vh] scroll-hide modal-enter">
             <h2 className="text-2xl font-bold text-white mb-6 uppercase tracking-wider flex items-center">
                <ShieldAlert className="w-6 h-6 mr-3 text-green-400" /> Security & SOC2 Compliance Overview
             </h2>
@@ -1832,8 +1866,8 @@ export default function App() {
 
       {/* Delete Account Confirmation */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="modal-container max-w-sm w-full p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 backdrop-enter">
+          <div className="modal-container max-w-sm w-full p-6 modal-enter">
             <h2 className="text-lg font-bold text-red-400 mb-2">Delete Account</h2>
             <p className="text-sm text-slate-400 mb-6">This will permanently delete your account and all associated resume data. This action cannot be undone.</p>
             <div className="flex justify-end gap-3">
@@ -1863,8 +1897,8 @@ export default function App() {
 
       {/* Legal Modal (Privacy / Terms) */}
       {showLegalModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="modal-container max-w-2xl w-full flex flex-col max-h-[85vh]">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 backdrop-enter">
+          <div className="modal-container max-w-2xl w-full flex flex-col max-h-[85vh] modal-enter">
             <div className="p-5 border-b border-white/10 flex justify-between items-center">
               <h2 className="text-lg font-bold text-white">{showLegalModal === 'privacy' ? 'Privacy Policy' : 'Terms of Service'}</h2>
               <button onClick={() => setShowLegalModal(null)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>

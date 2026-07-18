@@ -431,6 +431,142 @@ input::placeholder, textarea::placeholder {
 }
 .app-footer-brand:hover { color: var(--accent-primary); }
 
+/* PHASE 2: MOTION & 3D DESIGN SYSTEM */
+
+/* 3D Card Lift Effect — apply to any element with .lift-3d class */
+.lift-3d {
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 300ms ease;
+}
+.lift-3d:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 40px rgba(0, 240, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 3D Perspective Tilt — apply .tilt-3d to a container with perspective */
+.tilt-3d {
+  transition: transform 200ms ease;
+}
+.tilt-3d:hover {
+  transform: rotateX(-2deg) rotateY(3deg) translateZ(4px);
+}
+
+/* Glow Pulse — subtle breathing glow on accent elements */
+.glow-pulse {
+  animation: glow-breathe 3s ease-in-out infinite;
+}
+@keyframes glow-breathe {
+  0%, 100% { box-shadow: 0 0 8px rgba(0, 240, 255, 0.15); }
+  50% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.3), 0 0 40px rgba(0, 240, 255, 0.1); }
+}
+
+/* Skeleton Loader — shimmer loading placeholder */
+.skeleton {
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.6) 25%, rgba(30, 41, 59, 0.8) 50%, rgba(15, 23, 42, 0.6) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Stagger entrance — children animate in sequence */
+.stagger-enter > * {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: stagger-fade-in 400ms ease-out forwards;
+}
+.stagger-enter > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-enter > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-enter > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-enter > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-enter > *:nth-child(5) { animation-delay: 240ms; }
+.stagger-enter > *:nth-child(6) { animation-delay: 300ms; }
+.stagger-enter > *:nth-child(7) { animation-delay: 360ms; }
+.stagger-enter > *:nth-child(8) { animation-delay: 420ms; }
+@keyframes stagger-fade-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Glass card 3D depth — enhanced glass with inner shadow for 3D illusion */
+.glass-card-3d {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  border: 1px solid rgba(0, 240, 255, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 300ms ease;
+}
+.glass-card-3d:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 15px rgba(0, 240, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Sidebar nav link 3D press effect */
+.nav-link-3d {
+  transition: all 200ms ease;
+  transform-style: preserve-3d;
+}
+.nav-link-3d:hover {
+  transform: translateX(4px) translateZ(2px);
+  background: rgba(255, 255, 255, 0.05);
+}
+.nav-link-3d:active {
+  transform: translateX(2px) translateZ(0px) scale(0.98);
+}
+
+/* Floating action button glow */
+.fab-glow {
+  position: relative;
+}
+.fab-glow::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: var(--accent-gradient);
+  opacity: 0;
+  z-index: -1;
+  filter: blur(8px);
+  transition: opacity 300ms ease;
+}
+.fab-glow:hover::after {
+  opacity: 0.4;
+}
+
+/* Modal entrance */
+.modal-enter {
+  animation: modal-slide-in 300ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes modal-slide-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Backdrop entrance */
+.backdrop-enter {
+  animation: backdrop-fade 200ms ease-out both;
+}
+@keyframes backdrop-fade {
+  from { opacity: 0; backdrop-filter: blur(0); }
+  to { opacity: 1; backdrop-filter: blur(8px); }
+}
+
 /* PRINT STYLES */
 @media print {
   body, html, #root { display: block; height: auto; overflow: visible !important; min-height: auto; background: white; color: black; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
