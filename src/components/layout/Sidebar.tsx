@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
-import { X, Menu, Users, FileText, Code, MessageCircle, Mic, Plus, FileOutput, CheckCircle2, ChevronDown, Download, Layers, ShieldAlert, LogOut, LogIn } from 'lucide-react';
+import { X, Menu, Users, FileText, Code, MessageCircle, Mic, Compass, Plus, FileOutput, CheckCircle2, ChevronDown, Download, Layers, ShieldAlert, LogOut, LogIn } from 'lucide-react';
 import { ResumeData } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 
@@ -89,6 +89,9 @@ export function Sidebar({
             <Link to="/interview" onClick={(e) => { if (!isPro) { e.preventDefault(); setShowPricing(true); } }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/interview' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}>
                 <Mic className="w-4 h-4 mr-3"/> Live Interview {!isPro && <span className="ml-auto bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/200/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
             </Link>
+            <button onClick={() => window.startTour?.()} className="flex w-full items-center px-6 py-3 text-sm transition-all rounded-r-lg border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5">
+                <Compass className="w-4 h-4 mr-3 text-slate-400"/> Guided Tour
+            </button>
           </div>
           <div className="px-6 py-6 mt-4 border-t border-white/5 flex flex-col overflow-y-auto flex-1 min-h-0">
             <button 

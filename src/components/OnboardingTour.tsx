@@ -1,30 +1,26 @@
 import { useEffect } from 'react';
 import { driver } from 'driver.js';
 
+declare global {
+  interface Window {
+    startTour: () => void;
+  }
+}
+
 export const OnboardingTour = () => {
   useEffect(() => {
-    // Only run on client side and check if tour was already completed
     if (typeof window === 'undefined') return;
-    
-    const hasCompletedTour = localStorage.getItem('pm_tour_completed');
-    if (hasCompletedTour === 'true') return;
 
-    // Small delay to ensure all DOM elements are mounted
-    const timeout = setTimeout(() => {
+    const startTour = () => {
       const driverObj = driver({
         showProgress: true,
         smoothScroll: true,
         allowClose: true,
-        overlayColor: 'rgba(15, 11, 30, 0.5)',
-        onPopoverRender: (popover, { state }) => {
-          // Custom class for our liquid glass theme is applied globally via index.css
-          // But we can manipulate DOM here if strictly needed
-        },
+        showButtons: ['next', 'previous', 'close'],
+        overlayColor: 'rgba(15, 11, 30, 0.8)',
         onDestroyStarted: () => {
-          if (!driverObj.hasNextStep() || confirm("Are you sure you want to skip the rest of the tour?")) {
-            localStorage.setItem('pm_tour_completed', 'true');
-            driverObj.destroy();
-          }
+          localStorage.setItem('pm_tour_completed', 'true');
+          driverObj.destroy();
         },
         steps: [
           {
@@ -99,14 +95,19 @@ export const OnboardingTour = () => {
         ]
       });
 
-      // We need to verify elements exist before starting to avoid errors if user is on a different route
       const sidebarExists = document.querySelector('#tour-sidebar');
       if (sidebarExists) {
         driverObj.drive();
       }
-    }, 1500); // 1.5s delay to allow animations and routing to settle
+    };
 
-    return () => clearTimeout(timeout);
+    window.startTour = startTour;
+
+    const hasCompletedTour = localStorage.getItem('pm_tour_completed');
+    if (hasCompletedTour !== 'true') {
+      const timeout = setTimeout(startTour, 1500);
+      return () => clearTimeout(timeout);
+    }
   }, []);
 
   return null;
