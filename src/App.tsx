@@ -20,9 +20,11 @@ import { useAuth } from './context/AuthContext';
 
 import { FounderDashboard } from './components/FounderDashboard';
 import { doc, onSnapshot, setDoc, getDoc, collection, getDocs, query, updateDoc } from 'firebase/firestore';
-import { useLocation, Navigate } from 'react-router-dom';
 import { AuthPortal } from './pages/AuthPortal';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { PricingModal } from './components/modals/PricingModal';
+import { Sidebar } from './components/layout/Sidebar';
+import { Routes, Route, useNavigate, useLocation, Navigate, Link } from 'react-router-dom';
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'iambrittothomas@gmail.com';
 const STRIPE_PRICE_PRO = import.meta.env.VITE_STRIPE_PRICE_PRO || '';
@@ -57,7 +59,7 @@ const blankData: ResumeData = {
 
 export default function App() {
     const { user, logout, loading: authLoading, loginWithGoogle } = useAuth();
-  const location = useLocation();
+
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [userData, setUserData] = useState<any>(null);
@@ -72,7 +74,14 @@ export default function App() {
   const [sectionOrder, setSectionOrder] = useState<string[]>(defaultOrder);
   const [pageBreaks, setPageBreaks] = useState<Record<string, boolean>>({});
 
-  const [activeTab, setActiveTab] = useState<'resume' | 'chat' | 'interview' | 'edit' | 'dashboard'>('resume');
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const currentPath = location.pathname;
+  const activeTab = currentPath === '/edit' ? 'edit' : 
+                    currentPath === '/chat' ? 'chat' : 
+                    currentPath === '/interview' ? 'interview' : 
+                    currentPath === '/dashboard' ? 'dashboard' : 'resume';
   const [baseContext, setBaseContext] = useState('');
 
   // Premium states
@@ -660,158 +669,38 @@ export default function App() {
       
       <ParticleNetworkBackground />
 
-      {/* Mobile Top Bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#0f0b1e]/90 backdrop-blur-md z-50 border-b border-white/10 flex items-center px-4 justify-between no-print">
-        <div className="flex items-center space-x-2">
-          <img src="/logo.png" alt="Precision Match Logo" className="w-8 h-8 rounded-lg shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/20" />
-          <h1 className="text-lg font-bold leading-none truncate tracking-wide">Precision Match</h1>
-        </div>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 text-slate-300 hover:text-white">
-          {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-      </div>
-
-      <aside style={{ perspective: '800px' }} className={`fixed md:relative md:flex w-64 glass-sidebar text-white flex-col shrink-0 z-40 overflow-y-auto scroll-hide h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0 pt-14 md:pt-0' : '-translate-x-full md:translate-x-0'} bg-[#0f0b1e] md:bg-transparent no-print`}>
-        <div className="p-6">
-          <div className="flex items-center space-x-3">
-            <img src="/logo.png" alt="Precision Match Logo" className="w-9 h-9 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/30 glow-pulse" />
-            <div>
-              <h1 className="text-lg font-bold leading-none tracking-wide text-white">Precision Match</h1>
-              <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1.5 font-semibold text-[#00F0FF]">Resume Builder</p>
-            </div>
-          </div>
-        </div>
-        <nav className="flex-1 mt-4 flex flex-col overflow-hidden min-h-0">
-          <div className="flex-shrink-0 space-y-1 stagger-enter">
-            <div className="px-6 py-3 text-slate-500 text-[11px] uppercase font-semibold tracking-wider">Main Menu</div>
-            {isAdmin && <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'dashboard' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><Users className="w-4 h-4 mr-3"/> Founder Hub</a>}
-            <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('resume'); }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'resume' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><FileText className="w-4 h-4 mr-3"/> Resume Builder</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab('edit'); }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'edit' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}><Code className="w-4 h-4 mr-3"/> Source Data</a>
-            <a href="#" onClick={(e) => { 
-                e.preventDefault(); 
-                if (!isPro) { setShowPricing(true); return; }
-                setActiveTab('chat'); 
-            }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'chat' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                <MessageCircle className="w-4 h-4 mr-3" /> Career Chat {!isPro && <span className="ml-auto bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/200/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
-            </a>
-            <a href="#" onClick={(e) => { 
-                e.preventDefault(); 
-                if (!isPro) { setShowPricing(true); return; }
-                setActiveTab('interview'); 
-            }} className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${activeTab === 'interview' ? 'bg-white/10 border-l-2 border-indigo-400 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-                <Mic className="w-4 h-4 mr-3"/> Live Interview {!isPro && <span className="ml-auto bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/200/20 text-indigo-300 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Pro</span>}
-            </a>
-          </div>
-          <div className="px-6 py-6 mt-4 border-t border-white/5 flex flex-col overflow-y-auto flex-1 min-h-0">
-            <button 
-               onClick={(e) => { 
-                 e.preventDefault(); 
-                 handleStartNewResume();
-               }} 
-               className="w-full flex items-center justify-center px-4 py-2 btn-primary text-sm rounded-xl mb-6 shrink-0"
-            >
-               + Start New Resume
-            </button>
-            <div className="mb-4">
-              <p className="text-xs text-slate-400 mb-2 uppercase tracking-widest font-bold">Resume History</p>
-              <div className="flex flex-col gap-2">
-                 {resumes.map(resume => (
-                   <div 
-                      key={resume.id}
-                      className={`group relative p-3 rounded-xl cursor-pointer transition-all ${resume.id === activeResumeId ? 'bg-gradient-to-r from-[#00F0FF]/10 to-[#B500FF]/10 ring-1 ring-[#00F0FF]/50 shadow-[0_0_15px_rgba(0,240,255,0.15)] text-white' : 'bg-white/[0.03] hover:bg-white/[0.07]'}`}
-                   >
-                     <div onClick={() => setActiveResumeId(resume.id)} className="pr-6">
-                       <p className="text-sm font-medium truncate">{resume.name}</p>
-                       <p className="text-[10px] text-slate-300 mt-1 truncate">
-                         {resume.data.personalDetails?.title || 'No Title'}
-                       </p>
-                     </div>
-                     {resumes.length > 1 && (
-                       <button
-                         onClick={(e) => {
-                           e.stopPropagation();
-                           const newResumes = resumes.filter(r => r.id !== resume.id);
-                           setResumes(newResumes);
-                           if (activeResumeId === resume.id) setActiveResumeId(newResumes[0].id);
-                         }}
-                         className="absolute top-3 right-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition"
-                       >
-                         <X className="w-3.5 h-3.5" />
-                       </button>
-                     )}
-                   </div>
-                 ))}
-              </div>
-            </div>
-          </div>
-          
-          <div className="px-6 pb-6 pt-2 shrink-0">
-            <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-              <div className="flex justify-between items-end mb-2">
-                 <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">AI Credits</p>
-                 <p className="text-[10px] text-blue-400 font-bold bg-blue-500/200/10 px-2 py-0.5 rounded-lg cursor-pointer hover:bg-blue-500/200/20 transition" onClick={() => setShowPricing(true)}>Upgrade</p>
-              </div>
-              <p className="text-sm font-medium">{isPro ? `${credits} Credits` : `${credits} / 3 Free Remaining`}</p>
-              <div className="w-full bg-white/10 h-1.5 mt-3 rounded-full overflow-hidden">
-                <div className={`h-full rounded-full transition-all ${credits > 0 ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(248,113,113,0.4)]'}`} style={{ width: `${isPro ? Math.min((credits/100)*100, 100) : (credits/3)*100}%` }}></div>
-              </div>
-              <p className="text-[10px] mt-2 text-slate-500 mb-4">1 Credit / Generation</p>
-              
-              {!isPro && (
-                <>
-                  <div className="flex justify-between items-end mb-2 mt-4 pt-4 border-t border-white/10">
-                     <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Free Exports</p>
-                  </div>
-                  <p className="text-sm font-medium">{downloadsRemaining} / 1 Free Remaining</p>
-                  <div className="w-full bg-white/10 h-1.5 mt-3 rounded-full overflow-hidden mb-2">
-                     <div className={`h-full rounded-full transition-all ${downloadsRemaining > 0 ? 'bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(248,113,113,0.4)]'}`} style={{ width: `${downloadsRemaining * 100}%` }}></div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </nav>
-        <div className="p-6 border-t border-white/5 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-             <div className="w-8 h-8 rounded-full bg-white/10 border border-white/10 overflow-hidden bg-cover bg-center shrink-0" style={{ backgroundImage: user?.photoURL ? `url(${user.photoURL})` : resumeData.personalDetails.profilePictureUrl ? `url(${resumeData.personalDetails.profilePictureUrl})` : 'none' }}></div>
-             <div className="overflow-hidden">
-               <p className="text-xs font-medium truncate w-24">{user?.displayName || user?.email || resumeData.personalDetails.name || 'Guest'}</p>
-               <p className="text-[10px] text-slate-400">{isPro ? 'Pro Member' : 'Free Tier'}</p>
-             </div>
-             {user ? (
-                <button onClick={logout} className="text-slate-400 hover:text-white p-1" title="Log Out"><LogOut className="w-4 h-4" /></button>
-             ) : (
-                <button onClick={() => setIsGuestMode(false)} className="text-blue-400 hover:text-blue-300 p-1" title="Log In"><LogIn className="w-4 h-4" /></button>
-             )}
-          </div>
-        </div>
-        <div className="px-6 pb-4 flex flex-wrap gap-x-3 gap-y-1 mt-auto">
-          <button onClick={() => setShowFeedback(true)} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Feedback</button>
-          <span className="text-slate-700 text-[10px]">&middot;</span>
-          <button onClick={() => setShowSupport(true)} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Support</button>
-          <span className="text-slate-700 text-[10px]">&middot;</span>
-          <button onClick={() => setShowSecurity(true)} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Security</button>
-          <span className="text-slate-700 text-[10px]">&middot;</span>
-          <button onClick={() => setShowLegalModal('privacy')} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Privacy</button>
-          <span className="text-slate-700 text-[10px]">&middot;</span>
-          <button onClick={() => setShowLegalModal('terms')} className="text-[10px] text-slate-500 hover:text-slate-300 transition">Terms</button>
-          {user && user.uid !== 'local-guest-uid' && (
-            <>
-              <span className="text-slate-700 text-[10px]">&middot;</span>
-              <button onClick={() => setShowDeleteConfirm(true)} className="text-[10px] text-red-400/70 hover:text-red-400 transition">Delete Account</button>
-            </>
-          )}
-        </div>
-      </aside>
-
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        isAdmin={isAdmin}
+        isPro={isPro}
+        credits={credits}
+        resumes={resumes}
+        activeResumeId={activeResumeId}
+        setActiveResumeId={setActiveResumeId}
+        setResumes={setResumes}
+        downloadsRemaining={downloadsRemaining}
+        setShowPricing={setShowPricing}
+        user={user}
+        handleStartNewResume={handleStartNewResume}
+        resumeData={resumeData}
+        setIsGuestMode={setIsGuestMode}
+        setShowSecurity={setShowSecurity}
+        setShowLegalModal={setShowLegalModal}
+        setShowDeleteConfirm={setShowDeleteConfirm}
+        setShowFeedback={setShowFeedback}
+        setShowSupport={setShowSupport}
+      />
       {/* Mobile overlay for when sidebar is open */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/50 z-30 md:hidden backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <main className="flex-1 flex flex-col relative z-10 w-full min-w-0 min-h-0 pt-14 md:pt-0 overflow-y-auto md:overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 bg-transparent relative overflow-y-auto z-10" id="main-content" role="main">
         <AnimatePresence mode="wait">
-        {activeTab === 'resume' && (
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<Navigate to="/resume" replace />} />
+          <Route path="/resume" element={
            <motion.div
             key="resume"
             initial={{ opacity: 0, y: 12 }}
@@ -1224,9 +1113,9 @@ export default function App() {
            </button>
         </footer>
          </motion.div>
-         )}
-
-        {activeTab === 'edit' && (
+          } />
+          
+          <Route path="/edit" element={
            <motion.div
             key="edit"
             initial={{ opacity: 0, y: 12 }}
@@ -1260,20 +1149,21 @@ export default function App() {
                 />
              </div>
           </motion.div>
-        )}
-
-        {activeTab === 'chat' && (
+          } />
+          
+          <Route path="/chat" element={
           <motion.div key="chat" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="flex-1 overflow-hidden h-full">
             <CareerChat resumeData={resumeData} deductCredits={handleDeductCredits} />
           </motion.div>
-        )}
-        {activeTab === 'interview' && (
+          } />
+          
+          <Route path="/interview" element={
           <motion.div key="interview" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="flex-1 overflow-hidden h-full">
             <VoiceInterview resumeData={resumeData} deductCredits={handleDeductCredits} />
           </motion.div>
-        )}
-        
-        {activeTab === 'dashboard' && isAdmin && (
+          } />
+          
+          <Route path="/dashboard" element={
           <motion.div
             key="dashboard"
             initial={{ opacity: 0, y: 12 }}
@@ -1282,14 +1172,12 @@ export default function App() {
             transition={{ duration: 0.25, ease: 'easeOut' }}
             className="flex-1 overflow-hidden h-full"
           >
-            <FounderDashboard adminUsersInfo={adminUsersInfo} setAdminUsersInfo={setAdminUsersInfo} />
+            {isAdmin ? <FounderDashboard adminUsersInfo={adminUsersInfo} setAdminUsersInfo={setAdminUsersInfo} /> : <Navigate to="/resume" replace />}
           </motion.div>
-        )}
+          } />
+          <Route path="*" element={<Navigate to="/resume" replace />} />
+        </Routes>
         </AnimatePresence>
-
-
-
-
 
 
 
@@ -1401,67 +1289,7 @@ export default function App() {
 
       </main>
 
-      {showPricing && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 backdrop-enter">
-           <div className="modal-container max-w-5xl w-full p-8 relative overflow-hidden modal-enter">
-              <button className="absolute top-6 right-6 text-slate-400 hover:text-slate-600" onClick={() => setShowPricing(false)}>
-                 <span className="sr-only">Close</span>
-                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-              
-              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
-
-              <div className="text-center mb-10">
-                 <h2 className="text-3xl font-black text-white mb-4">Honest, Transparent Pricing</h2>
-                 <p className="text-slate-400">The resume market is full of trial traps ($2.95/14 days then $25/mo). We are doing something different. Deeply competitive flat pricing.</p>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-6">
-                 {/* Free Tier */}
-                 <div className="card p-6 flex flex-col lift-3d">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-2">Free Tier</h3>
-                    <div className="text-4xl font-black text-white mb-4">$0</div>
-                    <p className="text-sm text-slate-400 mb-6">Perfect for trying out the platform and generating a quick resume.</p>
-                    <ul className="space-y-3 text-sm text-slate-300 flex-1 mb-8">
-                       <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> 3 AI Generation Credits</li>
-                       <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> 1 Free Download (PDF/Word)</li>
-                       <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> Standard Templates</li>
-                    </ul>
-                    <button onClick={() => setShowPricing(false)} className="w-full py-2.5 rounded-xl btn-secondary font-bold">{user ? 'Current Plan' : 'Dismiss'}</button>
-                 </div>
-
-                 {/* Top Up Credits */}
-                 <div className="card p-6 flex flex-col lift-3d">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-300 mb-2">Additional Credits</h3>
-                    <div className="text-4xl font-black text-white mb-1">$3<span className="text-lg text-slate-400 font-normal">/pack</span></div>
-                    <p className="text-xs text-slate-500 mb-4">One-time purchase.</p>
-                    <p className="text-sm text-slate-600 mb-6 border-b border-slate-100 pb-4">Need a few more edits? Grab a top-up.</p>
-                    <ul className="space-y-3 text-sm text-slate-300 flex-1 mb-8">
-                       <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-slate-600 mr-2 mt-0.5 shrink-0"/> +10 AI Generations</li>
-                       <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-slate-600 mr-2 mt-0.5 shrink-0"/> Never expires</li>
-                    </ul>
-                    <button onClick={() => isPro ? handlePurchase(STRIPE_PRICE_CREDITS) : null} disabled={!isPro} className={`w-full py-2.5 rounded-xl font-bold transition-all ${isPro ? 'btn-secondary' : 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-70'}`}>{isPro ? 'Buy Credits' : 'Requires Pro Subscription'}</button>
-                 </div>
-
-                 {/* Pro Tier */}
-                 <div className="border-2 border-blue-500/50 card p-6 flex flex-col relative shadow-[0_0_30px_rgba(59,130,246,0.15)] lift-3d">
-                    <div className="absolute top-0 right-0 bg-blue-500/200 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg rounded-tr-2xl">Most Popular</div>
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-blue-400 mb-2">Pro Member</h3>
-                    <div className="text-4xl font-black text-white mb-1">$5<span className="text-lg text-slate-400 font-normal">/mo</span></div>
-                    <p className="text-xs text-slate-500 mb-4">No hidden fees. Cancel anytime.</p>
-                    <p className="text-sm text-slate-600 mb-6 border-b border-slate-100 pb-4">Everything you need to land your dream job.</p>
-                    <ul className="space-y-3 text-sm text-slate-300 flex-1 mb-8">
-                       <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> <strong>100</strong> AI Generations / mo</li>
-                       <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Auto-Cover Letters</li>
-                       <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Live AI Voice Interview Practice</li>
-                       <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Export to MS Word (DOCX)</li>
-                    </ul>
-                    <button onClick={() => handlePurchase(STRIPE_PRICE_PRO)} className="w-full py-2.5 rounded-xl btn-primary">{isPro ? 'Manage Subscription' : 'Upgrade to Pro'}</button>
-                 </div>
-              </div>
-           </div>
-        </div>
-      )}
+      {showPricing && <PricingModal setShowPricing={setShowPricing} user={user} resumeData={resumeData} isPro={isPro} />}
 
       {ingestionModal && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">

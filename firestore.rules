@@ -39,8 +39,17 @@ service cloud.firestore {
 
     match /admins/{userId} {
       allow read, list: if isSignedIn() && (request.auth.uid == userId || isAdmin());
-      
       allow write: if isAdmin();
+    }
+
+    match /feedback/{feedbackId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /support_tickets/{ticketId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
     }
 
     match /users/{userId} {
