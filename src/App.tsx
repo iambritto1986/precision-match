@@ -654,7 +654,7 @@ export default function App() {
   }
 
   // 404 for unknown paths
-  const knownPaths = ['/', '/auth/register'];
+  const knownPaths = ['/', '/auth/register', '/resume', '/edit', '/chat', '/interview', '/dashboard'];
   if (!knownPaths.includes(location.pathname)) {
     return <NotFoundPage />;
   }
