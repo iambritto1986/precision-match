@@ -257,6 +257,42 @@ async function startServer() {
     }
   });
 
+  app.post("/api/create-portal-session", async (req, res) => {
+    if (!stripeClient) {
+      return res.status(500).json({ error: "Stripe is not configured.", code: "STRIPE_NOT_CONFIGURED" });
+    }
+    const { userId, returnUrl } = req.body;
+    if (!userId || typeof userId !== 'string') {
+      return res.status(400).json({ error: "Missing or invalid required field: userId", code: "VALIDATION_ERROR" });
+    }
+
+    try {
+      const db = getDb();
+      if (!db) {
+         return res.status(500).json({ error: "Database not configured.", code: "DB_NOT_CONFIGURED" });
+      }
+      
+      // Find the user's stripe customer ID
+      const userRef = db.collection('users').doc(userId);
+      const userDoc = await userRef.get();
+      const userData = userDoc.data();
+
+      if (!userData || !userData.stripeCustomerId) {
+        return res.status(400).json({ error: "User does not have an active subscription.", code: "NO_CUSTOMER_ID" });
+      }
+
+      const portalSession = await stripeClient.billingPortal.sessions.create({
+        customer: userData.stripeCustomerId,
+        return_url: returnUrl || `${process.env.APP_URL || 'http://localhost:3000'}/dashboard`,
+      });
+
+      res.json({ url: portalSession.url });
+    } catch (err: any) {
+      console.error('Portal session error:', err);
+      res.status(500).json({ error: err.message, code: "PORTAL_FAILED" });
+    }
+  });
+
   app.post("/api/extract-linkedin", async (req, res) => {
    try {
       const { url } = req.body;

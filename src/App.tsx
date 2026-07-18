@@ -182,6 +182,7 @@ export default function App() {
       
       const setupAdminListener = () => {
          setIsAdmin(true);
+         setIsPro(true);
          unsubscribeAdminUsers = onSnapshot(collection(db, 'users'), (userSnap) => {
             const users: any[] = [];
             userSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));

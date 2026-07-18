@@ -62,6 +62,28 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
     }
   };
 
+  const handlePortal = async () => {
+    if (!user) return;
+    setIsProcessing(true);
+    try {
+      const res = await fetch('/api/create-portal-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+           userId: user.uid,
+           returnUrl: window.location.origin
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      window.location.href = data.url;
+    } catch (e: any) {
+      console.error(e);
+      alert("Failed to open subscription manager: " + e.message);
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 backdrop-enter">
        <div className="modal-container max-w-5xl w-full p-8 relative overflow-hidden modal-enter">
@@ -74,7 +96,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
 
           <div className="text-center mb-10">
              <h2 className="text-3xl font-black text-white mb-4">Honest, Transparent Pricing</h2>
-             <p className="text-slate-400">The resume market is full of trial traps ($2.95/14 days then $25/mo). We are doing something different. Deeply competitive flat pricing.</p>
+             <p className="text-slate-400">The resume market is full of trial traps. We are doing something different. Deeply competitive flat pricing.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -117,7 +139,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
                    <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Live AI Voice Interview Practice</li>
                    <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Export to MS Word (DOCX)</li>
                 </ul>
-                <button onClick={() => handlePurchase(STRIPE_PRICE_PRO)} disabled={isProcessing} className="w-full py-2.5 rounded-xl btn-primary">{isPro ? 'Manage Subscription' : 'Upgrade to Pro'}</button>
+                <button onClick={() => isPro ? handlePortal() : handlePurchase(STRIPE_PRICE_PRO)} disabled={isProcessing} className="w-full py-2.5 rounded-xl btn-primary">{isPro ? 'Manage Subscription' : 'Upgrade to Pro'}</button>
              </div>
           </div>
        </div>
