@@ -205,12 +205,12 @@ export function Sidebar({
           )}
         </div>
         
-        {/* Singularity Inside Footer */}
+        {/* Singularity Insight Footer */}
         <div className="px-6 pb-6 w-full flex flex-col items-center justify-center border-t border-white/5 pt-4">
            <p className="text-[8px] uppercase tracking-widest text-slate-500 mb-1 font-semibold">A product of</p>
            <div className="h-6 w-full flex items-center justify-center relative opacity-80 hover:opacity-100 transition-opacity cursor-default">
              <TextMorph
-                words="SINGULARITY\nINSIDE"
+                words="SINGULARITY\nINSIGHT"
                 color="#00F0FF"
              />
            </div>
