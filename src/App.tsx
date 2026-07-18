@@ -729,7 +729,7 @@ export default function App() {
         <div className="flex-1 flex flex-col lg:flex-row md:overflow-hidden min-h-0 min-w-0 w-full">
           <section className={`${
             workspaceSubTab === 'form' ? 'w-full lg:w-[50%]' : 'w-full lg:w-[40%] xl:w-[35%]'
-          } border-r border-white/[0.06] p-4 lg:p-6 flex flex-col bg-[rgba(15,11,30,0.35)] backdrop-blur-sm md:backdrop-blur-xl shrink-0 overflow-y-visible md:overflow-y-auto transition-all duration-300 h-auto no-print`}>
+          } border-r border-white/[0.06] p-4 lg:p-6 flex flex-col bg-transparent shrink-0 overflow-y-visible md:overflow-y-auto transition-all duration-300 h-auto no-print`}>
              
              {/* Sub-tab Navigation */}
              <div className="flex border-b border-white/10 mb-6 shrink-0">
