@@ -5,6 +5,7 @@ import { X, Menu, Users, FileText, Code, MessageCircle, Mic, Compass, Plus, File
 import { ResumeData } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import ParticleText from '../ParticleText';
+import TextMorph from '../TextMorph';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -71,10 +72,20 @@ export function Sidebar({
       <aside id="tour-sidebar" style={{ perspective: '800px' }} className={`fixed md:relative md:flex w-64 glass-sidebar text-white flex-col shrink-0 z-40 overflow-y-auto scroll-hide h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0 pt-14 md:pt-0' : '-translate-x-full md:translate-x-0'} bg-[#0f0b1e] md:bg-transparent no-print`}>
         <div className="p-6">
           <div className="flex items-center space-x-3">
-            <img src="/logo.png" alt="Precision Match Logo" className="w-9 h-9 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/30 glow-pulse" />
-            <div>
-              <h1 className="text-lg font-bold leading-none tracking-wide text-white">Precision Match</h1>
-              <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1.5 font-semibold text-[#00F0FF]">Resume Builder</p>
+            <img src="/logo.png" alt="Precision Match Logo" className="w-9 h-9 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/30 glow-pulse shrink-0" />
+            <div className="h-8 w-full relative -ml-1">
+              <TextMorph
+                words="PRECISION MATCH\nRESUME BUILDER"
+                color="#FFFFFF"
+                font={{
+                  fontFamily: "Inter, sans-serif",
+                  fontSize: 14,
+                  fontWeight: "700",
+                  textAlign: "left",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em"
+                }}
+              />
             </div>
           </div>
         </div>
@@ -198,14 +209,10 @@ export function Sidebar({
         <div className="px-6 pb-6 w-full flex flex-col items-center justify-center border-t border-white/5 pt-4">
            <p className="text-[8px] uppercase tracking-widest text-slate-500 mb-1 font-semibold">A product of</p>
            <div className="h-6 w-full flex items-center justify-center relative opacity-80 hover:opacity-100 transition-opacity cursor-default">
-             <ParticleText 
-                text="SINGULARITY" 
-                fontSize={16} 
-                particleSize={2} 
-                particleCount={80} 
-                mouseRadius={40} 
-                colors={["#FFFFFF", "#00F0FF", "#B500FF"]} 
-              />
+             <TextMorph
+                words="SINGULARITY\nINSIDE"
+                color="#00F0FF"
+             />
            </div>
         </div>
       </aside>
