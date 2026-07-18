@@ -71,8 +71,8 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
           <p className="text-slate-400">Welcome back, Commander. Here are the latest system metrics.</p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="glass-card p-6 border-l-4 border-[var(--accent-primary)]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 stagger-enter">
+          <div className="glass-card-3d p-6 border-l-4 border-[var(--accent-primary)]">
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Users</p>
@@ -82,7 +82,7 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
             </div>
           </div>
 
-          <div className="glass-card p-6 border-l-4 border-[var(--accent-secondary)]">
+          <div className="glass-card-3d p-6 border-l-4 border-[var(--accent-secondary)]">
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pro Members</p>
@@ -92,7 +92,7 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
             </div>
           </div>
 
-          <div className="glass-card p-6 border-l-4 border-yellow-500">
+          <div className="glass-card-3d p-6 border-l-4 border-yellow-500">
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active MRR</p>
@@ -175,8 +175,19 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
                      ))}
                      {adminUsersInfo.length === 0 && (
                         <tr>
-                           <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
-                             {user ? "Fetching registry data..." : "No users found."}
+                           <td colSpan={5} className="px-6 py-16 text-center">
+                             {user ? (
+                               <div className="space-y-3">
+                                 <div className="skeleton h-4 w-3/4 mx-auto"></div>
+                                 <div className="skeleton h-4 w-1/2 mx-auto"></div>
+                                 <div className="skeleton h-4 w-2/3 mx-auto"></div>
+                               </div>
+                             ) : (
+                               <div className="flex flex-col items-center">
+                                 <Users className="w-10 h-10 text-slate-600 mb-3" />
+                                 <p className="text-slate-500 font-medium">No users found</p>
+                               </div>
+                             )}
                            </td>
                         </tr>
                      )}
@@ -205,8 +216,19 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
                      ))}
                      {feedbacks.length === 0 && (
                         <tr>
-                           <td colSpan={3} className="px-6 py-12 text-center text-slate-500">
-                             {loadingData ? "Loading feedback..." : "No feedback found."}
+                           <td colSpan={3} className="px-6 py-16 text-center">
+                             {loadingData ? (
+                               <div className="space-y-3">
+                                 <div className="skeleton h-4 w-3/4 mx-auto"></div>
+                                 <div className="skeleton h-4 w-1/2 mx-auto"></div>
+                               </div>
+                             ) : (
+                               <div className="flex flex-col items-center">
+                                 <MessageSquare className="w-10 h-10 text-slate-600 mb-3" />
+                                 <p className="text-slate-500 font-medium">No feedback yet</p>
+                                 <p className="text-slate-600 text-xs mt-1">User feedback will appear here</p>
+                               </div>
+                             )}
                            </td>
                         </tr>
                      )}
@@ -235,8 +257,19 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
                      ))}
                      {supportTickets.length === 0 && (
                         <tr>
-                           <td colSpan={3} className="px-6 py-12 text-center text-slate-500">
-                             {loadingData ? "Loading tickets..." : "No support tickets found."}
+                           <td colSpan={3} className="px-6 py-16 text-center">
+                             {loadingData ? (
+                               <div className="space-y-3">
+                                 <div className="skeleton h-4 w-3/4 mx-auto"></div>
+                                 <div className="skeleton h-4 w-1/2 mx-auto"></div>
+                               </div>
+                             ) : (
+                               <div className="flex flex-col items-center">
+                                 <LifeBuoy className="w-10 h-10 text-slate-600 mb-3" />
+                                 <p className="text-slate-500 font-medium">No support tickets</p>
+                                 <p className="text-slate-600 text-xs mt-1">Tickets will appear here when users need help</p>
+                               </div>
+                             )}
                            </td>
                         </tr>
                      )}

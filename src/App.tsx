@@ -1249,13 +1249,13 @@ export default function App() {
                            alert('Invalid JSON! Please check your formatting.');
                         }
                      }}
-                     className="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded shadow hover:bg-blue-700 transition"
+                      className="px-4 py-2 btn-primary text-sm rounded-xl fab-glow"
                    >Save Changes</button>
                 </div>
                 <p className="text-sm text-slate-500 mb-4 font-medium">Edit the raw JSON data that powers your resume. Be careful to maintain valid JSON syntax.</p>
                 <textarea 
                    id="json-editor"
-                   className="w-full flex-1 p-4 font-mono text-xs border border-slate-700 rounded-lg focus:ring-2 focus:border-blue-500 outline-none resize-none bg-slate-900/50 text-slate-300"
+                    className="w-full flex-1 p-4 font-mono text-xs border border-slate-700 rounded-lg focus:ring-2 focus:border-[var(--accent-primary)] outline-none resize-none bg-slate-900/50 text-slate-300"
                    defaultValue={JSON.stringify(resumeData, null, 2)}
                 />
              </div>
