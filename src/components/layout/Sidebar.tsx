@@ -67,7 +67,7 @@ export function Sidebar({
         </button>
       </div>
 
-      <aside style={{ perspective: '800px' }} className={`fixed md:relative md:flex w-64 glass-sidebar text-white flex-col shrink-0 z-40 overflow-y-auto scroll-hide h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0 pt-14 md:pt-0' : '-translate-x-full md:translate-x-0'} bg-[#0f0b1e] md:bg-transparent no-print`}>
+      <aside id="tour-sidebar" style={{ perspective: '800px' }} className={`fixed md:relative md:flex w-64 glass-sidebar text-white flex-col shrink-0 z-40 overflow-y-auto scroll-hide h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0 pt-14 md:pt-0' : '-translate-x-full md:translate-x-0'} bg-[#0f0b1e] md:bg-transparent no-print`}>
         <div className="p-6">
           <div className="flex items-center space-x-3">
             <img src="/logo.png" alt="Precision Match Logo" className="w-9 h-9 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/30 glow-pulse" />
@@ -133,7 +133,7 @@ export function Sidebar({
             </div>
           </div>
           
-          <div className="px-6 pb-6 pt-5 shrink-0 border-t border-white/5 mt-2">
+          <div id="tour-credits" className="px-6 pb-6 pt-5 shrink-0 border-t border-white/5 mt-2">
             <div className="flex flex-col">
               <div className="flex justify-between items-end mb-2">
                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">AI Credits</p>

@@ -22,6 +22,7 @@ import { FounderDashboard } from './components/FounderDashboard';
 import { doc, onSnapshot, setDoc, getDoc, collection, getDocs, query, updateDoc } from 'firebase/firestore';
 import { AuthPortal } from './pages/AuthPortal';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { OnboardingTour } from './components/OnboardingTour';
 import { PricingModal } from './components/modals/PricingModal';
 import { Sidebar } from './components/layout/Sidebar';
 import { Routes, Route, useNavigate, useLocation, Navigate, Link } from 'react-router-dom';
@@ -668,6 +669,7 @@ export default function App() {
       ` }} />
       
       <ParticleNetworkBackground />
+      <OnboardingTour />
 
       <Sidebar
         sidebarOpen={sidebarOpen}
@@ -740,7 +742,8 @@ export default function App() {
                ].map(tab => (
                  <button
                    key={tab.id}
-                   onClick={() => setWorkspaceSubTab(tab.id as any)}
+                   id={tab.id === 'ai' ? 'tour-ai-tailor' : undefined}
+                   onClick={() => setWorkspaceSubTab(tab.id as 'form' | 'ai' | 'layout')}
                    className={`flex-1 pb-3 text-xs font-bold uppercase tracking-wider border-b-2 text-center transition-all ${
                      workspaceSubTab === tab.id
                        ? 'border-indigo-400 text-indigo-300 font-bold'

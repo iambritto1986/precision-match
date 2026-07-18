@@ -1,6 +1,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&family=Outfit:wght@400;600;700&display=swap');
 @import "tailwindcss";
+@import 'driver.js/dist/driver.css';
 
 :root {
   /* Color Palette - Deep Space & Neon Conduits */
@@ -589,4 +590,48 @@ input::placeholder, textarea::placeholder {
   p, li, h2, h3 { orphans: 3; widows: 3; }
   h2, h3 { page-break-after: avoid; break-after: avoid; color: black; }
   img { max-width: 100%; page-break-inside: avoid; break-inside: avoid; }
+}
+
+/* Driver.js Liquid Glass Customization */
+.driver-popover {
+  background: rgba(15, 11, 30, 0.75) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(0, 240, 255, 0.2) !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.1) !important;
+  color: white !important;
+  border-radius: 1rem !important;
+  font-family: 'Inter', sans-serif !important;
+}
+.driver-popover-title { 
+  color: #00F0FF !important; 
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  font-size: 1rem !important;
+}
+.driver-popover-description { 
+  color: #cbd5e1 !important; 
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+}
+.driver-popover-next-btn, .driver-popover-prev-btn {
+  background: rgba(0, 240, 255, 0.1) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  color: #00F0FF !important;
+  border-radius: 0.5rem !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  transition: all 0.2s ease !important;
+}
+.driver-popover-next-btn:hover, .driver-popover-prev-btn:hover {
+  background: rgba(0, 240, 255, 0.2) !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2) !important;
+}
+.driver-popover-close-btn {
+  color: #94a3b8 !important;
+}
+.driver-popover-close-btn:hover {
+  color: #ef4444 !important;
 }
