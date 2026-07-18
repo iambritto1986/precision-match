@@ -28,6 +28,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { Routes, Route, useNavigate, useLocation, Navigate, Link } from 'react-router-dom';
 import { useAppUpdate } from './hooks/useAppUpdate';
 import { ChangelogModal } from './components/modals/ChangelogModal';
+import { API_BASE_URL } from './config';
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'iambrittothomas@gmail.com';
 const STRIPE_PRICE_PRO = import.meta.env.VITE_STRIPE_PRICE_PRO || '';
@@ -285,7 +286,7 @@ export default function App() {
        return loginWithGoogle();
     }
     try {
-      const res = await fetch('/api/create-checkout-session', {
+      const res = await fetch(`${API_BASE_URL}/api/create-checkout-session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ priceId, userId: user.uid })
@@ -463,7 +464,7 @@ export default function App() {
     setBaseContext(sourceText);
     setIsGenerating(true);
     try {
-      const res = await fetch('/api/generate-resume', {
+      const res = await fetch(`${API_BASE_URL}/api/generate-resume`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -513,7 +514,7 @@ export default function App() {
     setIsUploading(true);
     try {
       const base64 = await fileToBase64(file);
-      const res = await fetch('/api/extract-resume', {
+      const res = await fetch(`${API_BASE_URL}/api/extract-resume`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fileBase64: base64, mimeType: file.type })
@@ -574,7 +575,7 @@ export default function App() {
     }
     setIsGenerating(true);
     try {
-      const res = await fetch('/api/generate-resume', {
+      const res = await fetch(`${API_BASE_URL}/api/generate-resume`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -607,7 +608,7 @@ export default function App() {
   const generateCoverLetter = async () => {
     setIsCoverLetterGenerating(true);
     try {
-      const res = await fetch('/api/generate-cover-letter', {
+      const res = await fetch(`${API_BASE_URL}/api/generate-cover-letter`, {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({
@@ -1565,7 +1566,7 @@ export default function App() {
                       setIngestionInput('');
                       
                       try {
-                        const res = await fetch('/api/extract-linkedin', {
+                        const res = await fetch(`${API_BASE_URL}/api/extract-linkedin`, {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ url: val })

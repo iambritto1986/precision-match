@@ -4,7 +4,6 @@ import { auth } from '../lib/firebase';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { ParticleNetworkBackground } from '../components/ParticleNetworkBackground';
-import ParticleText from '../components/ParticleText';
 import { LogIn, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
@@ -109,7 +108,7 @@ export const AuthPortal: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full relative flex items-center justify-center bg-[#070911] font-inter overflow-hidden">
+    <div className="min-h-screen w-full relative flex bg-[#070911] font-inter overflow-y-auto">
       <ParticleNetworkBackground />
       
       {/* Mature 3D Extruded Container */}
@@ -117,30 +116,24 @@ export const AuthPortal: React.FC = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-        className="relative z-10 w-full max-w-md mx-4"
+        className="relative z-10 w-full max-w-md mx-auto my-auto py-4 px-4"
       >
         <div 
-          className="rounded-2xl p-8 overflow-hidden transition-all duration-300"
+          className="rounded-2xl p-6 overflow-hidden transition-all duration-300"
           style={extrudedCardStyle}
         >
           
-          <div className="text-center mb-8 relative">
-            <div className="h-24 w-full flex items-center justify-center">
-              <ParticleText 
-                text="PORTAL" 
-                fontSize={64} 
-                particleSize={6} 
-                particleCount={40} 
-                mouseRadius={80} 
-                colors={["#FFFFFF", "#00F0FF", "#3b82f6"]} 
-              />
+          <div className="text-center mb-6 relative">
+            <div className="mx-auto w-14 h-14 mb-3 flex items-center justify-center">
+              <img src="/logo.png" alt="Precision Match Logo" className="w-14 h-14 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/20" />
             </div>
-            <p className="text-slate-400 text-sm font-medium mt-2">Access the precision network</p>
+            <h1 className="text-2xl font-bold text-white mb-1">Precision Match</h1>
+            <p className="text-slate-400 text-sm font-medium mt-1">Access your professional network</p>
           </div>
 
           {/* Toggle Interface (Inset Track, Extruded Thumb) */}
           <div 
-            className="flex rounded-lg p-1 mb-8 relative"
+            className="flex rounded-lg p-1 mb-6 relative"
             style={insetToggleContainerStyle}
           >
             <button
@@ -173,7 +166,7 @@ export const AuthPortal: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="w-full p-3 mb-6 rounded-lg bg-red-900/30 border border-red-500/20 text-red-300 text-xs text-center font-medium"
+              className="w-full p-2 mb-4 rounded-lg bg-red-900/30 border border-red-500/20 text-red-300 text-xs text-center font-medium"
             >
               {error}
             </motion.div>
@@ -258,7 +251,7 @@ export const AuthPortal: React.FC = () => {
               whileHover={{ scale: 1.01, filter: 'brightness(1.1)' }}
               whileTap={{ scale: 0.98, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}
               type="submit"
-              className="w-full mt-6 bg-gradient-to-b from-indigo-500 to-indigo-700 text-white font-bold py-3.5 rounded-lg transition-all duration-200 flex items-center justify-center border border-indigo-400/20"
+              className="w-full mt-4 bg-gradient-to-b from-indigo-500 to-indigo-700 text-white font-bold py-3 rounded-lg transition-all duration-200 flex items-center justify-center border border-indigo-400/20"
               style={extrudedButtonStyle}
             >
               {isLogin ? (
@@ -269,7 +262,7 @@ export const AuthPortal: React.FC = () => {
             </motion.button>
           </form>
 
-          <div className="mt-8 flex items-center gap-4">
+          <div className="mt-6 flex items-center gap-4">
             <div className="flex-1 h-px bg-gradient-to-r from-transparent to-slate-800" />
             <span className="text-[10px] uppercase font-bold text-slate-600 tracking-widest">OR</span>
             <div className="flex-1 h-px bg-gradient-to-l from-transparent to-slate-800" />
@@ -279,7 +272,7 @@ export const AuthPortal: React.FC = () => {
             whileHover={{ scale: 1.01, filter: 'brightness(1.1)' }}
             whileTap={{ scale: 0.98, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}
             onClick={handleGoogle}
-            className="w-full mt-8 bg-gradient-to-b from-slate-800 to-slate-900 text-white font-medium py-3.5 rounded-lg transition-all duration-200 flex items-center justify-center border border-slate-700"
+            className="w-full mt-6 bg-gradient-to-b from-slate-800 to-slate-900 text-white font-medium py-3 rounded-lg transition-all duration-200 flex items-center justify-center border border-slate-700"
             style={extrudedButtonStyle}
           >
             <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4 mr-3 opacity-90 drop-shadow-sm" />

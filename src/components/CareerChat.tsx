@@ -3,6 +3,7 @@ import { Send, Bot, MessageCircle } from 'lucide-react';
 import Markdown from 'react-markdown';
 
 import { ResumeData } from '../types';
+import { API_BASE_URL } from '../config';
 
 export default function CareerChat({ resumeData, deductCredits }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean }) {
   const [messages, setMessages] = useState<{role: 'user'|'model', text: string}[]>([{
@@ -24,7 +25,7 @@ export default function CareerChat({ resumeData, deductCredits }: { resumeData: 
     setLoading(true);
 
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

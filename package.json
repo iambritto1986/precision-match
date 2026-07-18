@@ -3,13 +3,16 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "electron:dev": "cross-env NODE_ENV=development concurrently -k \"vite --base=./\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:build": "cross-env VITE_API_URL=https://precision-match.onrender.com vite build --base=./ && electron-builder"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -43,10 +46,32 @@
     "@types/node": "^22.14.0",
     "@types/ws": "^8.18.1",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^10.0.3",
+    "cross-env": "^10.1.0",
+    "electron": "^43.1.1",
+    "electron-builder": "^26.15.3",
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.3"
+    "vite": "^6.2.3",
+    "wait-on": "^9.0.10"
+  },
+  "build": {
+    "appId": "com.singularityinsight.precisionmatch",
+    "productName": "Precision Match",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "nsis"
+    }
   }
 }

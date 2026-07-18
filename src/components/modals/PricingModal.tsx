@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { CheckCircle2, X } from 'lucide-react';
+import { API_BASE_URL } from '../../config';
 
 interface PricingModalProps {
   setShowPricing: (show: boolean) => void;
@@ -36,7 +37,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
          console.warn("User doc missing, proceeding anyway");
       }
 
-      const res = await fetch('/api/create-checkout-session', {
+      const res = await fetch(`${API_BASE_URL}/api/create-checkout-session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -66,7 +67,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
     if (!user) return;
     setIsProcessing(true);
     try {
-      const res = await fetch('/api/create-portal-session', {
+      const res = await fetch(`${API_BASE_URL}/api/create-portal-session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
