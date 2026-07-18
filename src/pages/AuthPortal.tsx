@@ -4,6 +4,7 @@ import { auth } from '../lib/firebase';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { ParticleNetworkBackground } from '../components/ParticleNetworkBackground';
+import ParticleText from '../components/ParticleText';
 import { LogIn, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
@@ -123,9 +124,18 @@ export const AuthPortal: React.FC = () => {
           style={extrudedCardStyle}
         >
           
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white tracking-widest mb-2 drop-shadow-md">PORTAL</h1>
-            <p className="text-slate-400 text-sm font-medium">Access the precision network</p>
+          <div className="text-center mb-8 relative">
+            <div className="h-24 w-full flex items-center justify-center">
+              <ParticleText 
+                text="PORTAL" 
+                fontSize={64} 
+                particleSize={6} 
+                particleCount={40} 
+                mouseRadius={80} 
+                colors={["#FFFFFF", "#00F0FF", "#3b82f6"]} 
+              />
+            </div>
+            <p className="text-slate-400 text-sm font-medium mt-2">Access the precision network</p>
           </div>
 
           {/* Toggle Interface (Inset Track, Extruded Thumb) */}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ParticleNetworkBackground } from '../components/ParticleNetworkBackground';
+import ParticleText from '../components/ParticleText';
 
 /**
  * NotFoundPage — A styled 404 page matching the deep-space dark theme.
@@ -14,17 +15,17 @@ export const NotFoundPage: React.FC = () => {
       <ParticleNetworkBackground />
       
       <div className="relative z-10 text-center px-6">
-        {/* Glowing 404 */}
-        <h1
-          className="text-[120px] font-black text-transparent bg-clip-text leading-none mb-4"
-          style={{
-            backgroundImage: 'linear-gradient(135deg, #00F0FF 0%, #B500FF 100%)',
-            textShadow: '0 0 60px rgba(0, 240, 255, 0.3), 0 0 120px rgba(181, 0, 255, 0.15)',
-            WebkitTextStroke: '1px rgba(0, 240, 255, 0.2)',
-          }}
-        >
-          404
-        </h1>
+        {/* Glowing 404 Particles */}
+        <div className="h-40 w-full flex items-center justify-center mb-4">
+          <ParticleText 
+            text="404" 
+            fontSize={120} 
+            particleSize={8} 
+            particleCount={60} 
+            mouseRadius={100} 
+            colors={["#FFFFFF", "#00F0FF", "#B500FF"]} 
+          />
+        </div>
 
         <h2 className="text-2xl font-bold text-white tracking-wider mb-3 uppercase">
           Signal Lost
