@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || '';
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'iambrittothomas@gmail.com';
 import { useAuth } from '../context/AuthContext';
 import { Activity, Users, ShieldAlert, Zap, MessageSquare, LifeBuoy } from 'lucide-react';
 import { db } from '../lib/firebase';

@@ -24,7 +24,7 @@ import { useLocation, Navigate } from 'react-router-dom';
 import { AuthPortal } from './pages/AuthPortal';
 import { NotFoundPage } from './pages/NotFoundPage';
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || '';
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'iambrittothomas@gmail.com';
 const STRIPE_PRICE_PRO = import.meta.env.VITE_STRIPE_PRICE_PRO || '';
 const STRIPE_PRICE_CREDITS = import.meta.env.VITE_STRIPE_PRICE_CREDITS || '';
 
