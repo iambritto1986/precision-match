@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { X, Menu, Users, FileText, Code, MessageCircle, Mic, Compass, Plus, FileOutput, CheckCircle2, ChevronDown, Download, Layers, ShieldAlert, LogOut, LogIn } from 'lucide-react';
 import { ResumeData } from '../../types';
 import { useAuth } from '../../context/AuthContext';
+import ParticleText from '../ParticleText';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -191,6 +192,21 @@ export function Sidebar({
               <button onClick={() => setShowDeleteConfirm(true)} className="text-[10px] text-red-400/70 hover:text-red-400 transition">Delete Account</button>
             </>
           )}
+        </div>
+        
+        {/* Singularity Inside Footer */}
+        <div className="px-6 pb-6 w-full flex flex-col items-center justify-center border-t border-white/5 pt-4">
+           <p className="text-[8px] uppercase tracking-widest text-slate-500 mb-1 font-semibold">A product of</p>
+           <div className="h-6 w-full flex items-center justify-center relative opacity-80 hover:opacity-100 transition-opacity cursor-default">
+             <ParticleText 
+                text="SINGULARITY" 
+                fontSize={16} 
+                particleSize={2} 
+                particleCount={80} 
+                mouseRadius={40} 
+                colors={["#FFFFFF", "#00F0FF", "#B500FF"]} 
+              />
+           </div>
         </div>
       </aside>
 
