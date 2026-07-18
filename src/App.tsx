@@ -26,6 +26,8 @@ import { OnboardingTour } from './components/OnboardingTour';
 import { PricingModal } from './components/modals/PricingModal';
 import { Sidebar } from './components/layout/Sidebar';
 import { Routes, Route, useNavigate, useLocation, Navigate, Link } from 'react-router-dom';
+import { useAppUpdate } from './hooks/useAppUpdate';
+import { ChangelogModal } from './components/modals/ChangelogModal';
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'iambrittothomas@gmail.com';
 const STRIPE_PRICE_PRO = import.meta.env.VITE_STRIPE_PRICE_PRO || '';
@@ -98,6 +100,24 @@ export default function App() {
   const [showSupport, setShowSupport] = useState(false);
   const [supportText, setSupportText] = useState('');
   const [showSecurity, setShowSecurity] = useState(false);
+  const [showChangelogModal, setShowChangelogModal] = useState(false);
+  const [changelogData, setChangelogData] = useState<{version: string, changelog: string[]} | null>(null);
+
+  const { updateAvailable, newVersionData, triggerUpdate } = useAppUpdate();
+
+  useEffect(() => {
+    const showVersion = localStorage.getItem('show_changelog_for_version');
+    const storedChangelog = localStorage.getItem('latest_changelog_data');
+    if (showVersion && storedChangelog) {
+      setChangelogData({
+        version: showVersion,
+        changelog: JSON.parse(storedChangelog)
+      });
+      setShowChangelogModal(true);
+      localStorage.removeItem('show_changelog_for_version');
+    }
+  }, []);
+
   const [showLegalModal, setShowLegalModal] = useState<'privacy' | 'terms' | null>(null);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -1779,6 +1799,42 @@ export default function App() {
         </div>
       )}
 
+      {/* App Update Toast */}
+      <AnimatePresence>
+        {updateAvailable && (
+          <motion.div
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-[99999999] flex items-center gap-4 bg-slate-900/90 border border-[#00F0FF]/30 p-3 rounded-2xl shadow-[0_10px_40px_rgba(0,240,255,0.2)] backdrop-blur-xl"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#00F0FF]/10 flex items-center justify-center border border-[#00F0FF]/20 animate-pulse">
+                <Sparkles className="w-5 h-5 text-[#00F0FF]" />
+              </div>
+              <div>
+                <p className="text-white font-semibold text-sm">New Update Available</p>
+                <p className="text-slate-400 text-xs">v{newVersionData?.version} is ready.</p>
+              </div>
+            </div>
+            <button
+              onClick={triggerUpdate}
+              className="px-5 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg"
+            >
+              Refresh to Update
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Changelog Modal */}
+      {showChangelogModal && changelogData && (
+        <ChangelogModal
+          version={changelogData.version}
+          changelog={changelogData.changelog}
+          onClose={() => setShowChangelogModal(false)}
+        />
+      )}
 
     </div>
   );

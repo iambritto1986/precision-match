@@ -1,0 +1,9 @@
+{
+  "version": "1.0.1",
+  "changelog": [
+    "Added an interactive Onboarding Guided Tour for new users",
+    "Improved visibility for transparent elements during the tour",
+    "Added a convenient manual 'Guided Tour' launch button in the sidebar menu",
+    "Prepared architecture for future mobile and desktop app releases"
+  ]
+}
