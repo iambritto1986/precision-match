@@ -66,9 +66,9 @@ export default function CareerChat({ resumeData, deductCredits }: { resumeData: 
          </label>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className={`flex-1 overflow-y-auto p-6 space-y-6 flex flex-col ${messages.length === 1 ? 'justify-center' : ''}`}>
         {messages.map((msg, idx) => (
-           <div key={idx} className={`flex max-w-[80%] ${msg.role === 'user' ? 'ml-auto' : 'mr-auto'}`}>
+           <div key={idx} className={`flex ${messages.length === 1 ? 'max-w-2xl mx-auto w-full' : 'max-w-[80%]'} ${msg.role === 'user' ? 'ml-auto' : (messages.length === 1 ? '' : 'mr-auto')}`}>
               {msg.role === 'model' && (
                  <div className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center shrink-0 mr-3">
                     <Bot className="w-4 h-4 text-blue-400" />
