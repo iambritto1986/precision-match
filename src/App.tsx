@@ -24,6 +24,12 @@ import { AuthPortal } from './pages/AuthPortal';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { OnboardingTour } from './components/OnboardingTour';
 import { PricingModal } from './components/modals/PricingModal';
+import { MarketingLayout } from './components/marketing/MarketingLayout';
+import { LandingPage } from './pages/public/LandingPage';
+import { PricingPage } from './pages/public/PricingPage';
+import { PrivacyPage } from './pages/public/PrivacyPage';
+import { TermsPage } from './pages/public/TermsPage';
+import { ContactPage } from './pages/public/ContactPage';
 import { Sidebar } from './components/layout/Sidebar';
 import { Routes, Route, useNavigate, useLocation, Navigate, Link } from 'react-router-dom';
 import { useAppUpdate } from './hooks/useAppUpdate';
@@ -671,17 +677,39 @@ export default function App() {
       );
   }
 
-  if (location.pathname === '/auth/register') {
+  // Public Routes (Marketing Site)
+  const publicPaths = ['/', '/pricing', '/privacy', '/terms', '/contact'];
+  if (publicPaths.includes(location.pathname)) {
+    if (user && location.pathname === '/') {
+      return <Navigate to="/dashboard" replace />;
+    }
+    return (
+      <Routes location={location} key={location.pathname}>
+        <Route element={<MarketingLayout />}>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+        </Route>
+      </Routes>
+    );
+  }
+
+  // Auth Routes
+  if (location.pathname.startsWith('/auth')) {
+    if (user) return <Navigate to="/dashboard" replace />;
     return <AuthPortal />;
   }
 
+  // Protected Routes
   if (!user && !isGuestMode && !authLoading) {
     return <Navigate to="/auth/register" replace />;
   }
 
   // 404 for unknown paths
-  const knownPaths = ['/', '/auth/register', '/resume', '/edit', '/chat', '/interview', '/dashboard'];
-  if (!knownPaths.includes(location.pathname)) {
+  const knownPaths = ['/resume', '/edit', '/chat', '/interview', '/dashboard'];
+  if (!knownPaths.includes(location.pathname) && !publicPaths.includes(location.pathname) && !location.pathname.startsWith('/auth')) {
     return <NotFoundPage />;
   }
 
