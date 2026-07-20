@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { ParticleNetworkBackground } from '../components/ParticleNetworkBackground';
 import { LogIn, UserPlus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 
 /**
@@ -124,10 +124,12 @@ export const AuthPortal: React.FC = () => {
         >
           
           <div className="text-center mb-6 relative">
-            <div className="mx-auto w-14 h-14 mb-3 flex items-center justify-center">
-              <img src="/logo.png" alt="Precision Match Logo" className="w-14 h-14 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/20" />
-            </div>
-            <h1 className="text-2xl font-bold text-white mb-1">Precision Match</h1>
+            <Link to="/" className="inline-block group cursor-pointer hover:opacity-80 transition-opacity">
+              <div className="mx-auto w-14 h-14 mb-3 flex items-center justify-center">
+                <img src="/logo.png" alt="Precision Match Logo" className="w-14 h-14 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/20" />
+              </div>
+              <h1 className="text-2xl font-bold text-white mb-1">Precision Match</h1>
+            </Link>
             <p className="text-slate-400 text-sm font-medium mt-1">Access your professional network</p>
           </div>
 
