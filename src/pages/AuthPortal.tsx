@@ -4,9 +4,12 @@ import { auth } from '../lib/firebase';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import { ParticleNetworkBackground } from '../components/ParticleNetworkBackground';
-import { LogIn, UserPlus } from 'lucide-react';
+import { LogIn, UserPlus, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { LegalModal } from '../components/modals/LegalModal';
+import { SupportModal } from '../components/modals/SupportModal';
+import { PricingModal } from '../components/modals/PricingModal';
 
 /**
  * AuthPortal — Login/Registration page
@@ -32,6 +35,16 @@ export const AuthPortal: React.FC = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
   const [resetError, setResetError] = useState('');
+
+  const [showLegalModal, setShowLegalModal] = useState<'privacy' | 'terms' | null>(null);
+  const [showSupport, setShowSupport] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
+  const [toast, setToast] = useState<{msg: string, type: 'success' | 'error' | 'info'} | null>(null);
+
+  const showToast = (msg: string, type: 'success' | 'error' | 'info') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     if (user && user.uid !== 'local-guest-uid') {
@@ -108,15 +121,58 @@ export const AuthPortal: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full relative flex bg-[#070911] font-inter overflow-y-auto">
+    <div className="min-h-screen w-full relative flex flex-col lg:flex-row bg-[#070911] font-inter overflow-y-auto lg:overflow-hidden">
       <ParticleNetworkBackground />
       
+      {/* Left Side: Marketing / Hero */}
+      <div className="relative z-10 w-full lg:w-1/2 flex flex-col p-8 lg:p-16 h-full overflow-y-auto scroll-hide">
+         {/* Top Nav */}
+         <nav className="flex gap-6 mb-12 lg:mb-16 text-sm font-medium text-slate-400">
+            <button onClick={() => setShowPricing(true)} className="hover:text-white transition-colors">Pricing</button>
+            <button onClick={() => setShowLegalModal('privacy')} className="hover:text-white transition-colors">Privacy</button>
+            <button onClick={() => setShowLegalModal('terms')} className="hover:text-white transition-colors">Terms</button>
+            <button onClick={() => setShowSupport(true)} className="hover:text-white transition-colors">Contact</button>
+         </nav>
+
+         {/* Hero Content */}
+         <div className="flex flex-col gap-6 max-w-lg mt-4 lg:mt-8">
+           <h1 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight">
+              Land more interviews with <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-500">AI-tailored resumes.</span>
+           </h1>
+           <p className="text-slate-300 text-lg leading-relaxed">
+              Precision Match uses Gemini AI to instantly analyze job descriptions and optimize your resume to match. Highlight your most relevant skills, beat the Applicant Tracking Systems (ATS), and land your dream job faster. Built with a robust modern stack to ensure a blazing fast, secure experience.
+           </p>
+           <div className="flex flex-col gap-4 mt-4">
+              <div className="flex items-start gap-3">
+                 <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center border border-cyan-500/30 flex-shrink-0 mt-0.5">
+                    <Check className="w-3.5 h-3.5 text-cyan-400" />
+                 </div>
+                 <p className="text-slate-400 text-sm">Upload your base resume.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                 <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center border border-cyan-500/30 flex-shrink-0 mt-0.5">
+                    <Check className="w-3.5 h-3.5 text-cyan-400" />
+                 </div>
+                 <p className="text-slate-400 text-sm">Paste the job description you want to apply for.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                 <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center border border-cyan-500/30 flex-shrink-0 mt-0.5">
+                    <Check className="w-3.5 h-3.5 text-cyan-400" />
+                 </div>
+                 <p className="text-slate-400 text-sm">Our Gemini AI engine optimizes your resume to highlight your most relevant skills.</p>
+              </div>
+           </div>
+         </div>
+      </div>
+
+      {/* Right Side: Auth Form */}
+      <div className="relative z-10 w-full lg:w-1/2 flex items-center justify-center p-4 lg:p-8 h-full overflow-y-auto">
       {/* Mature 3D Extruded Container */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-        className="relative z-10 w-full max-w-md mx-auto my-auto py-4 px-4"
+        className="w-full max-w-md py-4 px-4"
       >
         <div 
           className="rounded-2xl p-6 overflow-hidden transition-all duration-300"
@@ -378,6 +434,52 @@ export const AuthPortal: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Modals */}
+      {showLegalModal && (
+        <LegalModal 
+          type={showLegalModal} 
+          onClose={() => setShowLegalModal(null)} 
+          onOpenSupport={() => { setShowLegalModal(null); setShowSupport(true); }} 
+        />
+      )}
+
+      {showSupport && (
+        <SupportModal 
+          onClose={() => setShowSupport(false)} 
+          user={null} 
+          showToast={showToast} 
+        />
+      )}
+
+      {showPricing && (
+        <PricingModal 
+          setShowPricing={setShowPricing}
+          user={null}
+          resumeData={null}
+          isPro={false}
+        />
+      )}
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-6 left-1/2 -translate-x-1/2 z-[99999] px-6 py-3 rounded-full text-sm font-bold shadow-lg border ${
+              toast.type === 'error' ? 'bg-red-900/80 border-red-500/50 text-red-200' :
+              toast.type === 'success' ? 'bg-green-900/80 border-green-500/50 text-green-200' :
+              'bg-blue-900/80 border-blue-500/50 text-blue-200'
+            }`}
+          >
+            {toast.msg}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      </div>
     </div>
   );
 };
