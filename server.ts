@@ -433,10 +433,12 @@ Respond only with valid JSON.
       if (!baseData || typeof baseData !== 'string') {
         return res.status(400).json({ error: "Missing or invalid required field: baseData", code: "VALIDATION_ERROR" });
       }
-      if (!jobDescription || typeof jobDescription !== 'string') {
+      if (typeof jobDescription !== 'string') {
         return res.status(400).json({ error: "Missing or invalid required field: jobDescription", code: "VALIDATION_ERROR" });
       }
       
+      const jdText = jobDescription.trim() || "General application - no specific job description provided.";
+
       const prompt = `
 You are an expert executive cover letter writer.
 Based on the candidate's experience and the job description, write a compelling, tailored cover letter.
@@ -445,7 +447,7 @@ Candidate Experience:
 ${baseData}
 
 Target Job Description:
-${jobDescription}
+${jdText}
 
 Write the cover letter in professional plain text matching standard business letter format.
 Include placeholders like [Hiring Manager Name] or [Company Name] where appropriate if not found.
