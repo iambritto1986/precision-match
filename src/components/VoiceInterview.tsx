@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Loader2, Play, Square, Video, Volume2, ShieldAlert } from 'lucide-react';
+import { Loader2, PhoneOff } from 'lucide-react';
 import { ResumeData } from '../types';
 
 export default function VoiceInterview({ resumeData, deductCredits }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean }) {
   const [isConnected, setIsConnected] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
+  const [aiSpeaking, setAiSpeaking] = useState(false);
 
   const wsRef = useRef<WebSocket | null>(null);
   const inputAudioCtxRef = useRef<AudioContext | null>(null);
@@ -15,6 +17,7 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<any>(null);
+  const aiSpeakingTimeoutRef = useRef<any>(null);
 
   const pcmToBase64 = (pcmData: Float32Array) => {
     const buffer = new ArrayBuffer(pcmData.length * 2);
@@ -59,12 +62,47 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
       }
       source.start(nextStartTimeRef.current);
       nextStartTimeRef.current += audioBuffer.duration;
+
+      // Track AI speaking state
+      setAiSpeaking(true);
+      if (aiSpeakingTimeoutRef.current) clearTimeout(aiSpeakingTimeoutRef.current);
+      aiSpeakingTimeoutRef.current = setTimeout(() => setAiSpeaking(false), 600);
     } catch(e) {
       console.error(e);
     }
   };
 
-  const connectVoice = async () => {
+  const startRecording = async () => {
+     try {
+        const inputAudioCtx = inputAudioCtxRef.current;
+        const ws = wsRef.current;
+        if (!inputAudioCtx || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        streamRef.current = stream;
+
+        const source = inputAudioCtx.createMediaStreamSource(stream);
+        const processor = inputAudioCtx.createScriptProcessor(4096, 1, 1);
+        processorRef.current = processor;
+
+        source.connect(processor);
+        processor.connect(inputAudioCtx.destination);
+
+        processor.onaudioprocess = (e) => {
+          if (ws.readyState === WebSocket.OPEN && !isMuted) {
+             const base64 = pcmToBase64(e.inputBuffer.getChannelData(0));
+             ws.send(JSON.stringify({ audio: base64 }));
+          }
+        };
+
+        setIsRecording(true);
+     } catch(e) {
+        console.error(e);
+        setError("Could not access microphone. Check browser permissions.");
+     }
+  };
+
+  const connectAndStart = async () => {
     if (!deductCredits(5)) return;
     try {
       setError(null);
@@ -92,12 +130,15 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
            timerRef.current = setInterval(() => {
               setCallDuration(prev => prev + 1);
            }, 1000);
+           // Auto-start recording so user can respond naturally
+           setTimeout(() => startRecording(), 500);
         }
         if (msg.audio) {
            playAudioChunk(outputAudioCtx, msg.audio);
         }
         if (msg.interrupted) {
-          nextStartTimeRef.current = outputAudioCtx.currentTime; // reset queue slightly
+          nextStartTimeRef.current = outputAudioCtx.currentTime;
+          setAiSpeaking(false);
         }
       };
 
@@ -105,6 +146,7 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
         setIsConnected(false);
         setIsRecording(false);
         setIsConnecting(false);
+        setAiSpeaking(false);
         if (timerRef.current) {
           clearInterval(timerRef.current);
           timerRef.current = null;
@@ -116,36 +158,6 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
         setError("Could not connect to Voice API");
         setIsConnecting(false);
     }
-  };
-
-  const startRecording = async () => {
-     try {
-        const inputAudioCtx = inputAudioCtxRef.current;
-        const ws = wsRef.current;
-        if (!inputAudioCtx || !ws || ws.readyState !== WebSocket.OPEN) return;
-
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        streamRef.current = stream;
-
-        const source = inputAudioCtx.createMediaStreamSource(stream);
-        const processor = inputAudioCtx.createScriptProcessor(4096, 1, 1);
-        processorRef.current = processor;
-
-        source.connect(processor);
-        processor.connect(inputAudioCtx.destination);
-
-        processor.onaudioprocess = (e) => {
-          if (ws.readyState === WebSocket.OPEN) {
-             const base64 = pcmToBase64(e.inputBuffer.getChannelData(0));
-             ws.send(JSON.stringify({ audio: base64 }));
-          }
-        };
-
-        setIsRecording(true);
-     } catch(e) {
-        console.error(e);
-        setError("Could not access microphone. Check browser permissions.");
-     }
   };
 
   const stopRecording = () => {
@@ -169,6 +181,10 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
      }
   };
 
+  const toggleMute = () => {
+    setIsMuted(prev => !prev);
+  };
+
   useEffect(() => {
      return () => { disconnectVoice(); };
   }, []);
@@ -179,167 +195,226 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Determine orb visual state
+  const orbState = !isConnected ? 'idle' : aiSpeaking ? 'ai-speaking' : (isRecording && !isMuted) ? 'user-speaking' : 'listening';
+
   return (
-    <div className="flex flex-col items-center justify-center p-6 w-full h-full font-inter">
-      <div className="glass-modal text-white p-8 w-full max-w-lg text-center relative overflow-hidden flex flex-col items-center min-h-[480px] justify-between">
-        
-        {/* Decorative Grid Background */}
-        <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:14px_24px] pointer-events-none"></div>
-        <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 left-0"></div>
+    <div className="flex flex-col items-center justify-center w-full h-full font-inter relative overflow-hidden select-none">
+      
+      {/* Ambient background glow */}
+      <div className={`absolute w-[500px] h-[500px] rounded-full blur-[150px] transition-all duration-1000 pointer-events-none ${
+        orbState === 'ai-speaking' ? 'bg-cyan-500/15 scale-125' :
+        orbState === 'user-speaking' ? 'bg-fuchsia-500/15 scale-110' :
+        isConnected ? 'bg-indigo-500/10 scale-100' :
+        'bg-slate-500/5 scale-90'
+      }`} />
 
-        {/* Top bar info */}
-        <div className="w-full flex items-center justify-between z-10">
+      {/* Top status bar */}
+      {isConnected && (
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
           <div className="flex items-center gap-2">
-            <div className={`w-2.5 h-2.5 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : isConnecting ? 'bg-yellow-500 animate-pulse' : 'bg-slate-500'}`}></div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-              {isConnected ? 'Session Active' : isConnecting ? 'Connecting' : 'Offline'}
-            </span>
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-300">Live</span>
           </div>
-          {isConnected && (
-            <div className="text-xs font-mono bg-white/10 border border-white/10 px-2.5 py-1 rounded-full text-slate-300">
-              {formatDuration(callDuration)}
-            </div>
-          )}
+          <div className="w-px h-4 bg-white/10" />
+          <span className="text-xs font-mono text-slate-400">{formatDuration(callDuration)}</span>
         </div>
+      )}
 
-        {/* Call Info / Candidate Panel */}
-        <div className="my-4 z-10">
-          <p className="text-sm font-bold text-blue-400 uppercase tracking-widest">AI Interview Prep</p>
-          <h3 className="text-xl font-black mt-1 tracking-tight text-white">
-            {resumeData.personalDetails.name || 'Professional Candidate'}
-          </h3>
-          <p className="text-xs text-slate-400 mt-1 italic font-medium">
-            Role Focus: {resumeData.personalDetails.title || 'Product Role'}
-          </p>
-        </div>
+      {/* Main content */}
+      <div className="relative z-10 flex flex-col items-center justify-center gap-8">
+        
+        {/* Candidate info */}
+        {isConnected && (
+          <div className="text-center animate-fade-in">
+            <p className="text-xs font-bold text-indigo-400 uppercase tracking-[0.2em] mb-1">AI Interview Coach</p>
+            <h3 className="text-xl font-bold text-white tracking-tight">
+              {resumeData.personalDetails.name || 'Professional Candidate'}
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              {resumeData.personalDetails.title || 'Product Role'}
+            </p>
+          </div>
+        )}
 
-        {/* Center Calling Ring & Waveform */}
-        <div className="relative my-8 z-10 flex flex-col items-center justify-center">
-          {/* Animated Glow behind Microphone */}
-          <div className={`absolute w-36 h-36 rounded-full bg-blue-500/10 blur-xl transition-all duration-700 scale-110 ${isRecording ? 'opacity-80 scale-125 bg-red-500/10' : isConnected ? 'opacity-50' : 'opacity-0'}`}></div>
+        {/* The Dynamic Orb */}
+        <div 
+          className="relative cursor-pointer group"
+          onClick={isConnected ? toggleMute : undefined}
+          title={isConnected ? (isMuted ? 'Tap to unmute' : 'Tap to mute') : ''}
+        >
+          {/* Outer breathing rings */}
+          <div className={`absolute inset-0 rounded-full transition-all duration-700 ${
+            orbState === 'ai-speaking' 
+              ? 'animate-orb-ring-ai scale-[1.6] bg-gradient-to-tr from-cyan-500/20 to-indigo-500/20 blur-xl' 
+              : orbState === 'user-speaking'
+              ? 'animate-orb-ring-user scale-[1.5] bg-gradient-to-tr from-fuchsia-500/20 to-rose-500/20 blur-xl'
+              : isConnected
+              ? 'animate-orb-ring-idle scale-[1.3] bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 blur-lg'
+              : 'scale-100 opacity-0'
+          }`} />
           
-          <div className={`w-32 h-32 rounded-full border-4 flex items-center justify-center transition-all duration-300 relative z-10 ${
-            isConnected
-              ? isRecording
-                ? 'border-red-500 bg-red-500/10 shadow-[0_0_20px_rgba(239,68,68,0.3)]'
-                : 'border-blue-500 bg-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.3)]'
-              : 'border-slate-800 bg-slate-800/40'
+          {/* Secondary ring */}
+          <div className={`absolute inset-0 rounded-full transition-all duration-500 ${
+            orbState === 'ai-speaking'
+              ? 'animate-orb-ring-ai-2 scale-[1.3] bg-gradient-to-bl from-cyan-400/15 to-blue-500/15 blur-lg'
+              : orbState === 'user-speaking'
+              ? 'animate-orb-ring-user-2 scale-[1.25] bg-gradient-to-bl from-rose-400/15 to-orange-500/15 blur-lg'
+              : 'scale-100 opacity-0'
+          }`} />
+
+          {/* Core orb */}
+          <div className={`relative w-40 h-40 rounded-full flex items-center justify-center transition-all duration-500 ${
+            orbState === 'ai-speaking'
+              ? 'bg-gradient-to-tr from-cyan-500 to-indigo-500 shadow-[0_0_60px_rgba(6,182,212,0.4)] scale-110'
+              : orbState === 'user-speaking'
+              ? 'bg-gradient-to-tr from-fuchsia-500 to-rose-500 shadow-[0_0_60px_rgba(217,70,239,0.4)] scale-105'
+              : isConnected
+              ? 'bg-gradient-to-tr from-indigo-600 to-purple-600 shadow-[0_0_30px_rgba(99,102,241,0.25)]'
+              : 'bg-gradient-to-tr from-slate-700 to-slate-800 shadow-[0_0_20px_rgba(100,116,139,0.1)] group-hover:from-indigo-700 group-hover:to-purple-700 group-hover:shadow-[0_0_40px_rgba(99,102,241,0.2)]'
           }`}>
-            {!isConnected ? (
-              <MicOff className="w-12 h-12 text-slate-500" />
-            ) : isRecording ? (
-              <Mic className="w-12 h-12 text-red-500 animate-pulse" />
-            ) : (
-              <Mic className="w-12 h-12 text-blue-400" />
-            )}
-          </div>
+            
+            {/* Inner shimmer layer */}
+            <div className={`absolute inset-1 rounded-full bg-gradient-to-b from-white/10 to-transparent transition-opacity duration-500 ${
+              isConnected ? 'opacity-100' : 'opacity-50'
+            }`} />
 
-          {/* Visual Waveform (Only animate when listening/speaking) */}
-          <div className="h-10 mt-6 flex items-center justify-center gap-1">
-            {isConnected && isRecording ? (
-              [0.3, 0.6, 0.4, 0.8, 0.5, 0.7, 0.3].map((delay, index) => (
-                <div
-                  key={index}
-                  className="w-1 bg-red-500 rounded-full transition-all"
-                  style={{
-                    height: '24px',
-                    animation: `pulse 1s ease-in-out infinite alternate`,
-                    animationDelay: `${delay}s`
-                  }}
-                />
-              ))
-            ) : isConnected ? (
-              [0.1, 0.2, 0.15, 0.25, 0.1, 0.2, 0.15].map((delay, index) => (
-                <div
-                  key={index}
-                  className="w-1 h-2 bg-blue-500/40 rounded-full"
-                />
-              ))
-            ) : (
-              <div className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Muted</div>
-            )}
-          </div>
-        </div>
-
-        {/* Dynamic Status / Guidance Text */}
-        <div className="px-6 text-center min-h-[48px] z-10">
-          {error ? (
-            <p className="text-red-400 text-xs flex items-center justify-center gap-1.5">
-              <ShieldAlert className="w-4 h-4" /> {error}
-            </p>
-          ) : !isConnected ? (
-            <p className="text-slate-400 text-xs max-w-xs mx-auto leading-relaxed">
-              Connect to our AI career coach to practice common behavioral and technical interview questions based on your resume.
-            </p>
-          ) : isRecording ? (
-            <p className="text-red-400 text-xs font-bold animate-pulse tracking-wide uppercase">
-              AI Coach is listening... Speak clearly.
-            </p>
-          ) : (
-            <p className="text-blue-300 text-xs font-medium max-w-xs mx-auto leading-relaxed">
-              Call established! Click "Start Speaking" when you are ready to speak, and click it again to send your reply.
-            </p>
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="w-full mt-6 z-10">
-          {!isConnected ? (
-            <button
-              onClick={connectVoice}
-              disabled={isConnecting}
-              className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
+            {/* Center icon / indicator */}
+            <div className="relative z-10 flex flex-col items-center gap-1">
               {isConnecting ? (
+                <Loader2 className="w-10 h-10 text-white animate-spin" />
+              ) : isMuted && isConnected ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Securing Line...
+                  <div className="w-10 h-10 flex items-center justify-center">
+                    <div className="w-8 h-0.5 bg-white/70 rounded-full rotate-45 absolute" />
+                    <svg className="w-10 h-10 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                    </svg>
+                  </div>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-white/60 mt-1">Muted</span>
+                </>
+              ) : orbState === 'ai-speaking' ? (
+                <>
+                  {/* Animated bars for AI speaking */}
+                  <div className="flex items-end gap-[3px] h-10">
+                    {[0, 0.1, 0.2, 0.3, 0.2, 0.1, 0].map((delay, i) => (
+                      <div 
+                        key={i}
+                        className="w-[3px] bg-white/90 rounded-full animate-ai-bar"
+                        style={{ animationDelay: `${delay}s` }}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-white/80 mt-1">Speaking</span>
+                </>
+              ) : orbState === 'user-speaking' ? (
+                <>
+                  <div className="flex items-end gap-[3px] h-10">
+                    {[0, 0.15, 0.05, 0.2, 0.1, 0.25, 0.08].map((delay, i) => (
+                      <div 
+                        key={i}
+                        className="w-[3px] bg-white/90 rounded-full animate-user-bar"
+                        style={{ animationDelay: `${delay}s` }}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-white/80 mt-1">Listening</span>
                 </>
               ) : (
                 <>
-                  <Volume2 className="w-4 h-4" />
-                  Connect to AI Coach
+                  <svg className="w-10 h-10 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                  </svg>
+                  {!isConnected && <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 mt-1">Ready</span>}
                 </>
               )}
-            </button>
-          ) : (
-            <div className="flex flex-col gap-3 w-full">
-              {!isRecording ? (
-                <button
-                  onClick={startRecording}
-                  className="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-green-500/15 flex items-center justify-center gap-2"
-                >
-                  <Play className="w-4 h-4" />
-                  Start Speaking
-                </button>
-              ) : (
-                <button
-                  onClick={stopRecording}
-                  className="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-red-500/15 flex items-center justify-center gap-2 animate-pulse"
-                >
-                  <Square className="w-4 h-4" />
-                  Stop Speaking (Send Reply)
-                </button>
-              )}
-              
-              <button
-                onClick={disconnectVoice}
-                className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs rounded-lg transition"
-              >
-                End Practice Session
-              </button>
             </div>
-          )}
+          </div>
         </div>
 
+        {/* Status text */}
+        <div className="text-center min-h-[48px] max-w-xs">
+          {error ? (
+            <p className="text-red-400 text-sm font-medium">{error}</p>
+          ) : !isConnected && !isConnecting ? (
+            <p className="text-slate-400 text-sm leading-relaxed">
+              One tap to start a live practice interview with your AI career coach.
+            </p>
+          ) : isConnecting ? (
+            <p className="text-indigo-300 text-sm font-medium animate-pulse">Connecting to your AI coach...</p>
+          ) : isMuted ? (
+            <p className="text-slate-400 text-sm">Microphone muted. <span className="text-indigo-400">Tap the orb</span> to unmute.</p>
+          ) : aiSpeaking ? (
+            <p className="text-cyan-300 text-sm font-medium">Your coach is speaking...</p>
+          ) : (
+            <p className="text-slate-400 text-sm">Your coach can hear you. Speak naturally.</p>
+          )}
+        </div>
       </div>
 
-      {/* CSS Pulse Animation keyframe fallback */}
+      {/* Action buttons */}
+      <div className="relative z-10 w-full max-w-xs mt-8">
+        {!isConnected ? (
+          <button
+            onClick={connectAndStart}
+            disabled={isConnecting}
+            className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm hover:scale-[1.02] active:scale-[0.98]"
+          >
+            {isConnecting ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> Connecting...</>
+            ) : (
+              'Start Interview Session'
+            )}
+          </button>
+        ) : (
+          <button
+            onClick={disconnectVoice}
+            className="w-full py-3 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:border-red-500/30 text-slate-400 hover:text-red-400 font-semibold text-sm rounded-2xl transition-all flex items-center justify-center gap-2"
+          >
+            <PhoneOff className="w-4 h-4" /> End Session
+          </button>
+        )}
+      </div>
+
+      {/* Animations */}
       <style>{`
-        @keyframes pulse {
-          0% { height: 8px; }
-          100% { height: 36px; }
+        @keyframes orb-ring-ai {
+          0%, 100% { transform: scale(1.5); opacity: 0.6; }
+          50% { transform: scale(1.7); opacity: 0.3; }
         }
+        @keyframes orb-ring-ai-2 {
+          0%, 100% { transform: scale(1.25); opacity: 0.5; }
+          50% { transform: scale(1.4); opacity: 0.2; }
+        }
+        @keyframes orb-ring-user {
+          0%, 100% { transform: scale(1.4); opacity: 0.5; }
+          50% { transform: scale(1.6); opacity: 0.2; }
+        }
+        @keyframes orb-ring-user-2 {
+          0%, 100% { transform: scale(1.2); opacity: 0.4; }
+          50% { transform: scale(1.35); opacity: 0.15; }
+        }
+        @keyframes orb-ring-idle {
+          0%, 100% { transform: scale(1.2); opacity: 0.3; }
+          50% { transform: scale(1.35); opacity: 0.15; }
+        }
+        @keyframes ai-bar {
+          0%, 100% { height: 8px; }
+          50% { height: 32px; }
+        }
+        @keyframes user-bar {
+          0%, 100% { height: 6px; }
+          50% { height: 28px; }
+        }
+        .animate-orb-ring-ai { animation: orb-ring-ai 2s ease-in-out infinite; }
+        .animate-orb-ring-ai-2 { animation: orb-ring-ai-2 2.5s ease-in-out infinite; }
+        .animate-orb-ring-user { animation: orb-ring-user 1.5s ease-in-out infinite; }
+        .animate-orb-ring-user-2 { animation: orb-ring-user-2 1.8s ease-in-out infinite; }
+        .animate-orb-ring-idle { animation: orb-ring-idle 3s ease-in-out infinite; }
+        .animate-ai-bar { animation: ai-bar 0.8s ease-in-out infinite; }
+        .animate-user-bar { animation: user-bar 0.6s ease-in-out infinite; }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
     </div>
   );
