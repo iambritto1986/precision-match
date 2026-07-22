@@ -80,7 +80,7 @@ export default function CareerChat({ resumeData, deductCredits, isPro = false, f
                     <Bot className="w-4 h-4 text-blue-400" />
                  </div>
               )}
-              <div className={`p-4 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-blue-600/80 text-white rounded-tr-sm shadow-lg shadow-blue-500/20 border border-blue-500/30' : 'bg-white/5 border border-white/10 text-slate-300 rounded-tl-sm'}`}>
+              <div className={`p-4 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-blue-600/80 text-white rounded-tr-sm shadow-lg shadow-blue-500/20 border border-blue-500/30' : 'bg-white/5 border border-white/10 text-white rounded-tl-sm'}`}>
                  <div className="markdown-body">
                     <Markdown>{msg.text}</Markdown>
                  </div>
