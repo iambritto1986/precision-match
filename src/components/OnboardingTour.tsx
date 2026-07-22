@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { driver } from 'driver.js';
 
 declare global {
@@ -8,10 +9,13 @@ declare global {
 }
 
 export const OnboardingTour = () => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const startTour = () => {
+      navigate('/resume');
       const driverObj = driver({
         showProgress: true,
         smoothScroll: true,
@@ -89,6 +93,24 @@ export const OnboardingTour = () => {
               title: 'How to Segment',
               description: 'Hey, if you select this checkbox, this will go into the next page. This is how you actually segment it perfectly for an A4 export.',
               side: 'left',
+              align: 'start'
+            }
+          },
+          {
+            element: '#tour-career-chat',
+            popover: {
+              title: '💬 AI Career Coach',
+              description: 'Chat with your AI career advisor for resume tips, interview strategies, and career guidance. Free users get 5 free messages to try it out!',
+              side: 'right',
+              align: 'start'
+            }
+          },
+          {
+            element: '#tour-live-interview',
+            popover: {
+              title: '🎙️ Live AI Interview Practice',
+              description: 'Practice real-time voice interviews with our AI coach powered by a stunning ferrofluid orb interface. Free users get a 2-minute trial session!',
+              side: 'right',
               align: 'start'
             }
           }

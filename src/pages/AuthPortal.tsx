@@ -46,7 +46,7 @@ export const AuthPortal: React.FC = () => {
       if (isLogin) {
         await loginWithEmail(email, password);
       } else {
-        await registerWithEmail(email, password);
+        await registerWithEmail(email, password, fullName);
       }
     } catch (err: any) {
       setError(err.message || 'Authentication failed');

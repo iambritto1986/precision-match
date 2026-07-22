@@ -5,7 +5,8 @@ import Markdown from 'react-markdown';
 import { ResumeData } from '../types';
 import { API_BASE_URL } from '../config';
 
-export default function CareerChat({ resumeData, deductCredits }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean }) {
+export default function CareerChat({ resumeData, deductCredits, isPro = false, freeChatMessagesUsed = 0, onChatMessageUsed }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean, isPro?: boolean, freeChatMessagesUsed?: number, onChatMessageUsed?: () => void }) {
+  const FREE_CHAT_LIMIT = 5;
   const [messages, setMessages] = useState<{role: 'user'|'model', text: string}[]>([{
       role: 'model',
       text: 'Hello! I am your Career Coach. Ask me anything to prepare for your next big role. You can enable **High Thinking Mode** below for complex inquiries like mock technical rounds or salary negotiation planning. I have your current resume handy.'
@@ -17,7 +18,12 @@ export default function CareerChat({ resumeData, deductCredits }: { resumeData: 
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
-    if (!deductCredits(1)) return;
+    // Free trial: first 5 messages are free for non-Pro users
+    if (!isPro && freeChatMessagesUsed < FREE_CHAT_LIMIT) {
+      onChatMessageUsed?.();
+    } else {
+      if (!deductCredits(1)) return;
+    }
 
     const newMessages = [...messages, { role: 'user' as const, text: input }];
     setMessages(newMessages);

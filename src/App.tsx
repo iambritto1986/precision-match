@@ -133,6 +133,8 @@ export default function App() {
   const [atsScoreData, setAtsScoreData] = useState<{score: number, matchedKeywords: string[], missingKeywords: string[]} | null>(null);
   const [isAtsScanning, setIsAtsScanning] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [freeInterviewUsed, setFreeInterviewUsed] = useState(false);
+  const [freeChatMessagesUsed, setFreeChatMessagesUsed] = useState(0);
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Math.random().toString(36).substring(7);
@@ -159,9 +161,11 @@ export default function App() {
          if (snapshot.exists()) {
             const data = snapshot.data();
             setUserData(data);
-            setCredits(data.credits ?? 3);
-            setDownloadsRemaining(data.downloadsRemaining ?? 1);
-            setIsPro(data.isPro || user.email === ADMIN_EMAIL);
+             setCredits(data.credits ?? 3);
+             setDownloadsRemaining(data.downloadsRemaining ?? 1);
+             setIsPro(data.isPro || user.email === ADMIN_EMAIL);
+             setFreeInterviewUsed(data.freeInterviewUsed ?? false);
+             setFreeChatMessagesUsed(data.freeChatMessagesUsed ?? 0);
             
             if (!data.onboardingCompleted) {
               setIsOnboarding(true);
@@ -169,16 +173,19 @@ export default function App() {
               updateDoc(userRef, { onboardingCompleted: true });
             }
          } else {
-            setDoc(userRef, { 
-               email: user.email || '',
-               createdAt: new Date().toISOString(),
-               credits: 3,
-                 downloadsRemaining: 1,
-               isPro: user.email === ADMIN_EMAIL,
-               onboardingCompleted: true
-            }).catch(e => console.error("Error setting user doc", e));
-            setIsOnboarding(true);
-            setOnboardingStep('options');
+             setDoc(userRef, { 
+                email: user.email || '',
+                displayName: user.displayName || '',
+                createdAt: new Date().toISOString(),
+                credits: 3,
+                downloadsRemaining: 1,
+                isPro: user.email === ADMIN_EMAIL,
+                onboardingCompleted: false,
+                freeInterviewUsed: false,
+                freeChatMessagesUsed: 0
+             }).catch(e => console.error("Error setting user doc", e));
+             setIsOnboarding(true);
+             setOnboardingStep('options');
          }
          setProfileLoading(false);
       }, (error) => {
@@ -1211,13 +1218,13 @@ export default function App() {
           
           <Route path="/chat" element={
           <motion.div key="chat" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="flex-1 overflow-hidden h-full">
-            <CareerChat resumeData={resumeData} deductCredits={handleDeductCredits} />
+            <CareerChat resumeData={resumeData} deductCredits={handleDeductCredits} isPro={isPro} freeChatMessagesUsed={freeChatMessagesUsed} onChatMessageUsed={() => { const newCount = freeChatMessagesUsed + 1; setFreeChatMessagesUsed(newCount); if (user) updateDoc(doc(db, 'users', user.uid), { freeChatMessagesUsed: newCount }).catch(console.error); }} />
           </motion.div>
           } />
           
           <Route path="/interview" element={
           <motion.div key="interview" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="flex-1 overflow-hidden h-full">
-            <VoiceInterview resumeData={resumeData} deductCredits={handleDeductCredits} />
+            <VoiceInterview resumeData={resumeData} deductCredits={handleDeductCredits} isPro={isPro} freeInterviewUsed={freeInterviewUsed} showToast={showToast} onTrialUsed={() => { setFreeInterviewUsed(true); if (user) updateDoc(doc(db, 'users', user.uid), { freeInterviewUsed: true }).catch(console.error); }} />
           </motion.div>
           } />
           

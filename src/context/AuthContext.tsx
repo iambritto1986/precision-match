@@ -5,14 +5,15 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword
 } from 'firebase/auth';
-import { auth, loginWithGoogle as fbLoginWithGoogle, logout as fbLogout } from '../lib/firebase';
+import { auth, loginWithGoogle as fbLoginWithGoogle, logout as fbLogout, db } from '../lib/firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: () => Promise<any>;
   loginWithEmail: (e: string, p: string) => Promise<void>;
-  registerWithEmail: (e: string, p: string) => Promise<void>;
+  registerWithEmail: (email: string, password: string, displayName?: string) => Promise<any>;
   logout: () => Promise<void>;
 }
 
@@ -31,23 +32,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const loginWithGoogle = async () => {
-    try {
-      await fbLoginWithGoogle();
-    } catch (error: any) {
-      if (error.code === 'auth/unauthorized-domain') {
-         alert("Google Sign-In failed: Domain not authorized in Firebase Console. Please add this domain to Authentication -> Settings -> Authorized Domains.");
-      } else {
-         alert("Google Sign-In failed: " + error.message);
-      }
+    const result = await fbLoginWithGoogle();
+    // Ensure Firestore doc exists for Google users
+    const userRef = doc(db, 'users', result.user.uid);
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) {
+      await setDoc(userRef, {
+        email: result.user.email || '',
+        displayName: result.user.displayName || '',
+        createdAt: new Date().toISOString(),
+        credits: 3,
+        downloadsRemaining: 1,
+        isPro: false,
+        onboardingCompleted: false,
+        freeInterviewUsed: false,
+        freeChatMessagesUsed: 0
+      });
     }
+    return result;
   };
 
   const loginWithEmail = async (e: string, p: string) => {
     await signInWithEmailAndPassword(auth, e, p);
   };
 
-  const registerWithEmail = async (e: string, p: string) => {
-    await createUserWithEmailAndPassword(auth, e, p);
+  const registerWithEmail = async (email: string, password: string, displayName?: string) => {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    // Immediately create Firestore user doc
+    const userRef = doc(db, 'users', cred.user.uid);
+    await setDoc(userRef, {
+      email: cred.user.email || '',
+      displayName: displayName || '',
+      createdAt: new Date().toISOString(),
+      credits: 3,
+      downloadsRemaining: 1,
+      isPro: false,
+      onboardingCompleted: false,
+      freeInterviewUsed: false,
+      freeChatMessagesUsed: 0
+    });
+    return cred;
   };
 
   const logout = async () => {

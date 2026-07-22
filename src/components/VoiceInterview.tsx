@@ -3,7 +3,8 @@ import { Loader2, PhoneOff } from 'lucide-react';
 import { ResumeData } from '../types';
 import { AiOrb } from './AiOrb';
 
-export default function VoiceInterview({ resumeData, deductCredits }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean }) {
+export default function VoiceInterview({ resumeData, deductCredits, isPro = false, freeInterviewUsed = false, onTrialUsed, showToast }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean, isPro?: boolean, freeInterviewUsed?: boolean, onTrialUsed?: () => void, showToast?: (msg: string, type: 'success' | 'error' | 'info') => void }) {
+  const FREE_TRIAL_SECONDS = 120; // 2 minutes
   const [isConnected, setIsConnected] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -11,6 +12,7 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
   const [isConnecting, setIsConnecting] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
   const [aiSpeaking, setAiSpeaking] = useState(false);
+  const [isTrialSession, setIsTrialSession] = useState(false);
 
   const wsRef = useRef<WebSocket | null>(null);
   const inputAudioCtxRef = useRef<AudioContext | null>(null);
@@ -103,7 +105,18 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
   };
 
   const connectAndStart = async () => {
-    if (!deductCredits(5)) return;
+    // Free trial logic
+    if (!isPro) {
+      if (freeInterviewUsed) {
+        setError('Your free trial is over! Upgrade to Pro for unlimited interview practice.');
+        return;
+      }
+      // This is a free trial session — don't deduct credits
+      setIsTrialSession(true);
+      onTrialUsed?.();
+    } else {
+      if (!deductCredits(5)) return;
+    }
     try {
       setError(null);
       setIsConnecting(true);
@@ -187,6 +200,18 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
   useEffect(() => {
      return () => { disconnectVoice(); };
   }, []);
+
+  // Auto-disconnect for free trial sessions at 2 minutes
+  useEffect(() => {
+    if (!isTrialSession || !isConnected) return;
+    if (callDuration === FREE_TRIAL_SECONDS - 30) {
+      showToast?.('30 seconds remaining in your free trial!', 'info');
+    }
+    if (callDuration >= FREE_TRIAL_SECONDS) {
+      showToast?.('Free trial ended! Upgrade to Pro for unlimited interview practice.', 'info');
+      disconnectVoice();
+    }
+  }, [callDuration, isTrialSession, isConnected]);
 
   const formatDuration = (sec: number) => {
     const mins = Math.floor(sec / 60);
