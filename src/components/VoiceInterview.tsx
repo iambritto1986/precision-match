@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, PhoneOff } from 'lucide-react';
 import { ResumeData } from '../types';
+import { AiOrb } from './AiOrb';
 
 export default function VoiceInterview({ resumeData, deductCredits }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean }) {
   const [isConnected, setIsConnected] = useState(false);
@@ -63,7 +64,6 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
       source.start(nextStartTimeRef.current);
       nextStartTimeRef.current += audioBuffer.duration;
 
-      // Track AI speaking state
       setAiSpeaking(true);
       if (aiSpeakingTimeoutRef.current) clearTimeout(aiSpeakingTimeoutRef.current);
       aiSpeakingTimeoutRef.current = setTimeout(() => setAiSpeaking(false), 600);
@@ -130,7 +130,6 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
            timerRef.current = setInterval(() => {
               setCallDuration(prev => prev + 1);
            }, 1000);
-           // Auto-start recording so user can respond naturally
            setTimeout(() => startRecording(), 500);
         }
         if (msg.audio) {
@@ -196,20 +195,18 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
   };
 
   // Determine orb visual state
-  const orbState = !isConnected ? 'idle' : aiSpeaking ? 'ai-speaking' : (isRecording && !isMuted) ? 'user-speaking' : 'listening';
+  const orbState: 'idle' | 'connecting' | 'listening' | 'ai-speaking' | 'user-speaking' | 'muted' = 
+    !isConnected && !isConnecting ? 'idle' 
+    : isConnecting ? 'connecting'
+    : isMuted ? 'muted'
+    : aiSpeaking ? 'ai-speaking' 
+    : (isRecording && !isMuted) ? 'user-speaking' 
+    : 'listening';
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full font-inter relative overflow-hidden select-none">
       
-      {/* Ambient background glow */}
-      <div className={`absolute w-[500px] h-[500px] rounded-full blur-[150px] transition-all duration-1000 pointer-events-none ${
-        orbState === 'ai-speaking' ? 'bg-cyan-500/15 scale-125' :
-        orbState === 'user-speaking' ? 'bg-fuchsia-500/15 scale-110' :
-        isConnected ? 'bg-indigo-500/10 scale-100' :
-        'bg-slate-500/5 scale-90'
-      }`} />
-
-      {/* Top status bar */}
+      {/* Top status pill */}
       {isConnected && (
         <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
           <div className="flex items-center gap-2">
@@ -222,11 +219,11 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
       )}
 
       {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center justify-center gap-8">
+      <div className="relative z-10 flex flex-col items-center justify-center gap-4">
         
         {/* Candidate info */}
         {isConnected && (
-          <div className="text-center animate-fade-in">
+          <div className="text-center" style={{ animation: 'fadeIn 0.5s ease-out' }}>
             <p className="text-xs font-bold text-indigo-400 uppercase tracking-[0.2em] mb-1">AI Interview Coach</p>
             <h3 className="text-xl font-bold text-white tracking-tight">
               {resumeData.personalDetails.name || 'Professional Candidate'}
@@ -237,103 +234,17 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
           </div>
         )}
 
-        {/* The Dynamic Orb */}
+        {/* The Ferrofluid Orb — tap to mute/unmute */}
         <div 
-          className="relative cursor-pointer group"
+          className={`relative ${isConnected ? 'cursor-pointer' : ''}`}
           onClick={isConnected ? toggleMute : undefined}
           title={isConnected ? (isMuted ? 'Tap to unmute' : 'Tap to mute') : ''}
         >
-          {/* Outer breathing rings */}
-          <div className={`absolute inset-0 rounded-full transition-all duration-700 ${
-            orbState === 'ai-speaking' 
-              ? 'animate-orb-ring-ai scale-[1.6] bg-gradient-to-tr from-cyan-500/20 to-indigo-500/20 blur-xl' 
-              : orbState === 'user-speaking'
-              ? 'animate-orb-ring-user scale-[1.5] bg-gradient-to-tr from-fuchsia-500/20 to-rose-500/20 blur-xl'
-              : isConnected
-              ? 'animate-orb-ring-idle scale-[1.3] bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 blur-lg'
-              : 'scale-100 opacity-0'
-          }`} />
-          
-          {/* Secondary ring */}
-          <div className={`absolute inset-0 rounded-full transition-all duration-500 ${
-            orbState === 'ai-speaking'
-              ? 'animate-orb-ring-ai-2 scale-[1.3] bg-gradient-to-bl from-cyan-400/15 to-blue-500/15 blur-lg'
-              : orbState === 'user-speaking'
-              ? 'animate-orb-ring-user-2 scale-[1.25] bg-gradient-to-bl from-rose-400/15 to-orange-500/15 blur-lg'
-              : 'scale-100 opacity-0'
-          }`} />
-
-          {/* Core orb */}
-          <div className={`relative w-40 h-40 rounded-full flex items-center justify-center transition-all duration-500 ${
-            orbState === 'ai-speaking'
-              ? 'bg-gradient-to-tr from-cyan-500 to-indigo-500 shadow-[0_0_60px_rgba(6,182,212,0.4)] scale-110'
-              : orbState === 'user-speaking'
-              ? 'bg-gradient-to-tr from-fuchsia-500 to-rose-500 shadow-[0_0_60px_rgba(217,70,239,0.4)] scale-105'
-              : isConnected
-              ? 'bg-gradient-to-tr from-indigo-600 to-purple-600 shadow-[0_0_30px_rgba(99,102,241,0.25)]'
-              : 'bg-gradient-to-tr from-slate-700 to-slate-800 shadow-[0_0_20px_rgba(100,116,139,0.1)] group-hover:from-indigo-700 group-hover:to-purple-700 group-hover:shadow-[0_0_40px_rgba(99,102,241,0.2)]'
-          }`}>
-            
-            {/* Inner shimmer layer */}
-            <div className={`absolute inset-1 rounded-full bg-gradient-to-b from-white/10 to-transparent transition-opacity duration-500 ${
-              isConnected ? 'opacity-100' : 'opacity-50'
-            }`} />
-
-            {/* Center icon / indicator */}
-            <div className="relative z-10 flex flex-col items-center gap-1">
-              {isConnecting ? (
-                <Loader2 className="w-10 h-10 text-white animate-spin" />
-              ) : isMuted && isConnected ? (
-                <>
-                  <div className="w-10 h-10 flex items-center justify-center">
-                    <div className="w-8 h-0.5 bg-white/70 rounded-full rotate-45 absolute" />
-                    <svg className="w-10 h-10 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
-                    </svg>
-                  </div>
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-white/60 mt-1">Muted</span>
-                </>
-              ) : orbState === 'ai-speaking' ? (
-                <>
-                  {/* Animated bars for AI speaking */}
-                  <div className="flex items-end gap-[3px] h-10">
-                    {[0, 0.1, 0.2, 0.3, 0.2, 0.1, 0].map((delay, i) => (
-                      <div 
-                        key={i}
-                        className="w-[3px] bg-white/90 rounded-full animate-ai-bar"
-                        style={{ animationDelay: `${delay}s` }}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-white/80 mt-1">Speaking</span>
-                </>
-              ) : orbState === 'user-speaking' ? (
-                <>
-                  <div className="flex items-end gap-[3px] h-10">
-                    {[0, 0.15, 0.05, 0.2, 0.1, 0.25, 0.08].map((delay, i) => (
-                      <div 
-                        key={i}
-                        className="w-[3px] bg-white/90 rounded-full animate-user-bar"
-                        style={{ animationDelay: `${delay}s` }}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-white/80 mt-1">Listening</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-10 h-10 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
-                  </svg>
-                  {!isConnected && <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 mt-1">Ready</span>}
-                </>
-              )}
-            </div>
-          </div>
+          <AiOrb state={orbState} size={380} />
         </div>
 
         {/* Status text */}
-        <div className="text-center min-h-[48px] max-w-xs">
+        <div className="text-center min-h-[48px] max-w-xs -mt-2">
           {error ? (
             <p className="text-red-400 text-sm font-medium">{error}</p>
           ) : !isConnected && !isConnecting ? (
@@ -353,7 +264,7 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
       </div>
 
       {/* Action buttons */}
-      <div className="relative z-10 w-full max-w-xs mt-8">
+      <div className="relative z-10 w-full max-w-xs mt-4">
         {!isConnected ? (
           <button
             onClick={connectAndStart}
@@ -376,44 +287,7 @@ export default function VoiceInterview({ resumeData, deductCredits }: { resumeDa
         )}
       </div>
 
-      {/* Animations */}
       <style>{`
-        @keyframes orb-ring-ai {
-          0%, 100% { transform: scale(1.5); opacity: 0.6; }
-          50% { transform: scale(1.7); opacity: 0.3; }
-        }
-        @keyframes orb-ring-ai-2 {
-          0%, 100% { transform: scale(1.25); opacity: 0.5; }
-          50% { transform: scale(1.4); opacity: 0.2; }
-        }
-        @keyframes orb-ring-user {
-          0%, 100% { transform: scale(1.4); opacity: 0.5; }
-          50% { transform: scale(1.6); opacity: 0.2; }
-        }
-        @keyframes orb-ring-user-2 {
-          0%, 100% { transform: scale(1.2); opacity: 0.4; }
-          50% { transform: scale(1.35); opacity: 0.15; }
-        }
-        @keyframes orb-ring-idle {
-          0%, 100% { transform: scale(1.2); opacity: 0.3; }
-          50% { transform: scale(1.35); opacity: 0.15; }
-        }
-        @keyframes ai-bar {
-          0%, 100% { height: 8px; }
-          50% { height: 32px; }
-        }
-        @keyframes user-bar {
-          0%, 100% { height: 6px; }
-          50% { height: 28px; }
-        }
-        .animate-orb-ring-ai { animation: orb-ring-ai 2s ease-in-out infinite; }
-        .animate-orb-ring-ai-2 { animation: orb-ring-ai-2 2.5s ease-in-out infinite; }
-        .animate-orb-ring-user { animation: orb-ring-user 1.5s ease-in-out infinite; }
-        .animate-orb-ring-user-2 { animation: orb-ring-user-2 1.8s ease-in-out infinite; }
-        .animate-orb-ring-idle { animation: orb-ring-idle 3s ease-in-out infinite; }
-        .animate-ai-bar { animation: ai-bar 0.8s ease-in-out infinite; }
-        .animate-user-bar { animation: user-bar 0.6s ease-in-out infinite; }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
     </div>
