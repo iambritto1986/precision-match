@@ -9,7 +9,7 @@ export default function CareerChat({ resumeData, deductCredits, isPro = false, f
   const FREE_CHAT_LIMIT = 5;
   const [messages, setMessages] = useState<{role: 'user'|'model', text: string}[]>([{
       role: 'model',
-      text: 'Hello! I am your Career Coach. Ask me anything to prepare for your next big role. You can enable **High Thinking Mode** below for complex inquiries like mock technical rounds or salary negotiation planning. I have your current resume handy.'
+      text: 'Hey there! I\'m **Sage**, your AI career coach here at Precision Match. 👋 Ask me anything — from interview prep and resume gaps to salary negotiation strategies. Toggle **High Thinking Mode** below for deeper analysis like mock technical rounds. I already have your resume loaded, so let\'s make your next move count!'
   }]);
   const [input, setInput] = useState('');
   const [thinkingMode, setThinkingMode] = useState(false);
@@ -61,7 +61,7 @@ export default function CareerChat({ resumeData, deductCredits, isPro = false, f
       <div className="h-16 px-6 border-b border-white/5 glass-header flex items-center justify-between shrink-0 z-10">
          <h2 className="text-sm font-bold text-slate-200 flex items-center">
             <MessageCircle className="w-4 h-4 mr-2 text-blue-400" />
-            AI Career Advisor
+            Sage — Career Advisor
          </h2>
          <label className="flex items-center space-x-2 cursor-pointer bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-white/10 transition">
             <input type="checkbox" checked={thinkingMode} onChange={e => setThinkingMode(e.target.checked)} className="sr-only" />
@@ -110,7 +110,7 @@ export default function CareerChat({ resumeData, deductCredits, isPro = false, f
              value={input}
              onChange={e => setInput(e.target.value)}
              onKeyDown={e => e.key === 'Enter' && sendMessage()}
-             placeholder="Ask about interviewing, resume gaps, or salary..."
+             placeholder="Ask Sage about interviewing, resume gaps, or salary..."
              className="flex-1 bg-transparent border-none outline-none text-sm text-slate-200 placeholder-slate-500 py-2"
            />
            <button onClick={sendMessage} disabled={loading || !input.trim()} className="w-10 h-10 rounded-lg glass-button-primary flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">

@@ -249,7 +249,7 @@ export default function VoiceInterview({ resumeData, deductCredits, isPro = fals
         {/* Candidate info */}
         {isConnected && (
           <div className="text-center" style={{ animation: 'fadeIn 0.5s ease-out' }}>
-            <p className="text-xs font-bold text-indigo-400 uppercase tracking-[0.2em] mb-1">AI Interview Coach</p>
+            <p className="text-xs font-bold text-indigo-400 uppercase tracking-[0.2em] mb-1">Sage — AI Interview Coach</p>
             <h3 className="text-xl font-bold text-white tracking-tight">
               {resumeData.personalDetails.name || 'Professional Candidate'}
             </h3>
@@ -274,16 +274,16 @@ export default function VoiceInterview({ resumeData, deductCredits, isPro = fals
             <p className="text-red-400 text-sm font-medium">{error}</p>
           ) : !isConnected && !isConnecting ? (
             <p className="text-slate-400 text-sm leading-relaxed">
-              One tap to start a live practice interview with your AI career coach.
+              One tap to start a live practice interview with Sage, your AI career coach.
             </p>
           ) : isConnecting ? (
-            <p className="text-indigo-300 text-sm font-medium animate-pulse">Connecting to your AI coach...</p>
+            <p className="text-indigo-300 text-sm font-medium animate-pulse">Connecting to Sage...</p>
           ) : isMuted ? (
             <p className="text-slate-400 text-sm">Microphone muted. <span className="text-indigo-400">Tap the orb</span> to unmute.</p>
           ) : aiSpeaking ? (
-            <p className="text-cyan-300 text-sm font-medium">Your coach is speaking...</p>
+            <p className="text-cyan-300 text-sm font-medium">Sage is speaking...</p>
           ) : (
-            <p className="text-slate-400 text-sm">Your coach can hear you. Speak naturally.</p>
+            <p className="text-slate-400 text-sm">Sage can hear you. Speak naturally.</p>
           )}
         </div>
       </div>
