@@ -22,6 +22,9 @@ import Stripe from 'stripe';
 import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import fs from 'fs';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // --------------- Simple in-memory rate limiter ---------------
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -127,6 +130,57 @@ async function startServer() {
   // --------------- Health check ---------------
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+  // --------------- Welcome Email ---------------
+  app.post('/api/welcome-email', express.json(), async (req, res) => {
+    try {
+      const { email, name } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: "Missing email" });
+      }
+
+      const firstName = name ? name.split(' ')[0] : 'there';
+
+      const data = await resend.emails.send({
+        from: 'Precision Match <onboarding@resend.dev>', // Update this to your verified domain later (e.g., hello@precisionmatch.com)
+        to: email,
+        subject: `Welcome to Precision Match, ${firstName}!`,
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #4f46e5; margin-bottom: 10px;">Welcome to Precision Match!</h1>
+              <p style="font-size: 16px; color: #666; margin: 0;">Your personal AI career coach is ready.</p>
+            </div>
+            
+            <div style="background-color: #f8fafc; border-radius: 12px; padding: 24px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
+              <p style="font-size: 16px; margin-top: 0;">Hi ${firstName},</p>
+              <p style="font-size: 16px; line-height: 1.6;">
+                I'm <strong>Aadhya</strong>, your AI career coach here at Precision Match. I'm thrilled you've joined us!
+              </p>
+              <p style="font-size: 16px; line-height: 1.6;">
+                Whether you're looking to practice for an upcoming interview, optimize your resume, or plan your next big career move, I'm here to help you succeed.
+              </p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="https://precision-match.onrender.com" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
+                  Start Your First Session
+                </a>
+              </div>
+            </div>
+            
+            <p style="font-size: 14px; color: #64748b; text-align: center; margin-top: 40px;">
+              Let's make your next move count.<br>
+              <strong>- Aadhya & the Precision Match Team</strong>
+            </p>
+          </div>
+        `
+      });
+
+      res.status(200).json({ success: true, data });
+    } catch (error: any) {
+      logger.error("Failed to send welcome email:", error);
+      res.status(500).json({ error: error.message });
+    }
   });
 
   // Stripe webhook needs raw body

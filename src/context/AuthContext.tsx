@@ -7,6 +7,7 @@ import {
 } from 'firebase/auth';
 import { auth, loginWithGoogle as fbLoginWithGoogle, logout as fbLogout, db } from '../lib/firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { API_BASE_URL } from '../config';
 
 interface AuthContextType {
   user: User | null;
@@ -51,6 +52,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           freeInterviewUsed: false,
           freeChatMessagesUsed: 0
         });
+        
+        // Trigger welcome email for new Google signups
+        try {
+          fetch(`${API_BASE_URL}/api/welcome-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: result.user.email, name: result.user.displayName })
+          }).catch(e => console.error("Welcome email failed", e));
+        } catch (e) {
+          // ignore
+        }
       }
     } catch (firestoreErr) {
       // Don't block login if Firestore write fails — App.tsx fallback will retry
@@ -83,6 +95,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Don't block registration if Firestore write fails — App.tsx fallback will retry
       console.error('Failed to create user doc during registration:', firestoreErr);
     }
+
+    // Fire and forget welcome email
+    try {
+      fetch(`${API_BASE_URL}/api/welcome-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cred.user.email, name: displayName })
+      }).catch(e => console.error("Welcome email failed:", e));
+    } catch (e) {
+      // Do not block auth flow if email fails
+    }
+
     return cred;
   };
 
