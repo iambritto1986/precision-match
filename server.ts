@@ -97,7 +97,7 @@ try {
 
 const getDb = () => {
     if (!firebaseAdminApp) return null;
-    return getFirestore(firebaseAdminApp, firebaseAdminApp.customDatabaseId);
+    return getFirestore(firebaseAdminApp, firebaseAdminApp.customDatabaseId || 'default');
 };
 
 const stripeClient = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
