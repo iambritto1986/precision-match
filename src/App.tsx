@@ -173,23 +173,36 @@ export default function App() {
               updateDoc(userRef, { onboardingCompleted: true });
             }
          } else {
-             setDoc(userRef, { 
-                email: user.email || '',
-                displayName: user.displayName || '',
-                createdAt: new Date().toISOString(),
-                credits: 3,
-                downloadsRemaining: 1,
-                isPro: user.email === ADMIN_EMAIL,
-                onboardingCompleted: false,
-                freeInterviewUsed: false,
-                freeChatMessagesUsed: 0
-             }).catch(e => console.error("Error setting user doc", e));
-             setIsOnboarding(true);
-             setOnboardingStep('options');
+            // Doc doesn't exist yet — wait briefly for registration/login flow to create it,
+            // then create as fallback if it still doesn't exist
+            setTimeout(async () => {
+              try {
+                const freshSnap = await getDoc(userRef);
+                if (!freshSnap.exists()) {
+                  await setDoc(userRef, { 
+                    email: user.email || '',
+                    displayName: user.displayName || '',
+                    createdAt: new Date().toISOString(),
+                    credits: 3,
+                    downloadsRemaining: 1,
+                    isPro: user.email === ADMIN_EMAIL,
+                    onboardingCompleted: false,
+                    freeInterviewUsed: false,
+                    freeChatMessagesUsed: 0
+                  }, { merge: true });
+                }
+              } catch (e) {
+                console.error("Fallback user doc creation failed:", e);
+                showToast("Could not save your profile. Please refresh the page.", "error");
+              }
+            }, 1500);
+            setIsOnboarding(true);
+            setOnboardingStep('options');
          }
          setProfileLoading(false);
       }, (error) => {
          console.error("Firestore Error User Profile: ", error);
+         showToast("Error loading your profile. Please refresh.", "error");
          setProfileLoading(false);
       });
 

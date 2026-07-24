@@ -33,21 +33,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async () => {
     const result = await fbLoginWithGoogle();
+    // If user closed the popup, result is null — exit gracefully
+    if (!result) return null;
     // Ensure Firestore doc exists for Google users
-    const userRef = doc(db, 'users', result.user.uid);
-    const snap = await getDoc(userRef);
-    if (!snap.exists()) {
-      await setDoc(userRef, {
-        email: result.user.email || '',
-        displayName: result.user.displayName || '',
-        createdAt: new Date().toISOString(),
-        credits: 3,
-        downloadsRemaining: 1,
-        isPro: false,
-        onboardingCompleted: false,
-        freeInterviewUsed: false,
-        freeChatMessagesUsed: 0
-      });
+    try {
+      const userRef = doc(db, 'users', result.user.uid);
+      const snap = await getDoc(userRef);
+      if (!snap.exists()) {
+        await setDoc(userRef, {
+          email: result.user.email || '',
+          displayName: result.user.displayName || '',
+          createdAt: new Date().toISOString(),
+          credits: 3,
+          downloadsRemaining: 1,
+          isPro: false,
+          onboardingCompleted: false,
+          freeInterviewUsed: false,
+          freeChatMessagesUsed: 0
+        });
+      }
+    } catch (firestoreErr) {
+      // Don't block login if Firestore write fails — App.tsx fallback will retry
+      console.error('Failed to create user doc during Google login:', firestoreErr);
     }
     return result;
   };
@@ -58,19 +65,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const registerWithEmail = async (email: string, password: string, displayName?: string) => {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
-    // Immediately create Firestore user doc
-    const userRef = doc(db, 'users', cred.user.uid);
-    await setDoc(userRef, {
-      email: cred.user.email || '',
-      displayName: displayName || '',
-      createdAt: new Date().toISOString(),
-      credits: 3,
-      downloadsRemaining: 1,
-      isPro: false,
-      onboardingCompleted: false,
-      freeInterviewUsed: false,
-      freeChatMessagesUsed: 0
-    });
+    // Immediately create Firestore user doc — use merge to avoid race with onSnapshot fallback
+    try {
+      const userRef = doc(db, 'users', cred.user.uid);
+      await setDoc(userRef, {
+        email: cred.user.email || '',
+        displayName: displayName || '',
+        createdAt: new Date().toISOString(),
+        credits: 3,
+        downloadsRemaining: 1,
+        isPro: false,
+        onboardingCompleted: false,
+        freeInterviewUsed: false,
+        freeChatMessagesUsed: 0
+      }, { merge: true });
+    } catch (firestoreErr) {
+      // Don't block registration if Firestore write fails — App.tsx fallback will retry
+      console.error('Failed to create user doc during registration:', firestoreErr);
+    }
     return cred;
   };
 
