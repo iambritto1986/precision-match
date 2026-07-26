@@ -150,27 +150,31 @@ async function startServer() {
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="color: #4f46e5; margin-bottom: 10px;">Welcome to Precision Match!</h1>
-              <p style="font-size: 16px; color: #666; margin: 0;">Your personal AI career coach is ready.</p>
+              <p style="font-size: 16px; color: #666; margin: 0;">Your curated AI career platform is ready.</p>
             </div>
             
             <div style="background-color: #f8fafc; border-radius: 12px; padding: 24px; margin-bottom: 30px; border: 1px solid #e2e8f0;">
-              <p style="font-size: 16px; margin-top: 0;">Hi ${firstName},</p>
+              <p style="font-size: 16px; margin-top: 0;">Hey ${firstName},</p>
               <p style="font-size: 16px; line-height: 1.6;">
-                I'm <strong>Aadhya</strong>, your AI career coach here at Precision Match. I'm thrilled you've joined us!
+                Welcome to Precision Match, your curated AI. We're thrilled to have you onboard! Here is what you can do to accelerate your career right now:
               </p>
-              <p style="font-size: 16px; line-height: 1.6;">
-                Whether you're looking to practice for an upcoming interview, optimize your resume, or plan your next big career move, I'm here to help you succeed.
-              </p>
+              <ul style="font-size: 16px; line-height: 1.6; color: #444; padding-left: 20px;">
+                <li style="margin-bottom: 8px;">Start a resume from scratch</li>
+                <li style="margin-bottom: 8px;">Curate a resume for a specific job</li>
+                <li style="margin-bottom: 8px;">Choose from different professional templates</li>
+                <li style="margin-bottom: 8px;">Chat with your AI coach, Aadhya</li>
+                <li style="margin-bottom: 8px;">Speak with your mentor and interview coach, Aadhya</li>
+              </ul>
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://precision-match.onrender.com" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
-                  Start Your First Session
+                <a href="https://precision-match.com" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
+                  Explore Your Dashboard
                 </a>
               </div>
             </div>
             
             <p style="font-size: 14px; color: #64748b; text-align: center; margin-top: 40px;">
-              Let's make your next move count.<br>
-              <strong>- Aadhya & the Precision Match Team</strong>
+              Let's make the next move count.<br>
+              <strong>Your Precision Match Team</strong>
             </p>
           </div>
         `
