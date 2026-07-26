@@ -143,7 +143,7 @@ async function startServer() {
       const firstName = name ? name.split(' ')[0] : 'there';
 
       const data = await resend.emails.send({
-        from: 'Precision Match <onboarding@resend.dev>', // Update this to your verified domain later (e.g., hello@precisionmatch.com)
+        from: 'Precision Match <hello@precision-match.com>',
         to: email,
         subject: `Welcome to Precision Match, ${firstName}!`,
         html: `
