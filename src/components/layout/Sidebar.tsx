@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { X, Menu, Users, FileText, Code, MessageCircle, Mic, Compass, Plus, FileOutput, CheckCircle2, ChevronDown, Download, Layers, ShieldAlert, LogOut, LogIn } from 'lucide-react';
 import { ResumeData } from '../../types';
 import { useAuth } from '../../context/AuthContext';
@@ -52,8 +52,14 @@ export function Sidebar({
   setShowDeleteConfirm
 }: SidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   return (
     <>
@@ -170,7 +176,7 @@ export function Sidebar({
                <p className="text-[10px] text-slate-400">{isPro ? 'Pro Member' : 'Free Tier'}</p>
              </div>
              {user ? (
-                <button onClick={logout} className="text-slate-400 hover:text-white p-1" title="Log Out"><LogOut className="w-4 h-4" /></button>
+                <button onClick={handleLogout} className="text-slate-400 hover:text-white p-1" title="Log Out"><LogOut className="w-4 h-4" /></button>
              ) : (
                 <button onClick={() => setIsGuestMode(false)} className="text-blue-400 hover:text-blue-300 p-1" title="Log In"><LogIn className="w-4 h-4" /></button>
              )}
