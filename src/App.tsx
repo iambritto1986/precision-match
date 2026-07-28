@@ -15,6 +15,7 @@ import { Upload, FileText, Download, Briefcase, RefreshCw, Layers, CheckCircle2,
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { ParticleNetworkBackground } from './components/ParticleNetworkBackground';
+import { AnimatedLogo } from './components/AnimatedLogo';
 
 import { useAuth } from './context/AuthContext';
 
@@ -691,7 +692,7 @@ export default function App() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#0a0612] relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#00F0FF]/10 to-[#B500FF]/10 blur-[100px] -z-10 animate-pulse"></div>
-          <img src="/logo.png" alt="Precision Match Logo" className="w-16 h-16 rounded-2xl shadow-[0_0_30px_rgba(0,240,255,0.3)] object-cover border border-[#00F0FF]/30 animate-pulse mb-6" />
+          <AnimatedLogo size={72} className="mb-6 drop-shadow-[0_0_20px_rgba(0,240,255,0.35)]" />
           <p className="text-[10px] text-[#00F0FF] uppercase font-black tracking-[0.2em] animate-pulse">Loading Precision Match...</p>
         </div>
       );
