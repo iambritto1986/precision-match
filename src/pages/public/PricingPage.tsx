@@ -1,10 +1,16 @@
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PageMeta } from '../../components/PageMeta';
 
 export const PricingPage: React.FC = () => {
   return (
     <div className="pt-32 pb-24 px-6 max-w-5xl mx-auto">
+      <PageMeta
+        path="/pricing"
+        title="Pricing"
+        description="Simple, transparent pricing. Start free with 3 AI resume credits, or go Pro for $5/mo for unlimited AI tailoring, auto-generated cover letters, and live AI interview practice."
+      />
       <div className="text-center mb-16">
         <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">Simple, transparent pricing.</h1>
         <p className="text-xl text-slate-400">Everything you need to land your dream job, for a flat monthly price.</p>

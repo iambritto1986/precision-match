@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://precision-match.onrender.com/sitemap.xml
+Sitemap: https://precision-match.com/sitemap.xml

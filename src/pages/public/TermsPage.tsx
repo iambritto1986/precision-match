@@ -1,8 +1,14 @@
 import React from 'react';
+import { PageMeta } from '../../components/PageMeta';
 
 export const TermsPage: React.FC = () => {
   return (
     <div className="pt-32 pb-24 px-6 max-w-4xl mx-auto">
+      <PageMeta
+        path="/terms"
+        title="Terms of Service"
+        description="Review the Precision Match terms of service governing use of our AI-powered resume builder platform."
+      />
       <div className="bg-[#111424] border border-white/5 rounded-3xl p-8 md:p-16">
         <h1 className="text-3xl md:text-5xl font-bold text-white mb-8">Terms of Service</h1>
         <div className="prose prose-invert prose-slate max-w-none prose-headings:text-white prose-a:text-cyan-400">

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { PageMeta } from '../../components/PageMeta';
 
 export const ContactPage: React.FC = () => {
   const [ticketSubject, setTicketSubject] = useState('');
@@ -38,6 +39,11 @@ export const ContactPage: React.FC = () => {
 
   return (
     <div className="pt-32 pb-24 px-6 max-w-3xl mx-auto">
+      <PageMeta
+        path="/contact"
+        title="Contact Support"
+        description="Have a question about Precision Match's AI resume builder? Send us a message and our support team will get back to you."
+      />
       <div className="bg-[#111424] border border-white/5 rounded-3xl p-8 md:p-16 shadow-xl">
         <div className="text-center mb-10">
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">Contact Support</h1>

@@ -2,10 +2,12 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Check, ArrowRight, Wand2, Upload, Download, Sparkles, ShieldCheck, CreditCard, RefreshCw, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PageMeta } from '../../components/PageMeta';
 
 export const LandingPage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen">
+      <PageMeta path="/" />
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
