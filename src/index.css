@@ -50,6 +50,13 @@ html {
   html {
     font-size: 11px !important; /* Approximately 68% scale to fit more tools natively */
   }
+
+  /* Marketing site opt-out: the dashboard's compact scale isn't meant for
+     the public landing/pricing/contact pages. MarketingLayout toggles this
+     class on <html> only while a marketing route is mounted. */
+  html.marketing-scale-fix {
+    font-size: 16px !important;
+  }
 }
 
 body {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Check, ArrowRight, Wand2, Upload, Download } from 'lucide-react';
+import { Check, ArrowRight, Wand2, Upload, Download, Sparkles, ShieldCheck, CreditCard, RefreshCw, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const LandingPage: React.FC = () => {
@@ -23,23 +23,43 @@ export const LandingPage: React.FC = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link 
-                to="/auth/register" 
+              <Link
+                to="/auth/register"
                 className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-black text-lg font-bold hover:bg-slate-200 transition-colors shadow-lg shadow-white/10 flex items-center justify-center gap-2"
               >
                 Start for free <ArrowRight className="w-5 h-5" />
               </Link>
-              <p className="text-slate-400 text-sm mt-4 sm:mt-0 sm:ml-4">No credit card required.</p>
+              <a
+                href="#how-it-works"
+                className="w-full sm:w-auto px-8 py-4 rounded-full border border-white/15 text-white text-lg font-bold hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
+              >
+                See how it works <ChevronDown className="w-5 h-5" />
+              </a>
             </div>
+            <p className="text-slate-400 text-sm mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+              <span className="flex items-center gap-1.5"><CreditCard className="w-4 h-4 text-slate-500" /> No credit card required</span>
+              <span className="flex items-center gap-1.5"><RefreshCw className="w-4 h-4 text-slate-500" /> Cancel anytime</span>
+              <span className="flex items-center gap-1.5"><Sparkles className="w-4 h-4 text-slate-500" /> 3 free AI credits to start</span>
+            </p>
           </motion.div>
         </div>
-        
+
         {/* Glow Effects */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
       </section>
 
+      {/* Trust Strip */}
+      <section className="py-8 border-y border-white/5 bg-[#0a0c16]/30 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 text-sm font-medium text-slate-400">
+          <span className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-cyan-400" /> Powered by Google Gemini AI</span>
+          <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-cyan-400" /> Secure sign-in with Firebase</span>
+          <span className="flex items-center gap-2"><Check className="w-4 h-4 text-cyan-400" /> Free plan, no credit card</span>
+          <span className="flex items-center gap-2"><RefreshCw className="w-4 h-4 text-cyan-400" /> Cancel your subscription anytime</span>
+        </div>
+      </section>
+
       {/* How It Works */}
-      <section className="py-24 bg-[#0a0c16]/50 border-y border-white/5 relative z-10">
+      <section id="how-it-works" className="py-24 bg-[#0a0c16]/50 border-y border-white/5 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">How it works</h2>
@@ -126,27 +146,13 @@ export const LandingPage: React.FC = () => {
             
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500 to-indigo-500 rounded-3xl blur-2xl opacity-20"></div>
-              <div className="bg-[#111424] border border-white/10 rounded-3xl p-8 relative shadow-2xl h-[400px] flex items-center justify-center overflow-hidden">
-                 {/* Decorative UI element representing the app */}
-                 <div className="w-full max-w-sm space-y-4">
-                    <div className="h-4 bg-slate-800 rounded w-1/3"></div>
-                    <div className="h-2 bg-slate-800 rounded w-3/4"></div>
-                    <div className="h-2 bg-slate-800 rounded w-5/6"></div>
-                    <div className="h-2 bg-slate-800 rounded w-2/3"></div>
-                    
-                    <div className="my-8">
-                       <div className="h-px bg-white/10 w-full mb-8 relative">
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#111424] px-4">
-                            <Wand2 className="w-5 h-5 text-indigo-400 animate-pulse" />
-                          </div>
-                       </div>
-                    </div>
-
-                    <div className="h-4 bg-indigo-500/30 rounded w-1/3"></div>
-                    <div className="h-2 bg-indigo-500/20 rounded w-3/4"></div>
-                    <div className="h-2 bg-indigo-500/20 rounded w-5/6"></div>
-                    <div className="h-2 bg-indigo-500/20 rounded w-2/3"></div>
-                 </div>
+              <div className="bg-[#111424] border border-white/10 rounded-3xl p-3 relative shadow-2xl overflow-hidden">
+                <img
+                  src="/logo-tech.png"
+                  alt="Precision Match resume builder interface showing a resume being tailored to a job description with a live PDF preview"
+                  className="w-full h-auto rounded-2xl"
+                  loading="lazy"
+                />
               </div>
             </div>
           </div>
@@ -157,13 +163,22 @@ export const LandingPage: React.FC = () => {
       <section className="py-24 relative z-10 text-center">
         <div className="max-w-4xl mx-auto px-6">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">Ready to land your dream job?</h2>
-          <p className="text-xl text-slate-400 mb-10">Join thousands of job seekers who are getting more interviews and offers.</p>
-          <Link 
-            to="/auth/register" 
-            className="inline-flex px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-white text-lg font-bold hover:shadow-lg hover:shadow-cyan-500/25 transition-all hover:scale-105 items-center gap-2"
-          >
-            Create Your Free Resume <ArrowRight className="w-5 h-5" />
-          </Link>
+          <p className="text-xl text-slate-400 mb-10">Start with 3 free AI credits. No credit card, no risk — upgrade only if it works for you.</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/auth/register"
+              className="inline-flex px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-white text-lg font-bold hover:shadow-lg hover:shadow-cyan-500/25 transition-all hover:scale-105 items-center gap-2"
+            >
+              Create Your Free Resume <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link
+              to="/pricing"
+              className="inline-flex px-8 py-4 rounded-full border border-white/15 text-white text-lg font-bold hover:bg-white/5 transition-colors items-center gap-2"
+            >
+              View Pricing
+            </Link>
+          </div>
+          <p className="text-slate-500 text-sm mt-6">Free forever plan available. Pro is $5/mo, cancel anytime.</p>
         </div>
       </section>
     </div>

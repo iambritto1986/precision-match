@@ -1,9 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { ParticleNetworkBackground } from '../ParticleNetworkBackground';
 
 export const MarketingLayout: React.FC = () => {
   const location = useLocation();
+
+  // The dashboard app intentionally scales the whole page down on desktop
+  // (see index.css) to fit more tools on screen. That scale isn't meant for
+  // the marketing site, where it makes headlines render far smaller than
+  // designed. This restores the normal type scale only while a marketing
+  // route is mounted, and cleanly reverts on unmount so the dashboard app
+  // is completely unaffected.
+  useEffect(() => {
+    document.documentElement.classList.add('marketing-scale-fix');
+    return () => {
+      document.documentElement.classList.remove('marketing-scale-fix');
+    };
+  }, []);
 
   const navLinks = [
     { name: 'Home', path: '/' },
