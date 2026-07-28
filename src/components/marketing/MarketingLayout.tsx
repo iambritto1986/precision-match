@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { ParticleNetworkBackground } from '../ParticleNetworkBackground';
+import { AnimatedLogo } from '../AnimatedLogo';
 
 export const MarketingLayout: React.FC = () => {
   const location = useLocation();
@@ -32,9 +33,12 @@ export const MarketingLayout: React.FC = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#070911]/80 backdrop-blur-md border-b border-white/5 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center font-bold text-white shadow-lg group-hover:shadow-cyan-500/25 transition-shadow">
-              PM
-            </div>
+            <AnimatedLogo
+              tile
+              animated={false}
+              size={32}
+              className="rounded-xl shadow-lg group-hover:shadow-cyan-500/25 transition-shadow"
+            />
             <span className="text-xl font-bold tracking-tight text-white">Precision Match</span>
           </Link>
           
@@ -73,7 +77,7 @@ export const MarketingLayout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center font-bold text-white text-xs">PM</div>
+              <AnimatedLogo tile animated={false} size={24} className="rounded-lg" />
               <span className="text-lg font-bold text-white">Precision Match</span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">

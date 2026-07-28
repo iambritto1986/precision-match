@@ -7,6 +7,7 @@ import { ParticleNetworkBackground } from '../components/ParticleNetworkBackgrou
 import { LogIn, UserPlus } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
+import { AnimatedLogo } from '../components/AnimatedLogo';
 
 /**
  * AuthPortal — Login/Registration page
@@ -126,7 +127,7 @@ export const AuthPortal: React.FC = () => {
           <div className="text-center mb-6 relative">
             <Link to="/" className="inline-block group cursor-pointer hover:opacity-80 transition-opacity">
               <div className="mx-auto w-14 h-14 mb-3 flex items-center justify-center">
-                <img src="/logo.png" alt="Precision Match Logo" className="w-14 h-14 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/20" />
+                <AnimatedLogo tile animated={false} size={56} className="rounded-xl shadow-lg shadow-[#00F0FF]/30" />
               </div>
               <h1 className="text-2xl font-bold text-white mb-1">Precision Match</h1>
             </Link>

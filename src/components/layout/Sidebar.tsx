@@ -5,6 +5,7 @@ import { X, Menu, Users, FileText, Code, MessageCircle, Mic, Compass, Plus, File
 import { ResumeData } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import ParticleText from '../ParticleText';
+import { AnimatedLogo } from '../AnimatedLogo';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -66,7 +67,7 @@ export function Sidebar({
             {/* Mobile Top Bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#0f0b1e]/90 backdrop-blur-md z-50 border-b border-white/10 flex items-center px-4 justify-between no-print">
         <div className="flex items-center space-x-2">
-          <img src="/logo.png" alt="Precision Match Logo" className="w-8 h-8 rounded-lg shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/20" />
+          <AnimatedLogo tile animated={false} size={32} className="rounded-lg shadow-lg shadow-[#00F0FF]/30" />
           <h1 className="text-lg font-bold leading-none truncate tracking-wide">Precision Match</h1>
         </div>
         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 text-slate-300 hover:text-white">
@@ -77,7 +78,7 @@ export function Sidebar({
       <aside id="tour-sidebar" style={{ perspective: '800px' }} className={`fixed md:relative md:flex w-64 glass-sidebar text-white flex-col shrink-0 z-40 overflow-y-auto scroll-hide h-full transition-transform duration-300 ${sidebarOpen ? 'translate-x-0 pt-14 md:pt-0' : '-translate-x-full md:translate-x-0'} bg-[#0f0b1e] md:bg-transparent no-print`}>
         <div className="p-6">
           <div className="flex items-center space-x-3">
-            <img src="/logo.png" alt="Precision Match Logo" className="w-9 h-9 rounded-xl shadow-lg shadow-[#00F0FF]/30 object-cover border border-[#00F0FF]/30 glow-pulse shrink-0" />
+            <AnimatedLogo tile animated={false} size={36} className="rounded-xl shadow-lg shadow-[#00F0FF]/30 glow-pulse shrink-0" />
             <div>
               <h1 className="text-lg font-bold leading-none tracking-wide text-white">Precision Match</h1>
               <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1.5 font-semibold text-[#00F0FF]">AI Resume Builder</p>
