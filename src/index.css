@@ -667,6 +667,44 @@ input::placeholder, textarea::placeholder {
   stroke-dashoffset: 0;
   animation: none;
 }
+
+/* Hover-triggered replay mode - fully visible at rest, replays the reveal
+   once while the pointer is over the root <svg> (see .pm-logo-hover-root) */
+.pm-logo-hover.pm-logo-bracket,
+.pm-logo-hover.pm-logo-ring,
+.pm-logo-hover.pm-logo-check {
+  opacity: 1;
+  stroke-dashoffset: 0;
+  animation: none;
+}
+.pm-logo-hover-root:hover .pm-logo-hover.pm-logo-bracket {
+  animation: pmLogoBracketHoverPlay 0.9s ease-out;
+}
+.pm-logo-hover-root:hover .pm-logo-hover.pm-logo-ring {
+  animation: pmLogoRingHoverPlay 0.9s ease-out;
+}
+.pm-logo-hover-root:hover .pm-logo-hover.pm-logo-check {
+  animation: pmLogoCheckHoverPlay 0.9s ease-out;
+}
+@keyframes pmLogoBracketHoverPlay {
+  0% { opacity: 0; }
+  30%, 100% { opacity: 1; }
+}
+@keyframes pmLogoRingHoverPlay {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  20% { opacity: 0.15; }
+  30% { opacity: 1; }
+  40% { opacity: 0.15; }
+  50%, 100% { opacity: 1; }
+}
+@keyframes pmLogoCheckHoverPlay {
+  0%, 55% { opacity: 0; stroke-dashoffset: 100; transform: scale(1); }
+  60% { opacity: 1; }
+  78% { stroke-dashoffset: 0; }
+  85% { transform: scale(1.15); }
+  100% { transform: scale(1); stroke-dashoffset: 0; opacity: 1; }
+}
 @keyframes pmLogoBracketIn {
   to { opacity: 1; }
 }

@@ -21,6 +21,14 @@ interface AnimatedLogoProps {
    * default (false) for larger standalone placements like a loading screen.
    */
   tile?: boolean;
+  /**
+   * When true and animated is false, the mark sits fully resolved (static)
+   * until the pointer hovers over it, then replays the scan-and-confirm
+   * sequence once. Use this for persistent badges (nav header, sidebar,
+   * auth screen) so the animation is a delightful hover moment instead of
+   * a constant distraction. Ignored when animated is true.
+   */
+  hoverPlay?: boolean;
 }
 
 /**
@@ -33,9 +41,11 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
   className = '',
   animated = true,
   tile = false,
+  hoverPlay = false,
 }) => {
   const gradId = `pm-logo-gradient-${useId().replace(/:/g, '')}`;
-  const stateClass = animated ? '' : 'pm-logo-static';
+  const stateClass = animated ? '' : hoverPlay ? 'pm-logo-hover' : 'pm-logo-static';
+  const rootHoverClass = !animated && hoverPlay ? 'pm-logo-hover-root' : '';
   const strokeColor = tile ? '#FFFFFF' : `url(#${gradId})`;
 
   return (
@@ -43,7 +53,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
       viewBox="0 0 200 200"
       width={size}
       height={size}
-      className={className}
+      className={[rootHoverClass, className].filter(Boolean).join(' ')}
       role="img"
       aria-label="Precision Match"
     >

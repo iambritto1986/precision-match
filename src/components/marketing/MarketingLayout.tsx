@@ -36,6 +36,7 @@ export const MarketingLayout: React.FC = () => {
             <AnimatedLogo
               tile
               animated={false}
+              hoverPlay
               size={32}
               className="rounded-xl shadow-lg group-hover:shadow-cyan-500/25 transition-shadow"
             />
@@ -77,7 +78,7 @@ export const MarketingLayout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <AnimatedLogo tile animated={false} size={24} className="rounded-lg" />
+              <AnimatedLogo tile animated={false} hoverPlay size={24} className="rounded-lg" />
               <span className="text-lg font-bold text-white">Precision Match</span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
