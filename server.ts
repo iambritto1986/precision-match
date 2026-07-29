@@ -84,10 +84,10 @@ try {
     if (credential) {
       firebaseAdminApp = initializeApp({
         credential,
-        projectId: config.projectId,
+        projectId: process.env.VITE_FIREBASE_PROJECT_ID || config.projectId,
       });
-      // Store database id for reference
-      firebaseAdminApp.customDatabaseId = config.firestoreDatabaseId;
+      // Store database id for reference (client uses 'default')
+      firebaseAdminApp.customDatabaseId = process.env.FIREBASE_DATABASE_ID || 'default';
     }
   } else {
     logger.warn('firebase-applet-config.json not found – Firebase Admin is disabled.');
@@ -150,7 +150,7 @@ function requireAuth(): express.RequestHandler {
 //  - voice interview: 1 free trial (freeInterviewUsed) for non-Pro, then blocked until upgrade; Pro pays 5 credits/session
 // The founder/admin account (ADMIN_EMAIL) always bypasses these checks.
 type CreditAction = 'resume' | 'chat' | 'voice';
-type CreditCheckResult = { ok: true; isTrial?: boolean } | { ok: false; error: string; code: string };
+type CreditCheckResult = { ok: boolean; isTrial?: boolean; error?: string; code?: string };
 
 async function checkAndConsume(uid: string, email: string | undefined, action: CreditAction): Promise<CreditCheckResult> {
   if (email && email === ADMIN_EMAIL) return { ok: true };
