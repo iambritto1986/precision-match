@@ -364,6 +364,36 @@ async function startServer() {
              logger.error("Firebase Admin DB not initialized to fulfill order.");
           }
         }
+      } else if (event.type === 'invoice.payment_succeeded') {
+        // Recurring subscription renewal — refill the Pro monthly credit allowance.
+        // We deliberately skip 'subscription_create' here: that first invoice's credits
+        // are already granted by the checkout.session.completed handler above. Only
+        // 'subscription_cycle' (a genuine renewal) should trigger a refill, otherwise
+        // we'd double-grant credits on brand-new subscriptions.
+        const invoice = event.data.object as Stripe.Invoice;
+        const billingReason = (invoice as any).billing_reason;
+
+        if (billingReason === 'subscription_cycle') {
+          const customerId = invoice.customer as string;
+          const db = getDb();
+          if (!db) {
+            logger.error("Firebase Admin DB not initialized to fulfill subscription renewal.");
+          } else if (customerId) {
+            const matches = await db.collection('users').where('stripeCustomerId', '==', customerId).limit(1).get();
+            if (matches.empty) {
+              logger.warn(`Subscription renewal for Stripe customer ${customerId} but no matching user doc found.`);
+            } else {
+              const userDoc = matches.docs[0];
+              await userDoc.ref.update({
+                isPro: true,
+                credits: 100 // Refill to the Pro monthly allowance on each renewal
+              });
+              logger.info(`Renewed Pro subscription for user ${userDoc.id} — refilled to 100 credits`);
+            }
+          }
+        } else {
+          logger.info(`invoice.payment_succeeded received with billing_reason=${billingReason} — no credit action taken`);
+        }
       } else {
         logger.info(`Unhandled event type ${event.type}`);
       }

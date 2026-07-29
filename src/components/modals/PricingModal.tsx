@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
 import { useAuth } from '../../context/AuthContext';
 import { db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
@@ -27,9 +26,6 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
     
     setIsProcessing(true);
     try {
-      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
-      if (!stripe) throw new Error("Stripe failed to load");
-
       // Verify user doc exists
       const userRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(userRef);
@@ -43,19 +39,18 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
         body: JSON.stringify({
            priceId,
            userId: user.uid,
-           userEmail: user.email,
-           mode: priceId === STRIPE_PRICE_PRO ? 'subscription' : 'payment',
-           metadata: {
-              resumeId: resumeData?.id || 'new'
-           }
+           successUrl: `${window.location.origin}${window.location.pathname}?success=true`,
+           cancelUrl: window.location.href
         })
       });
 
       const data = await res.json();
       if (data.error) throw new Error(data.error);
+      if (!data.url) throw new Error("No checkout URL returned");
 
-      // @ts-ignore
-      await stripe.redirectToCheckout({ sessionId: data.sessionId });
+      // The server creates the Stripe Checkout Session and returns its hosted URL directly —
+      // redirect the browser there (this endpoint does not return a sessionId).
+      window.location.href = data.url;
     } catch (e: any) {
       console.error(e);
       alert("Checkout failed: " + e.message);
