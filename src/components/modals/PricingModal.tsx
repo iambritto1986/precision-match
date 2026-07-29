@@ -93,7 +93,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
              <X className="w-6 h-6" />
           </button>
           
-          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#00F0FF] to-[#B500FF]"></div>
 
           <div className="text-center mb-10">
              <h2 className="text-3xl font-black text-white mb-4">Honest, Transparent Pricing</h2>
@@ -107,9 +107,9 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
                 <div className="text-4xl font-black text-white mb-4">$0</div>
                 <p className="text-sm text-slate-400 mb-6">Perfect for trying out the platform and generating a quick resume.</p>
                 <ul className="space-y-3 text-sm text-slate-300 flex-1 mb-8">
-                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> 3 AI Generation Credits</li>
-                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> 1 Free Download (PDF/Word)</li>
-                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0"/> Standard Templates</li>
+                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-[#00F0FF] mr-2 mt-0.5 shrink-0"/> 3 AI Generation Credits</li>
+                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-[#00F0FF] mr-2 mt-0.5 shrink-0"/> 1 Free Download (PDF/Word)</li>
+                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-[#00F0FF] mr-2 mt-0.5 shrink-0"/> Standard Templates</li>
                 </ul>
                 <button onClick={() => setShowPricing(false)} className="w-full py-2.5 rounded-xl btn-secondary font-bold">{user ? 'Current Plan' : 'Dismiss'}</button>
              </div>
@@ -119,7 +119,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
                 <h3 className="text-sm font-bold uppercase tracking-widest text-slate-300 mb-2">Additional Credits</h3>
                 <div className="text-4xl font-black text-white mb-1">$3<span className="text-lg text-slate-400 font-normal">/pack</span></div>
                 <p className="text-xs text-slate-500 mb-4">One-time purchase.</p>
-                <p className="text-sm text-slate-600 mb-6 border-b border-slate-100 pb-4">Need a few more edits? Grab a top-up.</p>
+                <p className="text-sm text-slate-600 mb-6 border-b border-white/10 pb-4">Need a few more edits? Grab a top-up.</p>
                 <ul className="space-y-3 text-sm text-slate-300 flex-1 mb-8">
                    <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-slate-600 mr-2 mt-0.5 shrink-0"/> +10 AI Generations</li>
                    <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-slate-600 mr-2 mt-0.5 shrink-0"/> Never expires</li>
@@ -128,17 +128,17 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
              </div>
 
              {/* Pro Tier */}
-             <div className="border-2 border-blue-500/50 card p-6 flex flex-col relative shadow-[0_0_30px_rgba(59,130,246,0.15)] lift-3d">
-                <div className="absolute top-0 right-0 bg-blue-500/20 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg rounded-tr-2xl">Most Popular</div>
-                <h3 className="text-sm font-bold uppercase tracking-widest text-blue-400 mb-2">Pro Member</h3>
+             <div className="border-2 border-[#B500FF]/50 card p-6 flex flex-col relative shadow-[0_0_30px_rgba(181,0,255,0.15)] lift-3d">
+                <div className="absolute top-0 right-0 bg-[#B500FF]/20 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg rounded-tr-2xl">Most Popular</div>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-[#B500FF] mb-2">Pro Member</h3>
                 <div className="text-4xl font-black text-white mb-1">$5<span className="text-lg text-slate-400 font-normal">/mo</span></div>
                 <p className="text-xs text-slate-500 mb-4">No hidden fees. Cancel anytime.</p>
-                <p className="text-sm text-slate-600 mb-6 border-b border-slate-100 pb-4">Everything you need to land your dream job.</p>
+                <p className="text-sm text-slate-600 mb-6 border-b border-white/10 pb-4">Everything you need to land your dream job.</p>
                 <ul className="space-y-3 text-sm text-slate-300 flex-1 mb-8">
-                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> <strong>100</strong> AI Generations / mo</li>
-                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Auto-Cover Letters</li>
-                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Live AI Voice Interview Practice</li>
-                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-blue-500 mr-2 mt-0.5 shrink-0"/> Export to MS Word (DOCX)</li>
+                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-[#B500FF] mr-2 mt-0.5 shrink-0"/> <strong>100</strong> AI Generations / mo</li>
+                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-[#B500FF] mr-2 mt-0.5 shrink-0"/> Auto-Cover Letters</li>
+                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-[#B500FF] mr-2 mt-0.5 shrink-0"/> Live AI Voice Interview Practice</li>
+                   <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-[#B500FF] mr-2 mt-0.5 shrink-0"/> Export to MS Word (DOCX)</li>
                 </ul>
                 <button onClick={() => isPro ? handlePortal() : handlePurchase(STRIPE_PRICE_PRO)} disabled={isProcessing} className="w-full py-2.5 rounded-xl btn-primary">{isPro ? 'Manage Subscription' : 'Upgrade to Pro'}</button>
              </div>

@@ -86,19 +86,19 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pro Members</p>
-                <h3 className="text-3xl font-black mt-1 text-blue-400">{proCount}</h3>
+                <h3 className="text-3xl font-black mt-1 text-[var(--accent-secondary)]">{proCount}</h3>
               </div>
               <Activity className="w-6 h-6 text-[var(--accent-secondary)]" />
             </div>
           </div>
 
-          <div className="glass-card-3d p-6 border-l-4 border-yellow-500">
+          <div className="glass-card-3d p-6 border-l-4 border-[var(--accent-primary)]">
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active MRR</p>
-                <h3 className="text-3xl font-black mt-1 text-green-500">${mrr}</h3>
+                <h3 className="text-3xl font-black mt-1 text-[var(--accent-primary)]">${mrr}</h3>
               </div>
-              <Zap className="w-6 h-6 text-yellow-500" />
+              <Zap className="w-6 h-6 text-[var(--accent-primary)]" />
             </div>
           </div>
         </div>
@@ -166,7 +166,7 @@ export const FounderDashboard: React.FC<FounderDashboardProps> = ({ adminUsersIn
                                    setAdminUsersInfo(prev => prev.map(user => user.id === u.id ? { ...user, credits: newCredits } : user));
                                  } catch(e) { console.error("Error adding credits", e); }
                                }}
-                               className="text-[10px] uppercase font-bold text-slate-300 hover:text-green-400 bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded transition"
+                               className="text-[10px] uppercase font-bold text-slate-300 hover:text-[var(--accent-secondary)] bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded transition"
                              >
                                Add Credits
                              </button>

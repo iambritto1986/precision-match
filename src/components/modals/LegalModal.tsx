@@ -31,7 +31,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose, onOpenSup
               <h3 className="font-bold text-white text-base">Your Data Rights (GDPR &amp; CCPA)</h3>
               <p>You have the right to access, update, or delete your personal data at any time. You may delete your account and all associated data permanently using the &quot;Delete Account&quot; option in the sidebar. To request a copy of your data, please contact us.</p>
               <h3 className="font-bold text-white text-base">Contact</h3>
-              <p>For privacy inquiries or data requests, <button onClick={() => { onClose(); onOpenSupport(); }} className="text-blue-400 hover:text-blue-300 underline">contact support</button>.</p>
+              <p>For privacy inquiries or data requests, <button onClick={() => { onClose(); onOpenSupport(); }} className="text-[#00F0FF] hover:text-[#00C4D1] underline">contact support</button>.</p>
             </>
           ) : (
             <>
@@ -50,7 +50,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose, onOpenSup
               <h3 className="font-bold text-white text-base">Changes to Terms</h3>
               <p>We reserve the right to update these terms at any time. Continued use of the service constitutes acceptance of any updated terms.</p>
               <h3 className="font-bold text-white text-base">Contact</h3>
-              <p>For questions about these terms, <button onClick={() => { onClose(); onOpenSupport(); }} className="text-blue-400 hover:text-blue-300 underline">contact support</button>.</p>
+              <p>For questions about these terms, <button onClick={() => { onClose(); onOpenSupport(); }} className="text-[#00F0FF] hover:text-[#00C4D1] underline">contact support</button>.</p>
             </>
           )}
         </div>

@@ -243,11 +243,11 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
               onClick={() => setActiveSection(item.id)}
               className={`flex items-center gap-2.5 px-4 py-3 text-xs font-bold uppercase tracking-wider text-left border-b md:border-b-0 md:border-l-2 transition-all shrink-0 form-section-header ${
                 active
-                  ? 'bg-[var(--accent-primary)]/10 border-indigo-400 text-indigo-300 md:border-l-indigo-400 font-bold'
+                  ? 'bg-[var(--accent-primary)]/10 border-[#B500FF] text-[#B500FF] md:border-l-[#B500FF] font-bold'
                   : 'border-transparent text-slate-500 hover:bg-white/5 hover:text-slate-300 font-medium'
               }`}
             >
-              <Icon className={`w-4 h-4 transition-colors ${active ? 'text-indigo-400' : 'text-slate-500'}`} />
+              <Icon className={`w-4 h-4 transition-colors ${active ? 'text-[#B500FF]' : 'text-slate-500'}`} />
               <span className="truncate">{item.name}</span>
             </button>
           );
@@ -350,7 +350,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
               <h3 className="text-sm font-bold text-slate-200">Work Experience</h3>
               <button
                 onClick={() => addListItem('experience')}
-                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition border border-indigo-500/20"
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#B500FF] bg-[#B500FF]/10 hover:bg-[#B500FF]/20 px-3 py-1.5 rounded-lg transition border border-[#B500FF]/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Job
               </button>
@@ -416,7 +416,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           <label className="block text-[10px] font-bold text-slate-500 uppercase">Key Responsibilities / Achievements</label>
                           <button
                             onClick={() => addResponsibility(idx)}
-                            className="flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded"
+                            className="flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-[#00F0FF] bg-[#00F0FF]/10 hover:bg-[#00F0FF]/20 px-2 py-1 rounded"
                           >
                             <Plus className="w-3 h-3" /> Add Achievement
                           </button>
@@ -453,7 +453,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
               <h3 className="text-sm font-bold text-slate-200">Skills & Expertise</h3>
               <button
                 onClick={addSkillCategory}
-                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition border border-indigo-500/20"
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#B500FF] bg-[#B500FF]/10 hover:bg-[#B500FF]/20 px-3 py-1.5 rounded-lg transition border border-[#B500FF]/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Category
               </button>
@@ -508,7 +508,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
               <h3 className="text-sm font-bold text-slate-200">Education</h3>
               <button
                 onClick={() => addListItem('education')}
-                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition border border-indigo-500/20"
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#B500FF] bg-[#B500FF]/10 hover:bg-[#B500FF]/20 px-3 py-1.5 rounded-lg transition border border-[#B500FF]/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Add School
               </button>
@@ -592,7 +592,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
               <h3 className="text-sm font-bold text-slate-200">Projects</h3>
               <button
                 onClick={() => addListItem('projects')}
-                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition border border-indigo-500/20"
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#B500FF] bg-[#B500FF]/10 hover:bg-[#B500FF]/20 px-3 py-1.5 rounded-lg transition border border-[#B500FF]/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Project
               </button>
@@ -676,7 +676,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
               <h3 className="text-sm font-bold text-slate-200">Certifications</h3>
               <button
                 onClick={() => addListItem('certifications')}
-                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition border border-indigo-500/20"
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#B500FF] bg-[#B500FF]/10 hover:bg-[#B500FF]/20 px-3 py-1.5 rounded-lg transition border border-[#B500FF]/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Certification
               </button>
@@ -740,7 +740,7 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
               <h3 className="text-sm font-bold text-slate-200">Custom Sections</h3>
               <button
                 onClick={addCustomSection}
-                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 rounded-lg transition border border-indigo-500/20"
+                className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#B500FF] bg-[#B500FF]/10 hover:bg-[#B500FF]/20 px-3 py-1.5 rounded-lg transition border border-[#B500FF]/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Section
               </button>
@@ -776,14 +776,14 @@ export default function ResumeFormEditor({ data, onChange }: ResumeFormEditorPro
                           <p className="text-[10px] font-bold text-slate-400 uppercase">Section Items</p>
                           <button
                             onClick={() => addCustomSectionItem(cs.id)}
-                            className="flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded"
+                            className="flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-[#00F0FF] bg-[#00F0FF]/10 hover:bg-[#00F0FF]/20 px-2 py-1 rounded"
                           >
                             <Plus className="w-3 h-3" /> Add Item
                           </button>
                         </div>
 
                         {(cs.items || []).map((item, itemIdx) => (
-                          <div key={itemIdx} className="border border-slate-100 rounded-lg p-3 tech-input relative">
+                          <div key={itemIdx} className="border border-white/10 rounded-lg p-3 tech-input relative">
                             <button
                               onClick={() => removeCustomSectionItem(cs.id, itemIdx)}
                               className="absolute top-2 right-2 text-slate-400 hover:text-red-500 p-1"

@@ -20,10 +20,10 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({ version, changel
       {/* Modal Content */}
       <div className="relative w-full max-w-lg glass-card-3d rounded-2xl overflow-hidden modal-enter border border-white/10 shadow-2xl">
         {/* Header Graphic */}
-        <div className="relative h-32 bg-gradient-to-br from-indigo-900 via-slate-900 to-black overflow-hidden flex items-center justify-center">
+        <div className="relative h-32 bg-gradient-to-br from-[#2a0140] via-slate-900 to-black overflow-hidden flex items-center justify-center">
            {/* Abstract shapes */}
            <div className="absolute top-[-50%] left-[-10%] w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl" />
-           <div className="absolute bottom-[-50%] right-[-10%] w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl" />
+           <div className="absolute bottom-[-50%] right-[-10%] w-64 h-64 bg-[#B500FF]/20 rounded-full blur-3xl" />
            
            <div className="relative z-10 flex flex-col items-center">
              <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center border border-white/20 mb-2 shadow-[0_0_15px_rgba(0,240,255,0.3)] glow-pulse">
@@ -37,7 +37,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({ version, changel
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
              <h3 className="text-lg font-semibold text-slate-200 flex items-center">
-                <Sparkles className="w-4 h-4 mr-2 text-indigo-400" />
+                <Sparkles className="w-4 h-4 mr-2 text-[#B500FF]" />
                 What's New in v{version}
              </h3>
              <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-medium uppercase tracking-wider">
@@ -56,7 +56,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({ version, changel
 
           <button
             onClick={onClose}
-            className="w-full py-3 px-4 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white rounded-xl font-semibold tracking-wide transition-all shadow-[0_0_20px_rgba(0,240,255,0.2)] hover:shadow-[0_0_30px_rgba(0,240,255,0.4)] tilt-3d"
+            className="w-full py-3 px-4 bg-gradient-to-r from-[#00b8c9] to-[#8f00cc] hover:from-[#00F0FF] hover:to-[#B500FF] text-white rounded-xl font-semibold tracking-wide transition-all shadow-[0_0_20px_rgba(0,240,255,0.2)] hover:shadow-[0_0_30px_rgba(0,240,255,0.4)] tilt-3d"
           >
             Awesome, let's go!
           </button>

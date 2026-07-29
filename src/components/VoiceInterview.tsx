@@ -249,7 +249,7 @@ export default function VoiceInterview({ resumeData, deductCredits, isPro = fals
         {/* Candidate info */}
         {isConnected && (
           <div className="text-center" style={{ animation: 'fadeIn 0.5s ease-out' }}>
-            <p className="text-xs font-bold text-indigo-400 uppercase tracking-[0.2em] mb-1">Aadhya — AI Interview Coach</p>
+            <p className="text-xs font-bold text-[#B500FF] uppercase tracking-[0.2em] mb-1">Aadhya — AI Interview Coach</p>
             <h3 className="text-xl font-bold text-white tracking-tight">
               {resumeData.personalDetails.name || 'Professional Candidate'}
             </h3>
@@ -277,9 +277,9 @@ export default function VoiceInterview({ resumeData, deductCredits, isPro = fals
               One tap to start a live practice interview with Aadhya, your AI career coach.
             </p>
           ) : isConnecting ? (
-            <p className="text-indigo-300 text-sm font-medium animate-pulse">Connecting to Aadhya...</p>
+            <p className="text-[#B500FF] text-sm font-medium animate-pulse">Connecting to Aadhya...</p>
           ) : isMuted ? (
-            <p className="text-slate-400 text-sm">Microphone muted. <span className="text-indigo-400">Tap the orb</span> to unmute.</p>
+            <p className="text-slate-400 text-sm">Microphone muted. <span className="text-[#B500FF]">Tap the orb</span> to unmute.</p>
           ) : aiSpeaking ? (
             <p className="text-cyan-300 text-sm font-medium">Aadhya is speaking...</p>
           ) : (
@@ -294,7 +294,7 @@ export default function VoiceInterview({ resumeData, deductCredits, isPro = fals
           <button
             onClick={connectAndStart}
             disabled={isConnecting}
-            className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full py-4 bg-gradient-to-r from-[#8f00cc] to-[#B500FF] hover:from-[#B500FF] hover:to-[#00F0FF] text-white font-bold rounded-2xl transition-all shadow-lg shadow-[#B500FF]/20 hover:shadow-[#B500FF]/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm hover:scale-[1.02] active:scale-[0.98]"
           >
             {isConnecting ? (
               <><Loader2 className="w-4 h-4 animate-spin" /> Connecting...</>

@@ -31,7 +31,7 @@ export const OnboardingTour = () => {
             element: '#tour-sidebar',
             popover: {
               title: 'Welcome to Precision Match!',
-              description: 'Navigate easily between the Resume Builder, Career Chat, and your Founder Dashboard using this sidebar.',
+              description: 'Use this sidebar to move between the Resume Builder, Career Chat, and Live Interview Practice.',
               side: 'right',
               align: 'start'
             }
@@ -70,7 +70,7 @@ export const OnboardingTour = () => {
             element: '#tour-jd-paste',
             popover: {
               title: 'Target Job Description',
-              description: 'Paste the job description changes if you need it. The AI will analyze it to suggest keyword changes and optionally rewrite your resume.',
+              description: 'Paste the job description you\'re applying to. The AI analyzes it and suggests keyword changes, or rewrites your resume to match.',
               side: 'left',
               align: 'start'
             }
@@ -79,7 +79,7 @@ export const OnboardingTour = () => {
             element: '#tour-tab-layout',
             popover: {
               title: 'Page Layout',
-              description: 'While the preview shows on the right, when you go to the page layout, that\'s where you need to be able to select your segmentation and format.',
+              description: 'Switch here to fine-tune formatting and page breaks, while your live preview keeps updating on the right.',
               side: 'bottom',
               align: 'center'
             },
@@ -91,7 +91,7 @@ export const OnboardingTour = () => {
             element: '#tour-pagination',
             popover: {
               title: 'How to Segment',
-              description: 'Hey, if you select this checkbox, this will go into the next page. This is how you actually segment it perfectly for an A4 export.',
+              description: 'Check this box to push a section onto the next page — the easiest way to keep your layout clean for a printed or PDF export.',
               side: 'left',
               align: 'start'
             }
@@ -99,7 +99,7 @@ export const OnboardingTour = () => {
           {
             element: '#tour-career-chat',
             popover: {
-              title: '💬 AI Career Coach',
+              title: 'AI Career Coach',
               description: 'Chat with your AI career advisor for resume tips, interview strategies, and career guidance. Free users get 5 free messages to try it out!',
               side: 'right',
               align: 'start'
@@ -108,8 +108,8 @@ export const OnboardingTour = () => {
           {
             element: '#tour-live-interview',
             popover: {
-              title: '🎙️ Live AI Interview Practice',
-              description: 'Practice real-time voice interviews with our AI coach powered by a stunning ferrofluid orb interface. Free users get a 2-minute trial session!',
+              title: 'Live AI Interview Practice',
+              description: 'Practice real-time voice interviews with an AI coach. Free users get a 2-minute trial session.',
               side: 'right',
               align: 'start'
             }

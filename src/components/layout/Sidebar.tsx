@@ -179,7 +179,7 @@ export function Sidebar({
              {user ? (
                 <button onClick={handleLogout} className="text-slate-400 hover:text-white p-1" title="Log Out"><LogOut className="w-4 h-4" /></button>
              ) : (
-                <button onClick={() => setIsGuestMode(false)} className="text-blue-400 hover:text-blue-300 p-1" title="Log In"><LogIn className="w-4 h-4" /></button>
+                <button onClick={() => setIsGuestMode(false)} className="text-[#00F0FF] hover:text-[#00C4D1] p-1" title="Log In"><LogIn className="w-4 h-4" /></button>
              )}
           </div>
         </div>

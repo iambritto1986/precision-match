@@ -235,7 +235,7 @@ export const AuthPortal: React.FC = () => {
                   <label className="flex items-center space-x-2 cursor-pointer group">
                     <input
                       type="checkbox"
-                      className="form-checkbox bg-[#090b14] border-slate-700 text-indigo-500 rounded focus:ring-0 focus:ring-offset-0 transition-colors"
+                      className="form-checkbox bg-[#090b14] border-slate-700 text-[#00F0FF] rounded focus:ring-0 focus:ring-offset-0 transition-colors"
                       style={{ boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
@@ -254,7 +254,7 @@ export const AuthPortal: React.FC = () => {
               whileHover={{ scale: 1.01, filter: 'brightness(1.1)' }}
               whileTap={{ scale: 0.98, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}
               type="submit"
-              className="w-full mt-4 bg-gradient-to-b from-indigo-500 to-indigo-700 text-white font-bold py-3 rounded-lg transition-all duration-200 flex items-center justify-center border border-indigo-400/20"
+              className="w-full mt-4 bg-gradient-to-b from-[#00C4D1] to-[#8f00cc] text-white font-bold py-3 rounded-lg transition-all duration-200 flex items-center justify-center border border-[#00F0FF]/20"
               style={extrudedButtonStyle}
             >
               {isLogin ? (
@@ -370,7 +370,7 @@ export const AuthPortal: React.FC = () => {
                     whileTap={{ scale: 0.98, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}
                     type="button"
                     onClick={() => setShowResetPassword(false)}
-                    className="w-full bg-gradient-to-b from-indigo-500 to-indigo-700 text-white font-bold py-3 rounded-lg transition-all duration-200 border border-indigo-400/20"
+                    className="w-full bg-gradient-to-b from-[#00C4D1] to-[#8f00cc] text-white font-bold py-3 rounded-lg transition-all duration-200 border border-[#00F0FF]/20"
                     style={extrudedButtonStyle}
                   >
                     Back to Login

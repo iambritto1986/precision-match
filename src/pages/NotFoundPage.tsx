@@ -38,7 +38,7 @@ export const NotFoundPage: React.FC = () => {
         <div className="flex items-center justify-center gap-4">
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-400/30 text-cyan-400 font-semibold text-sm rounded-lg hover:border-cyan-400/50 hover:bg-cyan-500/30 transition-all duration-200 uppercase tracking-wider"
+            className="px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-[#B500FF]/20 border border-cyan-400/30 text-cyan-400 font-semibold text-sm rounded-lg hover:border-cyan-400/50 hover:bg-cyan-500/30 transition-all duration-200 uppercase tracking-wider"
           >
             Return to Dashboard
           </button>
