@@ -45,6 +45,34 @@ export const logout = async () => {
     }
 };
 
+// Returns an Authorization header carrying the current user's Firebase ID token,
+// so the backend can verify who is calling AI/credit-metered endpoints.
+// Returns {} if there is no signed-in user (backend will reject those as 401).
+export const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    const current = auth.currentUser;
+    if (!current) return {};
+    try {
+        const token = await current.getIdToken();
+        return { Authorization: `Bearer ${token}` };
+    } catch (error) {
+        console.error("Failed to get ID token", error);
+        return {};
+    }
+};
+
+// Returns a fresh Firebase ID token string, or null if not signed in.
+// Used for contexts (like WebSocket setup messages) where a header can't be attached.
+export const getIdTokenOrNull = async (): Promise<string | null> => {
+    const current = auth.currentUser;
+    if (!current) return null;
+    try {
+        return await current.getIdToken();
+    } catch (error) {
+        console.error("Failed to get ID token", error);
+        return null;
+    }
+};
+
 async function testConnection() {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));

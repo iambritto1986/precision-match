@@ -21,6 +21,7 @@ import mammoth from 'mammoth';
 import Stripe from 'stripe';
 import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getAuth } from 'firebase-admin/auth';
 import fs from 'fs';
 import { Resend } from 'resend';
 
@@ -99,6 +100,122 @@ const getDb = () => {
     if (!firebaseAdminApp) return null;
     return getFirestore(firebaseAdminApp, firebaseAdminApp.customDatabaseId || 'default');
 };
+
+// The founder/admin account gets unlimited access, mirroring the client-side
+// ADMIN_EMAIL bypass in App.tsx (handleDeductCredits).
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || process.env.VITE_ADMIN_EMAIL || 'iambrittothomas@gmail.com';
+
+// --------------- Auth verification ---------------
+// Verifies the Firebase ID token sent by the client in the Authorization header
+// (or, for the WebSocket handshake, in the 'setup' message body). Returns the
+// decoded token (with uid/email) on success, or null if missing/invalid.
+async function verifyIdToken(token: string | undefined | null): Promise<{ uid: string; email?: string } | null> {
+  if (!token || !firebaseAdminApp) return null;
+  try {
+    const decoded = await getAuth(firebaseAdminApp).verifyIdToken(token);
+    return { uid: decoded.uid, email: decoded.email };
+  } catch (e) {
+    return null;
+  }
+}
+
+function extractBearerToken(req: express.Request): string | null {
+  const header = req.headers.authorization || '';
+  const match = /^Bearer (.+)$/.exec(header);
+  return match ? match[1] : null;
+}
+
+// Express middleware: rejects the request with 401 unless a valid Firebase ID
+// token is present. On success, attaches { uid, email } to req.auth.
+function requireAuth(): express.RequestHandler {
+  return async (req: any, res, next) => {
+    if (!firebaseAdminApp) {
+      logger.error('requireAuth: Firebase Admin is not initialized — cannot verify tokens.');
+      return res.status(503).json({ error: 'Authentication service unavailable.', code: 'AUTH_UNAVAILABLE' });
+    }
+    const decoded = await verifyIdToken(extractBearerToken(req));
+    if (!decoded) {
+      return res.status(401).json({ error: 'Please sign in to use this feature.', code: 'AUTH_REQUIRED' });
+    }
+    req.auth = decoded;
+    next();
+  };
+}
+
+// --------------- Credit / free-allowance enforcement ---------------
+// Mirrors the exact business rules currently enforced only client-side:
+//  - 3 starting credits per new user (see AuthContext.tsx / App.tsx defaults)
+//  - resume generation: free & unlimited for Pro users, else 1 credit/generation
+//  - chat: first 5 messages free per user (freeChatMessagesUsed), else 1 credit/message for non-Pro; unlimited for Pro
+//  - voice interview: 1 free trial (freeInterviewUsed) for non-Pro, then blocked until upgrade; Pro pays 5 credits/session
+// The founder/admin account (ADMIN_EMAIL) always bypasses these checks.
+type CreditAction = 'resume' | 'chat' | 'voice';
+type CreditCheckResult = { ok: true; isTrial?: boolean } | { ok: false; error: string; code: string };
+
+async function checkAndConsume(uid: string, email: string | undefined, action: CreditAction): Promise<CreditCheckResult> {
+  if (email && email === ADMIN_EMAIL) return { ok: true };
+
+  const db = getDb();
+  if (!db) {
+    logger.error('checkAndConsume: Firestore not configured — failing closed.');
+    return { ok: false, error: 'Server is temporarily unable to verify your account. Please try again shortly.', code: 'DB_UNAVAILABLE' };
+  }
+
+  const userRef = db.collection('users').doc(uid);
+
+  try {
+    return await db.runTransaction(async (tx): Promise<CreditCheckResult> => {
+      const snap = await tx.get(userRef);
+      if (!snap.exists) {
+        return { ok: false, error: 'User account not found.', code: 'USER_NOT_FOUND' };
+      }
+      const data = snap.data() || {};
+      const isPro = !!data.isPro;
+      const credits = typeof data.credits === 'number' ? data.credits : 0;
+
+      if (action === 'resume') {
+        if (isPro) return { ok: true };
+        if (credits <= 0) {
+          return { ok: false, error: "You've used all your AI credits. Upgrade to continue.", code: 'OUT_OF_CREDITS' };
+        }
+        tx.update(userRef, { credits: credits - 1 });
+        return { ok: true };
+      }
+
+      if (action === 'chat') {
+        if (isPro) return { ok: true };
+        const freeUsed = typeof data.freeChatMessagesUsed === 'number' ? data.freeChatMessagesUsed : 0;
+        if (freeUsed < 5) {
+          tx.update(userRef, { freeChatMessagesUsed: freeUsed + 1 });
+          return { ok: true };
+        }
+        if (credits <= 0) {
+          return { ok: false, error: "You've used your free messages and AI credits. Upgrade to continue.", code: 'OUT_OF_CREDITS' };
+        }
+        tx.update(userRef, { credits: credits - 1 });
+        return { ok: true };
+      }
+
+      // action === 'voice'
+      if (!isPro) {
+        const freeInterviewUsed = !!data.freeInterviewUsed;
+        if (freeInterviewUsed) {
+          return { ok: false, error: 'Your free interview trial is over! Upgrade to Pro for unlimited interview practice.', code: 'TRIAL_USED' };
+        }
+        tx.update(userRef, { freeInterviewUsed: true });
+        return { ok: true, isTrial: true };
+      }
+      if (credits < 5) {
+        return { ok: false, error: 'You need 5 AI credits for a voice interview session.', code: 'OUT_OF_CREDITS' };
+      }
+      tx.update(userRef, { credits: credits - 5 });
+      return { ok: true };
+    });
+  } catch (e: any) {
+    logger.error('checkAndConsume transaction failed:', e);
+    return { ok: false, error: 'Could not verify your account. Please try again.', code: 'CHECK_FAILED' };
+  }
+}
 
 const stripeClient = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2025-02-24.acacia' as any
@@ -382,7 +499,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/extract-linkedin", async (req, res) => {
+  app.post("/api/extract-linkedin", requireAuth(), async (req, res) => {
    try {
       const { url } = req.body;
       if (!url || typeof url !== 'string') {
@@ -407,7 +524,7 @@ async function startServer() {
 });
 
 
-  app.post("/api/extract-resume", async (req, res) => {
+  app.post("/api/extract-resume", requireAuth(), async (req, res) => {
     try {
       const { fileBase64, mimeType } = req.body;
       if (!fileBase64 || typeof fileBase64 !== 'string') {
@@ -449,13 +566,18 @@ async function startServer() {
     }
   });
 
-  app.post("/api/generate-resume", async (req, res) => {
+  app.post("/api/generate-resume", requireAuth(), async (req: any, res) => {
     try {
       const { baseData, jobDescription, instructions } = req.body;
       if (!baseData || typeof baseData !== 'string') {
         return res.status(400).json({ error: "Missing or invalid required field: baseData", code: "VALIDATION_ERROR" });
       }
-      
+
+      const creditCheck = await checkAndConsume(req.auth.uid, req.auth.email, 'resume');
+      if (!creditCheck.ok) {
+        return res.status(402).json({ error: creditCheck.error, code: creditCheck.code });
+      }
+
       const prompt = `
 You are an expert executive resume writer. 
 You are tasked with curating and tailoring a candidate's base resume data to a specific job description.
@@ -502,7 +624,7 @@ Respond only with valid JSON.
     }
   });
 
-  app.post("/api/generate-cover-letter", async (req, res) => {
+  app.post("/api/generate-cover-letter", requireAuth(), async (req, res) => {
     try {
       const { baseData, jobDescription } = req.body;
       if (!baseData || typeof baseData !== 'string') {
@@ -540,7 +662,7 @@ Include placeholders like [Hiring Manager Name] or [Company Name] where appropri
     }
   });
 
-  app.post("/api/ats-score", async (req, res) => {
+  app.post("/api/ats-score", requireAuth(), async (req, res) => {
     try {
       const { resumeData, jobDescription } = req.body;
       if (!resumeData || !jobDescription) {
@@ -584,13 +706,18 @@ ${jobDescription}
     }
   });
 
-  app.post('/api/chat', async (req, res) => {
+  app.post('/api/chat', requireAuth(), async (req: any, res) => {
      try {
         const { messages, thinkingMode, resumeContext } = req.body;
         if (!messages || !Array.isArray(messages)) {
             return res.status(400).json({ error: 'Messages array is required', code: 'VALIDATION_ERROR' });
         }
-        
+
+        const creditCheck = await checkAndConsume(req.auth.uid, req.auth.email, 'chat');
+        if (!creditCheck.ok) {
+          return res.status(402).json({ error: creditCheck.error, code: creditCheck.code });
+        }
+
         const modelName = thinkingMode ? "gemini-3.1-pro-preview" : "gemini-3.1-flash-lite";
         const config: any = {};
         if (resumeContext) {
@@ -639,16 +766,36 @@ ${jobDescription}
 
   const wss = new WebSocketServer({ server });
 
+  // Hard safety cap on live voice sessions, independent of client-reported duration.
+  // Free-trial sessions are additionally capped in checkAndConsume/client at 120s;
+  // this cap protects paid/Pro sessions (and any client that fails to self-limit)
+  // from running indefinitely against the (expensive) live voice model.
+  const MAX_VOICE_SESSION_MS = 15 * 60_000; // 15 minutes
+
   wss.on("connection", async (clientWs, req) => {
     try {
       if (req.url === '/api/live') {
         let session: any = null;
+        let sessionTimeout: NodeJS.Timeout | null = null;
 
         clientWs.on("message", async (data) => {
           try {
             const msg = JSON.parse(data.toString());
-            
+
             if (msg.type === 'setup') {
+              const decoded = await verifyIdToken(msg.idToken);
+              if (!decoded) {
+                clientWs.send(JSON.stringify({ type: 'error', message: 'Please sign in to start a voice interview.' }));
+                clientWs.close();
+                return;
+              }
+              const creditCheck = await checkAndConsume(decoded.uid, decoded.email, 'voice');
+              if (!creditCheck.ok) {
+                clientWs.send(JSON.stringify({ type: 'error', message: creditCheck.error }));
+                clientWs.close();
+                return;
+              }
+
               const resumeContext = msg.data || '';
               session = await ai.live.connect({
                 model: "gemini-3.1-flash-live-preview",
@@ -674,6 +821,15 @@ ${jobDescription}
               // Send an initial text trigger so Aadhya starts speaking immediately
               session.sendClientContent({ turns: [{ role: 'user', parts: [{ text: 'Hi Aadhya, I\'m ready. Please introduce yourself and start the interview.' }] }] });
               clientWs.send(JSON.stringify({ type: 'ready' }));
+
+              // Hard server-side cap — force-close regardless of client behavior.
+              sessionTimeout = setTimeout(() => {
+                if (clientWs.readyState === 1) {
+                  clientWs.send(JSON.stringify({ type: 'session_ended', message: 'Session time limit reached.' }));
+                }
+                if (session) session.close();
+                clientWs.close();
+              }, MAX_VOICE_SESSION_MS);
             } else if (msg.audio && session) {
               session.sendRealtimeInput({
                 audio: { data: msg.audio, mimeType: "audio/pcm;rate=16000" },
@@ -685,6 +841,7 @@ ${jobDescription}
         });
 
         clientWs.on("close", () => {
+             if (sessionTimeout) clearTimeout(sessionTimeout);
              if (session) session.close();
         });
       }

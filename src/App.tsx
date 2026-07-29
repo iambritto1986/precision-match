@@ -12,7 +12,7 @@ import CareerChat from './components/CareerChat';
 import ResumeFormEditor from './components/ResumeFormEditor';
 import { exportToDocx, exportToPdf, exportCoverLetterDocx } from './lib/export';
 import { Upload, FileText, Download, Briefcase, RefreshCw, Layers, CheckCircle2, Image as ImageIcon, MapPin, Phone, Mail, Linkedin, Globe, FileOutput, Mic, MessageCircle, ChevronUp, ChevronDown, Code, X, Users, LogOut, LogIn, ZoomIn, ZoomOut, Maximize2, Sparkles, Check, AlertCircle, Info, Menu, ShieldAlert } from 'lucide-react';
-import { auth, db } from './lib/firebase';
+import { auth, db, getAuthHeaders } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { ParticleNetworkBackground } from './components/ParticleNetworkBackground';
 import { AnimatedLogo } from './components/AnimatedLogo';
@@ -496,7 +496,7 @@ export default function App() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/generate-resume`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({
           baseData: sourceText,
           jobDescription,
@@ -546,7 +546,7 @@ export default function App() {
       const base64 = await fileToBase64(file);
       const res = await fetch(`${API_BASE_URL}/api/extract-resume`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({ fileBase64: base64, mimeType: file.type })
       });
       const data = await res.json();
@@ -583,7 +583,7 @@ export default function App() {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/ats-score`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({ resumeData, jobDescription })
       });
       const data = await res.json();
@@ -607,7 +607,7 @@ export default function App() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/generate-resume`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({
           baseData: constructBaseResumeText(),
           jobDescription,
@@ -640,7 +640,7 @@ export default function App() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/generate-cover-letter`, {
          method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
+         headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
          body: JSON.stringify({
            baseData: JSON.stringify(resumeData),
            jobDescription
@@ -1620,7 +1620,7 @@ export default function App() {
                       try {
                         const res = await fetch(`${API_BASE_URL}/api/extract-linkedin`, {
                           method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
+                          headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
                           body: JSON.stringify({ url: val })
                         });
                         const data = await res.json();

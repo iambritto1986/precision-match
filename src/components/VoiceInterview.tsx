@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, PhoneOff } from 'lucide-react';
 import { ResumeData } from '../types';
 import { AiOrb } from './AiOrb';
+import { getIdTokenOrNull } from '../lib/firebase';
 
 export default function VoiceInterview({ resumeData, deductCredits, isPro = false, freeInterviewUsed = false, onTrialUsed, showToast }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean, isPro?: boolean, freeInterviewUsed?: boolean, onTrialUsed?: () => void, showToast?: (msg: string, type: 'success' | 'error' | 'info') => void }) {
   const FREE_TRIAL_SECONDS = 120; // 2 minutes
@@ -120,22 +121,34 @@ export default function VoiceInterview({ resumeData, deductCredits, isPro = fals
     try {
       setError(null);
       setIsConnecting(true);
+      const idToken = await getIdTokenOrNull();
+      if (!idToken) {
+        setError('You need to be signed in to start a voice interview.');
+        setIsConnecting(false);
+        return;
+      }
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const ws = new WebSocket(`${wsProtocol}//${window.location.host}/api/live`);
       wsRef.current = ws;
 
       const inputAudioCtx = new AudioContext({ sampleRate: 16000 });
       inputAudioCtxRef.current = inputAudioCtx;
-      
+
       const outputAudioCtx = new AudioContext({ sampleRate: 24000 });
       outputAudioCtxRef.current = outputAudioCtx;
 
       ws.onopen = async () => {
-        ws.send(JSON.stringify({ type: 'setup', data: JSON.stringify(resumeData) }));
+        ws.send(JSON.stringify({ type: 'setup', data: JSON.stringify(resumeData), idToken }));
       };
 
       ws.onmessage = (event) => {
         const msg = JSON.parse(event.data);
+        if (msg.type === 'error') {
+          setError(msg.message || 'Could not start the voice interview.');
+          setIsConnecting(false);
+          ws.close();
+          return;
+        }
         if (msg.type === 'ready') {
            setIsConnected(true);
            setIsConnecting(false);
@@ -151,6 +164,10 @@ export default function VoiceInterview({ resumeData, deductCredits, isPro = fals
         if (msg.interrupted) {
           nextStartTimeRef.current = outputAudioCtx.currentTime;
           setAiSpeaking(false);
+        }
+        if (msg.type === 'session_ended') {
+          showToast?.(msg.message || 'Your interview session has ended.', 'info');
+          disconnectVoice();
         }
       };
 

@@ -4,6 +4,7 @@ import Markdown from 'react-markdown';
 
 import { ResumeData } from '../types';
 import { API_BASE_URL } from '../config';
+import { getAuthHeaders } from '../lib/firebase';
 
 export default function CareerChat({ resumeData, deductCredits, isPro = false, freeChatMessagesUsed = 0, onChatMessageUsed }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean, isPro?: boolean, freeChatMessagesUsed?: number, onChatMessageUsed?: () => void }) {
   const FREE_CHAT_LIMIT = 5;
@@ -33,7 +34,7 @@ export default function CareerChat({ resumeData, deductCredits, isPro = false, f
     try {
       const res = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
         body: JSON.stringify({
           messages: newMessages,
           thinkingMode,
@@ -41,6 +42,10 @@ export default function CareerChat({ resumeData, deductCredits, isPro = false, f
         })
       });
       const data = await res.json();
+      if (!res.ok) {
+        setMessages([...newMessages, { role: 'model', text: data.error || 'You\'ve reached your message limit. Please upgrade to continue chatting.' }]);
+        return;
+      }
       if (data.text) {
         setMessages([...newMessages, { role: 'model', text: data.text }]);
       }
