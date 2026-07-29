@@ -394,6 +394,25 @@ async function startServer() {
         } else {
           logger.info(`invoice.payment_succeeded received with billing_reason=${billingReason} — no credit action taken`);
         }
+      } else if (event.type === 'customer.subscription.deleted') {
+        // Subscription was canceled/deleted — revoke Pro status.
+        const subscription = event.data.object as Stripe.Subscription;
+        const customerId = subscription.customer as string;
+        const db = getDb();
+        if (!db) {
+          logger.error("Firebase Admin DB not initialized to handle subscription deletion.");
+        } else if (customerId) {
+          const matches = await db.collection('users').where('stripeCustomerId', '==', customerId).limit(1).get();
+          if (matches.empty) {
+            logger.warn(`Subscription deleted for Stripe customer ${customerId} but no matching user doc found.`);
+          } else {
+            const userDoc = matches.docs[0];
+            await userDoc.ref.update({
+              isPro: false
+            });
+            logger.info(`Revoked Pro subscription for user ${userDoc.id} due to subscription deletion`);
+          }
+        }
       } else {
         logger.info(`Unhandled event type ${event.type}`);
       }
