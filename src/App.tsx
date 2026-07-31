@@ -393,15 +393,15 @@ export default function App() {
   const handleExport = async (type: 'pdf' | 'docx') => {
     if (isPro) {
       if (type === 'pdf') {
-        exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`);
+        exportToPdf(resumeData, sectionOrder, `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`);
       }
-      else exportToDocx(resumeData);
+      else exportToDocx(resumeData, sectionOrder);
     } else {
       if (downloadsRemaining > 0) {
         if (type === 'pdf') {
-          exportToPdf('resume-preview-content', `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`);
+          exportToPdf(resumeData, sectionOrder, `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`);
         }
-        else exportToDocx(resumeData);
+        else exportToDocx(resumeData, sectionOrder);
         
         const newCount = downloadsRemaining - 1;
         setDownloadsRemaining(newCount);
