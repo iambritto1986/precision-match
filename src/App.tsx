@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ResumeData, TemplateId } from './types';
 import { TemplateRenderer } from './components/ResumeTemplates';
@@ -86,6 +86,14 @@ export default function App() {
   const defaultOrder = ['summary', 'experience', 'skills', 'education', 'projects'];
   const [sectionOrder, setSectionOrder] = useState<string[]>(defaultOrder);
   const [pageBreaks, setPageBreaks] = useState<Record<string, boolean>>({});
+  const [pageFormat, setPageFormat] = useState<'letter' | 'a4'>('letter');
+  // Breaks the app inserts automatically when a section would overflow the
+  // current page, computed by measuring real rendered section heights in a
+  // hidden off-screen copy of the template (see the measurement effect near
+  // the resume preview below). Merged with the user's manual `pageBreaks` —
+  // either one is enough to start a new page.
+  const [autoPageBreaks, setAutoPageBreaks] = useState<Record<string, boolean>>({});
+  const measureRef = useRef<HTMLDivElement>(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -398,6 +406,7 @@ export default function App() {
       showProfilePicture,
       aestheticTheme,
       pageBreaks,
+      pageFormat,
       filename: `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`
     };
     if (isPro) {
@@ -451,6 +460,69 @@ export default function App() {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId>('classic');
   const [aestheticTheme, setAestheticTheme] = useState<'default' | 'ocean' | 'sunset' | 'forest'>('default');
   const [showProfilePicture, setShowProfilePicture] = useState(false);
+
+  // Automatic pagination: measure real rendered section heights in a hidden,
+  // off-screen copy of the currently selected template (all sections in one
+  // continuous flow, no manual breaks) and figure out where sections would
+  // actually overflow the 1056px page. Those spots become "soft" breaks,
+  // merged with the user's manual pageBreaks when building the visible pages
+  // below.
+  //
+  // NOTE: the Creative template's own multi-page rendering is pre-existing
+  // and separately broken — its main-column sections (summary/experience/
+  // custom) don't filter by the sectionOrder subset a given page instance
+  // receives, so every page instance would show the *same* full content
+  // rather than a split. That's a bug in CreativeTemplate itself, not
+  // something introduced here — auto-pagination is skipped for Creative
+  // until that's fixed, rather than pretending it splits correctly.
+  useLayoutEffect(() => {
+    if (selectedTemplate === 'creative') {
+      setAutoPageBreaks(prev => (Object.keys(prev).length ? {} : prev));
+      return;
+    }
+
+    const container = measureRef.current;
+    if (!container) return;
+
+    const measuredOrder = sectionOrder;
+
+    const rectsById: Record<string, { top: number; height: number }> = {};
+    container.querySelectorAll('[data-section-id]').forEach((el) => {
+      const id = el.getAttribute('data-section-id');
+      if (!id) return;
+      const htmlEl = el as HTMLElement;
+      rectsById[id] = { top: htmlEl.offsetTop, height: htmlEl.offsetHeight };
+    });
+
+    const PAGE_HEIGHT = 1056;
+    const BOTTOM_BUFFER = 60; // conservative allowance for each template's own bottom padding
+    const PAGE_USABLE_HEIGHT = PAGE_HEIGHT - BOTTOM_BUFFER;
+
+    let pageStartTop = 0;
+    let prevSectionId: string | null = null;
+    const nextAutoBreaks: Record<string, boolean> = {};
+
+    measuredOrder.forEach(sectionId => {
+      const rect = rectsById[sectionId];
+      if (!rect) return; // section rendered nothing (no data) — doesn't consume space
+      const relativeBottom = (rect.top - pageStartTop) + rect.height;
+      if (relativeBottom > PAGE_USABLE_HEIGHT && prevSectionId) {
+        nextAutoBreaks[prevSectionId] = true;
+        pageStartTop = rect.top;
+      }
+      if (pageBreaks[sectionId]) {
+        // A manual break always starts a fresh page, regardless of space left.
+        pageStartTop = rect.top + rect.height;
+      }
+      prevSectionId = sectionId;
+    });
+
+    setAutoPageBreaks(prev => {
+      const prevKeys = Object.keys(prev).filter(k => prev[k]).sort().join(',');
+      const nextKeys = Object.keys(nextAutoBreaks).filter(k => nextAutoBreaks[k]).sort().join(',');
+      return prevKeys === nextKeys ? prev : nextAutoBreaks;
+    });
+  }, [resumeData, sectionOrder, selectedTemplate, fontFamily, showProfilePicture, aestheticTheme, pageBreaks]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isCoverLetterGenerating, setIsCoverLetterGenerating] = useState(false);
@@ -753,6 +825,10 @@ export default function App() {
       
       <ParticleNetworkBackground />
       <OnboardingTour />
+      {/* Shared file-upload input: kept mounted at the app root (not inside the /resume route's AI tab)
+          so it's always available to fileInputRef.current?.click() no matter which route/tab is active
+          when the user triggers an upload (e.g. from the "Start New Resume" onboarding modal). */}
+      <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileUpload} accept=".pdf,.docx,.txt" />
 
       <Sidebar
         sidebarOpen={sidebarOpen}
@@ -844,8 +920,7 @@ export default function App() {
                  <div className="space-y-4">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Source Information</h3>
                     
-                    <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileUpload} accept=".pdf,.docx,.txt" />
-                                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                       <div 
                         id="tour-upload"
                         className="border border-white/10 border-dashed rounded-xl p-3 flex flex-col items-center justify-center text-center hover:border-indigo-500/40 cursor-pointer transition-all bg-white/[0.03] group hover:bg-white/[0.07]"
@@ -1010,13 +1085,25 @@ export default function App() {
                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Profile Photo</label>
                        <div className="flex items-center space-x-2 tech-input px-3 py-1.5 rounded-lg">
                          <span className="text-xs text-slate-400 flex-1">Show Photo</span>
-                         <button 
+                         <button
                            onClick={() => setShowProfilePicture(!showProfilePicture)}
                            className={`w-8 h-4 rounded-full relative transition-colors ${showProfilePicture ? 'bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/200' : 'bg-slate-600'}`}
                          >
                            <div className={`absolute top-0 w-4 h-4 rounded-full bg-white border border-white/20 transition-all ${showProfilePicture ? 'right-0' : 'left-0'}`}></div>
                          </button>
                        </div>
+                     </div>
+
+                     <div className="md:col-span-2">
+                       <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Page Size (PDF Export)</label>
+                       <select
+                         className="w-full text-xs font-semibold text-slate-200 tech-input px-3 py-2 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50"
+                         value={pageFormat}
+                         onChange={(e) => setPageFormat(e.target.value as 'letter' | 'a4')}
+                       >
+                          <option value="letter">US Letter (8.5 x 11 in)</option>
+                          <option value="a4">A4 (210 x 297 mm)</option>
+                       </select>
                      </div>
                    </div>
 
@@ -1106,8 +1193,29 @@ export default function App() {
                </div>
              </div>
 
-              <div 
-                className="pb-10 origin-top transition-transform duration-200 relative flex flex-col gap-8" 
+              {/* Hidden measurement copy for automatic pagination: all sections rendered in one
+                  continuous, unbroken page so real rendered heights can be measured via
+                  data-section-id. Kept out of view (not display:none, so layout still runs)
+                  and out of the tab order / accessibility tree. */}
+              <div
+                aria-hidden="true"
+                style={{ position: 'fixed', top: 0, left: '-99999px', visibility: 'hidden', pointerEvents: 'none', zIndex: -1 }}
+              >
+                <div ref={measureRef}>
+                  <TemplateRenderer
+                    template={selectedTemplate}
+                    data={resumeData}
+                    showProfilePicture={showProfilePicture}
+                    sectionOrder={sectionOrder}
+                    fontFamily={fontFamily}
+                    aestheticTheme={aestheticTheme}
+                    pageBreaks={{}}
+                  />
+                </div>
+              </div>
+
+              <div
+                className="pb-10 origin-top transition-transform duration-200 relative flex flex-col gap-8"
                 style={{ transform: `scale(${zoomScale})`, transformOrigin: 'top center' }}
                 id="resume-preview-content"
               >
@@ -1116,7 +1224,7 @@ export default function App() {
                     let currentPage = 0;
                     sectionOrder.forEach(sec => {
                        pages[currentPage].push(sec);
-                       if (pageBreaks[sec]) {
+                       if (pageBreaks[sec] || autoPageBreaks[sec]) {
                            currentPage++;
                            pages.push([]);
                        }

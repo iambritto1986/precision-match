@@ -8,8 +8,15 @@ import { ResumeData } from '../types';
 // (never a screenshot), so the exported PDF is genuinely ATS-parseable while
 // still visually mirroring the on-screen template the user picked.
 
+// Default (Letter) page dimensions in points — kept as a fallback constant for
+// call sites that don't have a `doc` handy yet. Once a jsPDF document exists,
+// prefer pageWidth(doc)/pageHeight(doc) below, since those read the document's
+// *actual* format (Letter or A4), so the same template renderers work for both.
 export const PAGE_WIDTH = 612;  // Letter, points
 export const PAGE_HEIGHT = 792;
+
+export const pageWidth = (doc: jsPDF): number => (doc.internal.pageSize as any).getWidth();
+export const pageHeight = (doc: jsPDF): number => (doc.internal.pageSize as any).getHeight();
 
 export type RGB = [number, number, number];
 
@@ -51,14 +58,14 @@ export const newCtx = (doc: jsPDF, opts: { marginX?: number; marginTop?: number;
     marginX,
     marginTop: opts.marginTop ?? 50,
     marginBottom: opts.marginBottom ?? 50,
-    contentWidth: opts.contentWidth ?? (PAGE_WIDTH - marginX * 2),
+    contentWidth: opts.contentWidth ?? (pageWidth(doc) - marginX * 2),
     font: opts.font,
     onOverflow: opts.onOverflow,
   };
 };
 
 export const ensureSpace = (ctx: Ctx, needed: number) => {
-  if (ctx.y + needed > PAGE_HEIGHT - ctx.marginBottom) {
+  if (ctx.y + needed > pageHeight(ctx.doc) - ctx.marginBottom) {
     if (ctx.onOverflow) {
       ctx.onOverflow(ctx);
     } else {

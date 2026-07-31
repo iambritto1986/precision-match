@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import { ResumeData, TemplateId } from '../types';
 import {
-  PAGE_WIDTH, PAGE_HEIGHT, RGB, Ctx, newCtx, ensureSpace, text, bullet, hr, filledRect,
+  pageWidth, pageHeight, RGB, Ctx, newCtx, ensureSpace, text, bullet, hr, filledRect,
   paginate, contactParts, drawImage, resolveFont, justifyLine, sectionHeaderCentered,
   sectionHeaderLeft, renderTwoColumns, TemplateRenderOpts, setColor
 } from './pdfTemplates';
@@ -61,11 +61,11 @@ const renderClassic: Renderer = (doc, data, opts) => {
       const textX = opts.showProfilePicture && opts.profileImage ? ctx.marginX + 74 : ctx.marginX;
       const textWidth = ctx.contentWidth - (textX - ctx.marginX);
       const headerCtx = { ...ctx, marginX: textX, contentWidth: textWidth };
-      text(headerCtx, p.name || 'Untitled', textX, { size: 22, bold: true, color: GRAY_900 });
+      text(headerCtx, p.name || 'Untitled', textX, { size: 22.5, bold: true, color: GRAY_900 }); // text-3xl (30px)
       ctx.y = headerCtx.y;
-      if (p.title) { text(ctx, p.title, textX, { size: 12.5, italic: true, color: GRAY_700, maxWidth: textWidth }); }
+      if (p.title) { text(ctx, p.title, textX, { size: 13.5, italic: true, color: GRAY_700, maxWidth: textWidth }); } // text-lg (18px)
       const contact = contactParts(p).join('    ');
-      if (contact) text(ctx, contact, textX, { size: 9, color: GRAY_600, maxWidth: textWidth });
+      if (contact) text(ctx, contact, textX, { size: 10.5, color: GRAY_600, maxWidth: textWidth }); // text-sm (14px)
       ctx.y = Math.max(ctx.y, ctx.marginTop + 66);
       ctx.y += 6;
       hr(ctx, ctx.marginX, ctx.marginX + ctx.contentWidth, GRAY_900, 1.5);
@@ -79,84 +79,84 @@ const renderClassic: Renderer = (doc, data, opts) => {
 const renderClassicSection = (ctx: Ctx, data: ResumeData, sectionId: string) => {
   const { personalDetails: p, experience, education, skills, projects, certifications, customSections } = data;
   if (sectionId === 'summary' && p.summary) {
-    text(ctx, p.summary, ctx.marginX, { size: 10, color: GRAY_700 });
+    text(ctx, p.summary, ctx.marginX, { size: 10.5, color: GRAY_700 }); // text-sm (14px)
     ctx.y += 12;
     return;
   }
   if (sectionId === 'experience' && experience.length > 0) {
-    sectionHeaderLeft(ctx, 'Professional Experience', { ruleColor: GRAY_300 });
+    sectionHeaderLeft(ctx, 'Professional Experience', { ruleColor: GRAY_300, size: 12 }); // text-base (16px)
     experience.forEach((exp, i) => {
       if (i > 0) ctx.y += 8;
-      justifyLine(ctx, exp.company || '', exp.location, { size: 11, bold: true, rightItalic: true, rightSize: 9.5, rightColor: GRAY_600 });
-      justifyLine(ctx, exp.role || '', exp.duration, { size: 9.5, italic: true, color: GRAY_700, rightSize: 9.5, rightColor: GRAY_700 });
+      justifyLine(ctx, exp.company || '', exp.location, { size: 12, bold: true, rightItalic: true, rightSize: 10.5, rightColor: GRAY_600 }); // text-md ~16px / text-sm 14px
+      justifyLine(ctx, exp.role || '', exp.duration, { size: 10.5, italic: true, color: GRAY_700, rightSize: 10.5, rightColor: GRAY_700 }); // text-sm (14px)
       ctx.y += 2;
-      exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { color: GRAY_700 }));
+      exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { color: GRAY_700, size: 9.75 })); // text-[13px]
     });
     ctx.y += 4;
     return;
   }
   if (sectionId === 'skills' && skills.length > 0) {
-    sectionHeaderLeft(ctx, 'Skills & Expertise', { ruleColor: GRAY_300 });
+    sectionHeaderLeft(ctx, 'Skills & Expertise', { ruleColor: GRAY_300, size: 12 });
     skills.forEach(s => {
       const items = s.items.filter(i => i.trim()).join(', ');
       if (!items) return;
-      ctx.doc.setFont(ctx.font, 'bold'); ctx.doc.setFontSize(9.5); setColor(ctx.doc, GRAY_900);
+      ctx.doc.setFont(ctx.font, 'bold'); ctx.doc.setFontSize(9.75); setColor(ctx.doc, GRAY_900); // text-[13px]
       const label = `${s.category}: `;
       const labelWidth = ctx.doc.getTextWidth(label);
-      ensureSpace(ctx, 13);
+      ensureSpace(ctx, 13.5);
       ctx.doc.text(label, ctx.marginX, ctx.y);
       ctx.doc.setFont(ctx.font, 'normal'); setColor(ctx.doc, GRAY_700);
       const wrapped: string[] = ctx.doc.splitTextToSize(items, ctx.contentWidth - labelWidth);
       wrapped.forEach((line, idx) => {
-        if (idx > 0) ensureSpace(ctx, 13);
+        if (idx > 0) ensureSpace(ctx, 13.5);
         ctx.doc.text(line, ctx.marginX + labelWidth, ctx.y);
-        if (idx < wrapped.length - 1) ctx.y += 13;
+        if (idx < wrapped.length - 1) ctx.y += 13.5;
       });
-      ctx.y += 13;
+      ctx.y += 13.5;
     });
     ctx.y += 4;
     return;
   }
   if (sectionId === 'education' && education.length > 0) {
-    sectionHeaderLeft(ctx, 'Education', { ruleColor: GRAY_300 });
+    sectionHeaderLeft(ctx, 'Education', { ruleColor: GRAY_300, size: 12 });
     education.forEach((edu, i) => {
       if (i > 0) ctx.y += 6;
-      justifyLine(ctx, edu.institution || '', edu.location, { size: 10.5, bold: true, rightSize: 9.5, rightColor: GRAY_700 });
-      justifyLine(ctx, edu.degree || '', edu.duration, { size: 9.5, italic: true, color: GRAY_700, rightSize: 9.5, rightColor: GRAY_700 });
-      if (edu.details) text(ctx, edu.details, ctx.marginX, { size: 9.5, color: GRAY_700 });
+      justifyLine(ctx, edu.institution || '', edu.location, { size: 11.25, bold: true, rightSize: 10.5, rightColor: GRAY_700 }); // text-[15px] / text-sm
+      justifyLine(ctx, edu.degree || '', edu.duration, { size: 10.5, italic: true, color: GRAY_700, rightSize: 10.5, rightColor: GRAY_700 }); // text-sm
+      if (edu.details) text(ctx, edu.details, ctx.marginX, { size: 10.5, color: GRAY_700 });
     });
     ctx.y += 4;
     return;
   }
   if (sectionId === 'projects' && projects && projects.length > 0) {
-    sectionHeaderLeft(ctx, 'Selected Projects', { ruleColor: GRAY_300 });
+    sectionHeaderLeft(ctx, 'Selected Projects', { ruleColor: GRAY_300, size: 12 });
     projects.forEach((proj, i) => {
       if (i > 0) ctx.y += 6;
-      justifyLine(ctx, proj.name || '', proj.duration, { size: 10.5, bold: true, rightSize: 9.5, rightColor: GRAY_700 });
-      text(ctx, proj.role || '', ctx.marginX, { size: 9.5, bold: true, italic: true, color: GRAY_700 });
-      if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 9.5, color: GRAY_700 });
+      justifyLine(ctx, proj.name || '', proj.duration, { size: 11.25, bold: true, rightSize: 10.5, rightColor: GRAY_700 }); // text-[15px]
+      text(ctx, proj.role || '', ctx.marginX, { size: 9.75, bold: true, italic: true, color: GRAY_700 }); // text-[13px]
+      if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 9.75, color: GRAY_700 });
     });
     ctx.y += 4;
     return;
   }
   if (sectionId === 'certifications' && certifications && certifications.length > 0) {
-    sectionHeaderLeft(ctx, 'Certifications', { ruleColor: GRAY_300 });
+    sectionHeaderLeft(ctx, 'Certifications', { ruleColor: GRAY_300, size: 12 });
     certifications.forEach((cert, i) => {
       if (i > 0) ctx.y += 6;
-      justifyLine(ctx, cert.name || '', cert.date, { size: 10.5, bold: true, rightSize: 9.5, rightColor: GRAY_700 });
-      text(ctx, cert.issuer || '', ctx.marginX, { size: 9.5, color: GRAY_600 });
+      justifyLine(ctx, cert.name || '', cert.date, { size: 12, bold: true, rightSize: 10.5, rightColor: GRAY_700 }); // text-md ~16px
+      text(ctx, cert.issuer || '', ctx.marginX, { size: 10.5, color: GRAY_600 }); // text-sm
     });
     ctx.y += 4;
     return;
   }
   const customSec = customSections?.find(c => c.id === sectionId);
   if (customSec && customSec.items.length > 0) {
-    sectionHeaderLeft(ctx, customSec.title, { ruleColor: GRAY_300 });
+    sectionHeaderLeft(ctx, customSec.title, { ruleColor: GRAY_300, size: 12 });
     customSec.items.forEach((item, i) => {
       if (i > 0) ctx.y += 6;
-      justifyLine(ctx, item.title || '', item.date, { size: 10.5, bold: true, rightSize: 9.5, rightColor: GRAY_700 });
-      if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 9.5, bold: true, italic: true, color: GRAY_700 });
-      if (item.description) text(ctx, item.description, ctx.marginX, { size: 9.5, color: GRAY_700 });
+      justifyLine(ctx, item.title || '', item.date, { size: 12, bold: true, rightSize: 10.5, rightColor: GRAY_700 });
+      if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 10.5, bold: true, italic: true, color: GRAY_700 });
+      if (item.description) text(ctx, item.description, ctx.marginX, { size: 10.5, color: GRAY_700 });
     });
     ctx.y += 4;
   }
@@ -172,7 +172,7 @@ const renderModern: Renderer = (doc, data, opts) => {
   const sidebarW = 170;
   const gap = 24;
   const mainX = M + sidebarW + gap;
-  const mainW = PAGE_WIDTH - mainX - M;
+  const mainW = pageWidth(doc) - mainX - M;
 
   pages.forEach((group, pageIdx) => {
     if (pageIdx > 0) doc.addPage();
@@ -181,28 +181,28 @@ const renderModern: Renderer = (doc, data, opts) => {
     renderTwoColumns(doc, M, M, M,
       {
         x: M, width: sidebarW, draw: (ctx) => {
-          filledRect(ctx.doc, 0, 0, sidebarW + M + gap / 2, PAGE_HEIGHT, GRAY_100);
+          filledRect(ctx.doc, 0, 0, sidebarW + M + gap / 2, pageHeight(ctx.doc), GRAY_100);
           ctx.y = M + 4;
           if (isFirst) {
             if (opts.showProfilePicture && opts.profileImage) {
               drawImage(ctx.doc, opts.profileImage, ctx.marginX + sidebarW / 2 - 32, ctx.y, 64, 32);
               ctx.y += 74;
             }
-            text(ctx, (p.name || '').toUpperCase(), ctx.marginX + sidebarW / 2, { size: 14, bold: true, color: GRAY_900, align: 'center', maxWidth: sidebarW });
-            if (p.title) text(ctx, p.title.toUpperCase(), ctx.marginX + sidebarW / 2, { size: 8.5, bold: true, color: BLUE_600, align: 'center', maxWidth: sidebarW });
+            text(ctx, (p.name || '').toUpperCase(), ctx.marginX + sidebarW / 2, { size: 18, bold: true, color: GRAY_900, align: 'center', maxWidth: sidebarW }); // text-2xl (24px)
+            if (p.title) text(ctx, p.title.toUpperCase(), ctx.marginX + sidebarW / 2, { size: 10.5, bold: true, color: BLUE_600, align: 'center', maxWidth: sidebarW }); // text-sm (14px)
             ctx.y += 8;
             hr(ctx, ctx.marginX, ctx.marginX + sidebarW, GRAY_300);
             ctx.y += 4;
-            text(ctx, 'CONTACT', ctx.marginX, { size: 8, bold: true, color: GRAY_400 });
-            contactParts(p).forEach(c => text(ctx, c, ctx.marginX, { size: 8.5, color: GRAY_700, maxWidth: sidebarW }));
+            text(ctx, 'CONTACT', ctx.marginX, { size: 9, bold: true, color: GRAY_400 }); // text-xs (12px)
+            contactParts(p).forEach(c => text(ctx, c, ctx.marginX, { size: 10.5, color: GRAY_700, maxWidth: sidebarW })); // text-sm (14px)
             ctx.y += 6;
           }
           if (skills.length > 0 && group.includes('skills')) {
-            text(ctx, 'SKILLS', ctx.marginX, { size: 8, bold: true, color: GRAY_400 });
+            text(ctx, 'SKILLS', ctx.marginX, { size: 9, bold: true, color: GRAY_400 }); // text-xs (12px)
             skills.forEach(s => {
-              text(ctx, s.category, ctx.marginX, { size: 9, bold: true, color: GRAY_900, maxWidth: sidebarW });
+              text(ctx, s.category, ctx.marginX, { size: 10.5, bold: true, color: GRAY_900, maxWidth: sidebarW }); // text-sm (14px)
               const items = s.items.filter(i => i.trim()).join(', ');
-              if (items) text(ctx, items, ctx.marginX, { size: 8.5, color: GRAY_600, maxWidth: sidebarW });
+              if (items) text(ctx, items, ctx.marginX, { size: 10.5, color: GRAY_600, maxWidth: sidebarW }); // text-sm (14px)
               ctx.y += 4;
             });
           }
@@ -222,27 +222,27 @@ const renderModernSection = (ctx: Ctx, data: ResumeData, sectionId: string) => {
   const { personalDetails: p, experience, education, projects, certifications, customSections } = data;
   const header = (title: string) => {
     ensureSpace(ctx, 20);
-    ctx.doc.setFont(ctx.font, 'bold'); ctx.doc.setFontSize(13); setColor(ctx.doc, GRAY_900);
+    ctx.doc.setFont(ctx.font, 'bold'); ctx.doc.setFontSize(15); setColor(ctx.doc, GRAY_900); // text-xl (20px)
     ctx.doc.text(title, ctx.marginX, ctx.y);
-    ctx.y += 12;
+    ctx.y += 13;
   };
-  if (sectionId === 'summary' && p.summary) { header('Profile'); text(ctx, p.summary, ctx.marginX, { size: 9.5, color: GRAY_700 }); ctx.y += 10; return; }
+  if (sectionId === 'summary' && p.summary) { header('Profile'); text(ctx, p.summary, ctx.marginX, { size: 10.5, color: GRAY_700 }); ctx.y += 10; return; } // text-sm (14px)
   if (sectionId === 'experience' && experience.length > 0) {
     header('Experience');
     experience.forEach((exp, i) => {
       if (i > 0) ctx.y += 8;
-      text(ctx, exp.role || '', ctx.marginX, { size: 10.5, bold: true, color: GRAY_900 });
-      text(ctx, [exp.company, exp.duration].filter(Boolean).join('   •   '), ctx.marginX, { size: 9, color: GRAY_500 });
+      text(ctx, exp.role || '', ctx.marginX, { size: 12, bold: true, color: GRAY_900 }); // text-md (16px)
+      text(ctx, [exp.company, exp.duration].filter(Boolean).join('   •   '), ctx.marginX, { size: 10.5, color: GRAY_500 }); // text-sm (14px)
       ctx.y += 2;
-      exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { color: GRAY_700, markerColor: BLUE_600 }));
+      exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { color: GRAY_700, markerColor: BLUE_600, size: 9.75 })); // text-[13px]
     });
     ctx.y += 8; return;
   }
   if (sectionId === 'education' && education.length > 0) {
     header('Education');
     education.forEach(e => {
-      text(ctx, e.degree || '', ctx.marginX, { size: 10, bold: true, color: GRAY_900 });
-      text(ctx, [e.institution, e.duration].filter(Boolean).join('   •   '), ctx.marginX, { size: 9, color: GRAY_500 });
+      text(ctx, e.degree || '', ctx.marginX, { size: 12, bold: true, color: GRAY_900 }); // text-md (16px)
+      text(ctx, [e.institution, e.duration].filter(Boolean).join('   •   '), ctx.marginX, { size: 10.5, color: GRAY_500 }); // text-sm (14px)
       ctx.y += 4;
     });
     ctx.y += 6; return;
@@ -250,9 +250,9 @@ const renderModernSection = (ctx: Ctx, data: ResumeData, sectionId: string) => {
   if (sectionId === 'projects' && projects && projects.length > 0) {
     header('Projects');
     projects.forEach(proj => {
-      text(ctx, proj.name || '', ctx.marginX, { size: 10, bold: true, color: GRAY_900 });
-      text(ctx, [proj.role, proj.duration].filter(Boolean).join('   •   '), ctx.marginX, { size: 9, color: GRAY_500 });
-      if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 9, color: GRAY_700 });
+      text(ctx, proj.name || '', ctx.marginX, { size: 12, bold: true, color: GRAY_900 }); // text-md (16px)
+      text(ctx, [proj.role, proj.duration].filter(Boolean).join('   •   '), ctx.marginX, { size: 10.5, color: GRAY_500 }); // text-sm (14px)
+      if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 10.5, color: GRAY_700 }); // text-sm (14px)
       ctx.y += 6;
     });
     ctx.y += 4; return;
@@ -260,8 +260,8 @@ const renderModernSection = (ctx: Ctx, data: ResumeData, sectionId: string) => {
   if (sectionId === 'certifications' && certifications && certifications.length > 0) {
     header('Certifications');
     certifications.forEach(cert => {
-      text(ctx, cert.name || '', ctx.marginX, { size: 10, bold: true, color: GRAY_900 });
-      text(ctx, [cert.issuer, cert.date].filter(Boolean).join('   •   '), ctx.marginX, { size: 9, color: GRAY_500 });
+      text(ctx, cert.name || '', ctx.marginX, { size: 12, bold: true, color: GRAY_900 }); // text-md (16px)
+      text(ctx, [cert.issuer, cert.date].filter(Boolean).join('   •   '), ctx.marginX, { size: 10.5, color: GRAY_500 }); // text-sm (14px)
       ctx.y += 4;
     });
     ctx.y += 4; return;
@@ -270,10 +270,10 @@ const renderModernSection = (ctx: Ctx, data: ResumeData, sectionId: string) => {
   if (customSec && customSec.items.length > 0) {
     header(customSec.title);
     customSec.items.forEach(item => {
-      text(ctx, item.title || '', ctx.marginX, { size: 10, bold: true, color: GRAY_900 });
+      text(ctx, item.title || '', ctx.marginX, { size: 12, bold: true, color: GRAY_900 }); // text-md (16px)
       const meta = [item.subtitle, item.date].filter(Boolean).join('   •   ');
-      if (meta) text(ctx, meta, ctx.marginX, { size: 9, color: GRAY_500 });
-      if (item.description) text(ctx, item.description, ctx.marginX, { size: 9, color: GRAY_700 });
+      if (meta) text(ctx, meta, ctx.marginX, { size: 10.5, color: GRAY_500 }); // text-sm (14px)
+      if (item.description) text(ctx, item.description, ctx.marginX, { size: 10.5, color: GRAY_700 }); // text-sm (14px)
       ctx.y += 6;
     });
   }
@@ -288,7 +288,7 @@ const renderMinimalist: Renderer = (doc, data, opts) => {
   const pages = paginate(opts.sectionOrder, opts.pageBreaks);
   const labelW = 90;
   const contentX = M + labelW + 16;
-  const contentW = PAGE_WIDTH - contentX - M;
+  const contentW = pageWidth(doc) - contentX - M;
 
   pages.forEach((group, pageIdx) => {
     if (pageIdx > 0) doc.addPage();
@@ -297,10 +297,10 @@ const renderMinimalist: Renderer = (doc, data, opts) => {
     if (pageIdx === 0) {
       if (opts.showProfilePicture && opts.profileImage) drawImage(doc, opts.profileImage, ctx.marginX, ctx.y, 50);
       const tx = opts.showProfilePicture && opts.profileImage ? ctx.marginX + 62 : ctx.marginX;
-      text(ctx, p.name || 'Untitled', tx, { size: 22, color: GRAY_900, lineHeight: 24 });
-      if (p.title) text(ctx, p.title, tx, { size: 9.5, bold: true, color: GRAY_500 });
+      text(ctx, p.name || 'Untitled', tx, { size: 22.5, color: GRAY_900, lineHeight: 24 }); // text-3xl (30px)
+      if (p.title) text(ctx, p.title, tx, { size: 10.5, bold: true, color: GRAY_500 }); // text-sm (14px)
       const contact = contactParts(p).slice(0, 3).join('    ');
-      if (contact) text(ctx, contact, tx, { size: 8.5, color: GRAY_400 });
+      if (contact) text(ctx, contact, tx, { size: 9, color: GRAY_400 }); // text-xs (12px)
       ctx.y += 18;
     }
 
@@ -320,16 +320,16 @@ const renderMinimalistSection = (ctx: Ctx, data: ResumeData, sectionId: string, 
 
   if (sectionId === 'summary' && p.summary) {
     minimalistLabel(ctx, 'Summary', labelW);
-    text(contentCtx, p.summary, contentX, { size: 8.5, color: GRAY_600, lineHeight: 12 });
+    text(contentCtx, p.summary, contentX, { size: 10.5, color: GRAY_600, lineHeight: 13.5 }); // text-sm (14px)
     ctx.y = Math.max(ctx.y, contentCtx.y) + 14; return;
   }
   if (sectionId === 'experience' && experience.length > 0) {
     minimalistLabel(ctx, 'Experience', labelW);
     experience.forEach((exp, i) => {
       if (i > 0) contentCtx.y += 10;
-      justifyLine(contentCtx, `${exp.role || ''} @ ${exp.company || ''}`, exp.duration, { size: 9, bold: true, color: GRAY_900, rightColor: GRAY_400, rightSize: 8 });
+      justifyLine(contentCtx, `${exp.role || ''} @ ${exp.company || ''}`, exp.duration, { size: 10.5, bold: true, color: GRAY_900, rightColor: GRAY_400, rightSize: 9 }); // text-sm / text-xs
       contentCtx.y += 2;
-      exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(contentCtx, r, contentX, { size: 8.5, color: GRAY_600, marker: '-', markerColor: GRAY_300 }));
+      exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(contentCtx, r, contentX, { size: 9.75, color: GRAY_600, marker: '-', markerColor: GRAY_300 })); // text-[13px]
     });
     ctx.y = Math.max(ctx.y, contentCtx.y) + 14; return;
   }
@@ -337,7 +337,7 @@ const renderMinimalistSection = (ctx: Ctx, data: ResumeData, sectionId: string, 
     minimalistLabel(ctx, 'Skills', labelW);
     skills.forEach(s => {
       const items = s.items.filter(i => i.trim()).join(', ');
-      text(contentCtx, `${s.category}: ${items}`, contentX, { size: 8.5, color: GRAY_600 });
+      text(contentCtx, `${s.category}: ${items}`, contentX, { size: 10.5, color: GRAY_600 }); // text-sm (14px)
     });
     ctx.y = Math.max(ctx.y, contentCtx.y) + 14; return;
   }
@@ -345,8 +345,8 @@ const renderMinimalistSection = (ctx: Ctx, data: ResumeData, sectionId: string, 
     minimalistLabel(ctx, 'Education', labelW);
     education.forEach((e, i) => {
       if (i > 0) contentCtx.y += 6;
-      text(contentCtx, e.degree || '', contentX, { size: 8.5, bold: true, color: GRAY_900 });
-      text(contentCtx, `${e.institution || ''} (${e.duration || ''})`, contentX, { size: 8.5, color: GRAY_600 });
+      text(contentCtx, e.degree || '', contentX, { size: 10.5, bold: true, color: GRAY_900 }); // text-sm (14px)
+      text(contentCtx, `${e.institution || ''} (${e.duration || ''})`, contentX, { size: 10.5, color: GRAY_600 }); // text-sm (14px)
     });
     ctx.y = Math.max(ctx.y, contentCtx.y) + 14; return;
   }
@@ -354,9 +354,9 @@ const renderMinimalistSection = (ctx: Ctx, data: ResumeData, sectionId: string, 
     minimalistLabel(ctx, 'Projects', labelW);
     projects.forEach((pr, i) => {
       if (i > 0) contentCtx.y += 6;
-      justifyLine(contentCtx, pr.name || '', pr.duration, { size: 8.5, bold: true, color: GRAY_900, rightColor: GRAY_600, rightSize: 8.5 });
-      if (pr.role) text(contentCtx, pr.role, contentX, { size: 8.5, italic: true, color: GRAY_500 });
-      if (pr.description) text(contentCtx, pr.description, contentX, { size: 8.5, color: GRAY_600 });
+      justifyLine(contentCtx, pr.name || '', pr.duration, { size: 10.5, bold: true, color: GRAY_900, rightColor: GRAY_600, rightSize: 10.5 }); // text-sm (14px)
+      if (pr.role) text(contentCtx, pr.role, contentX, { size: 10.5, italic: true, color: GRAY_500 }); // text-sm (14px)
+      if (pr.description) text(contentCtx, pr.description, contentX, { size: 10.5, color: GRAY_600 }); // text-sm (14px)
     });
     ctx.y = Math.max(ctx.y, contentCtx.y) + 14; return;
   }
@@ -364,8 +364,8 @@ const renderMinimalistSection = (ctx: Ctx, data: ResumeData, sectionId: string, 
     minimalistLabel(ctx, 'Certifications', labelW);
     certifications.forEach((c, i) => {
       if (i > 0) contentCtx.y += 6;
-      justifyLine(contentCtx, c.name || '', c.date, { size: 8.5, bold: true, color: GRAY_900, rightColor: GRAY_600, rightSize: 8.5 });
-      if (c.issuer) text(contentCtx, c.issuer, contentX, { size: 8.5, italic: true, color: GRAY_500 });
+      justifyLine(contentCtx, c.name || '', c.date, { size: 10.5, bold: true, color: GRAY_900, rightColor: GRAY_600, rightSize: 10.5 }); // text-sm (14px)
+      if (c.issuer) text(contentCtx, c.issuer, contentX, { size: 10.5, italic: true, color: GRAY_500 }); // text-sm (14px)
     });
     ctx.y = Math.max(ctx.y, contentCtx.y) + 14; return;
   }
@@ -374,9 +374,9 @@ const renderMinimalistSection = (ctx: Ctx, data: ResumeData, sectionId: string, 
     minimalistLabel(ctx, customSec.title, labelW);
     customSec.items.forEach((item, i) => {
       if (i > 0) contentCtx.y += 6;
-      justifyLine(contentCtx, item.title || '', item.date, { size: 8.5, bold: true, color: GRAY_900, rightColor: GRAY_600, rightSize: 8.5 });
-      if (item.subtitle) text(contentCtx, item.subtitle, contentX, { size: 8.5, italic: true, color: GRAY_500 });
-      if (item.description) text(contentCtx, item.description, contentX, { size: 8.5, color: GRAY_600 });
+      justifyLine(contentCtx, item.title || '', item.date, { size: 10.5, bold: true, color: GRAY_900, rightColor: GRAY_600, rightSize: 10.5 }); // text-sm (14px)
+      if (item.subtitle) text(contentCtx, item.subtitle, contentX, { size: 10.5, italic: true, color: GRAY_500 }); // text-sm (14px)
+      if (item.description) text(contentCtx, item.description, contentX, { size: 10.5, color: GRAY_600 }); // text-sm (14px)
     });
     ctx.y = Math.max(ctx.y, contentCtx.y) + 14;
   }
@@ -396,14 +396,14 @@ const renderExecutive: Renderer = (doc, data, opts) => {
 
     if (pageIdx === 0) {
       if (opts.showProfilePicture && opts.profileImage) {
-        drawImage(doc, opts.profileImage, PAGE_WIDTH / 2 - 27, ctx.y, 54, 27);
+        drawImage(doc, opts.profileImage, pageWidth(doc) / 2 - 27, ctx.y, 54, 27);
         ctx.y += 62;
       }
       const cx = ctx.marginX + ctx.contentWidth / 2;
-      text(ctx, p.name || 'Untitled', cx, { size: 21, color: GRAY_900, align: 'center' });
-      if (p.title) text(ctx, p.title.toUpperCase(), cx, { size: 9, color: GRAY_500, align: 'center' });
+      text(ctx, p.name || 'Untitled', cx, { size: 22.5, color: GRAY_900, align: 'center' }); // text-3xl (30px)
+      if (p.title) text(ctx, p.title.toUpperCase(), cx, { size: 10.5, color: GRAY_500, align: 'center' }); // text-sm (14px)
       const contact = contactParts(p).join('   •   ');
-      if (contact) text(ctx, contact, cx, { size: 8.5, color: GRAY_600, align: 'center' });
+      if (contact) text(ctx, contact, cx, { size: 9, color: GRAY_600, align: 'center' }); // text-xs (12px)
       ctx.y += 12;
     }
 
@@ -414,72 +414,72 @@ const renderExecutive: Renderer = (doc, data, opts) => {
 const renderExecutiveSection = (ctx: Ctx, data: ResumeData, sectionId: string) => {
   const { personalDetails: p, experience, education, skills, projects, certifications, customSections } = data;
   if (sectionId === 'summary' && p.summary) {
-    text(ctx, p.summary, ctx.marginX + ctx.contentWidth / 2, { size: 9.5, color: GRAY_700, align: 'center' });
+    text(ctx, p.summary, ctx.marginX + ctx.contentWidth / 2, { size: 10.5, color: GRAY_700, align: 'center' }); // text-sm
     ctx.y += 10; return;
   }
   if (sectionId === 'experience' && experience.length > 0) {
-    sectionHeaderCentered(ctx, 'Professional Experience', { bg: GRAY_50 });
+    sectionHeaderCentered(ctx, 'Professional Experience', { bg: GRAY_50, size: 10.5 }); // text-sm
     experience.forEach((exp, i) => {
       if (i > 0) ctx.y += 8;
-      justifyLine(ctx, `${exp.company || ''}${exp.location ? `  —  ${exp.location}` : ''}`, exp.duration, { size: 10.5, bold: true, rightBold: true, rightSize: 9.5 });
-      text(ctx, exp.role || '', ctx.marginX, { size: 9.5, bold: true, color: GRAY_900 });
+      justifyLine(ctx, `${exp.company || ''}${exp.location ? `  —  ${exp.location}` : ''}`, exp.duration, { size: 12, bold: true, rightBold: true, rightSize: 10.5 }); // text-md ~16px
+      text(ctx, exp.role || '', ctx.marginX, { size: 10.5, bold: true, color: GRAY_900 }); // text-sm
       ctx.y += 2;
-      exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { color: GRAY_700 }));
+      exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { color: GRAY_700, size: 9.75 })); // text-[13px]
     });
     ctx.y += 4; return;
   }
   if (sectionId === 'education' && education.length > 0) {
-    sectionHeaderCentered(ctx, 'Education', { bg: GRAY_50 });
+    sectionHeaderCentered(ctx, 'Education', { bg: GRAY_50, size: 10.5 });
     education.forEach(e => {
-      justifyLine(ctx, e.institution || '', e.location, { size: 9.5, bold: true, rightSize: 9.5 });
-      justifyLine(ctx, e.degree || '', e.duration, { size: 9.5, italic: true, color: GRAY_700, rightColor: GRAY_600, rightSize: 9 });
+      justifyLine(ctx, e.institution || '', e.location, { size: 10.5, bold: true, rightSize: 10.5 }); // text-sm
+      justifyLine(ctx, e.degree || '', e.duration, { size: 10.5, italic: true, color: GRAY_700, rightColor: GRAY_600, rightSize: 10.5 });
       ctx.y += 4;
     });
     return;
   }
   if (sectionId === 'skills' && skills.length > 0) {
-    sectionHeaderCentered(ctx, 'Core Competencies', { bg: GRAY_50 });
+    sectionHeaderCentered(ctx, 'Core Competencies', { bg: GRAY_50, size: 10.5 });
     skills.forEach(s => {
       const items = s.items.filter(i => i.trim()).join(', ');
-      ctx.doc.setFont(ctx.font, 'bold'); ctx.doc.setFontSize(9.5); setColor(ctx.doc, GRAY_900);
+      ctx.doc.setFont(ctx.font, 'bold'); ctx.doc.setFontSize(10.5); setColor(ctx.doc, GRAY_900); // text-sm
       const label = `${s.category}: `;
       const lw = ctx.doc.getTextWidth(label);
-      ensureSpace(ctx, 13);
+      ensureSpace(ctx, 14);
       ctx.doc.text(label, ctx.marginX, ctx.y);
       ctx.doc.setFont(ctx.font, 'normal'); setColor(ctx.doc, GRAY_700);
       const wrapped: string[] = ctx.doc.splitTextToSize(items, ctx.contentWidth - lw);
-      wrapped.forEach((line, idx) => { if (idx > 0) ensureSpace(ctx, 13); ctx.doc.text(line, ctx.marginX + lw, ctx.y); if (idx < wrapped.length - 1) ctx.y += 13; });
-      ctx.y += 13;
+      wrapped.forEach((line, idx) => { if (idx > 0) ensureSpace(ctx, 14); ctx.doc.text(line, ctx.marginX + lw, ctx.y); if (idx < wrapped.length - 1) ctx.y += 14; });
+      ctx.y += 14;
     });
     ctx.y += 4; return;
   }
   if (sectionId === 'projects' && projects && projects.length > 0) {
-    sectionHeaderCentered(ctx, 'Selected Projects', { bg: GRAY_50 });
+    sectionHeaderCentered(ctx, 'Selected Projects', { bg: GRAY_50, size: 10.5 });
     projects.forEach((proj, i) => {
       if (i > 0) ctx.y += 6;
-      justifyLine(ctx, proj.name || '', proj.duration, { size: 10.5, bold: true, rightBold: true, rightSize: 9.5 });
-      text(ctx, proj.role || '', ctx.marginX, { size: 9.5, bold: true, color: GRAY_900 });
-      if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 9.5, color: GRAY_700 });
+      justifyLine(ctx, proj.name || '', proj.duration, { size: 12, bold: true, rightBold: true, rightSize: 10.5 }); // text-md
+      text(ctx, proj.role || '', ctx.marginX, { size: 10.5, bold: true, color: GRAY_900 }); // text-sm
+      if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 10.5, color: GRAY_700 });
     });
     ctx.y += 4; return;
   }
   if (sectionId === 'certifications' && certifications && certifications.length > 0) {
-    sectionHeaderCentered(ctx, 'Certifications', { bg: GRAY_50 });
+    sectionHeaderCentered(ctx, 'Certifications', { bg: GRAY_50, size: 10.5 });
     certifications.forEach(cert => {
-      justifyLine(ctx, cert.name || '', cert.date, { size: 9.5, bold: true, rightSize: 9.5 });
-      text(ctx, cert.issuer || '', ctx.marginX, { size: 9.5, italic: true, color: GRAY_700 });
+      justifyLine(ctx, cert.name || '', cert.date, { size: 10.5, bold: true, rightSize: 10.5 });
+      text(ctx, cert.issuer || '', ctx.marginX, { size: 10.5, italic: true, color: GRAY_700 });
       ctx.y += 4;
     });
     return;
   }
   const customSec = customSections?.find(c => c.id === sectionId);
   if (customSec && customSec.items.length > 0) {
-    sectionHeaderCentered(ctx, customSec.title, { bg: GRAY_50 });
+    sectionHeaderCentered(ctx, customSec.title, { bg: GRAY_50, size: 10.5 });
     customSec.items.forEach((item, i) => {
       if (i > 0) ctx.y += 6;
-      justifyLine(ctx, item.title || '', item.date, { size: 10.5, bold: true, rightBold: true, rightSize: 9.5 });
-      if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 9.5, bold: true, color: GRAY_900 });
-      if (item.description) text(ctx, item.description, ctx.marginX, { size: 9.5, color: GRAY_700 });
+      justifyLine(ctx, item.title || '', item.date, { size: 12, bold: true, rightBold: true, rightSize: 10.5 });
+      if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 10.5, bold: true, color: GRAY_900 });
+      if (item.description) text(ctx, item.description, ctx.marginX, { size: 10.5, color: GRAY_700 });
     });
     ctx.y += 4;
   }
@@ -504,7 +504,7 @@ const renderAesthetic: Renderer = (doc, data, opts) => {
   const leftW = 150;
   const gap = 26;
   const rightX = M + leftW + gap;
-  const rightW = PAGE_WIDTH - rightX - M;
+  const rightW = pageWidth(doc) - rightX - M;
 
   pages.forEach((group, pageIdx) => {
     if (pageIdx > 0) doc.addPage();
@@ -519,13 +519,13 @@ const renderAesthetic: Renderer = (doc, data, opts) => {
       const tx = hasPhoto ? headCtx.marginX + 70 : headCtx.marginX;
       const tw = headCtx.contentWidth - (tx - headCtx.marginX);
       const nameY = headCtx.y;
-      text(headCtx, (p.name || '').toUpperCase(), tx, { size: 20, bold: true, color: GRAY_900, maxWidth: tw });
-      if (p.title) text(headCtx, p.title, tx, { size: 11, bold: true, color: theme.accent, maxWidth: tw });
+      text(headCtx, (p.name || '').toUpperCase(), tx, { size: 36, bold: true, color: GRAY_900, maxWidth: tw }); // text-5xl (48px)
+      if (p.title) text(headCtx, p.title, tx, { size: 15, bold: true, color: theme.accent, maxWidth: tw }); // text-xl (20px)
       const contact = contactParts(p).join('    ');
-      if (contact) text(headCtx, contact, tx, { size: 8, color: GRAY_600, maxWidth: tw });
+      if (contact) text(headCtx, contact, tx, { size: 9, color: GRAY_600, maxWidth: tw }); // text-xs (12px)
       if (hasPhoto) headCtx.y = Math.max(headCtx.y, nameY + 64);
       headCtx.y += 8;
-      hr(headCtx, M, PAGE_WIDTH - M, GRAY_900, 1.5);
+      hr(headCtx, M, pageWidth(doc) - M, GRAY_900, 1.5);
       startY = headCtx.y + 10;
     }
 
@@ -533,21 +533,21 @@ const renderAesthetic: Renderer = (doc, data, opts) => {
       {
         x: M, width: leftW, draw: (ctx) => {
           if (group.includes('skills') && skills.length > 0) {
-            text(ctx, 'SKILLS', ctx.marginX, { size: 10.5, bold: true, color: GRAY_900 });
+            text(ctx, 'SKILLS', ctx.marginX, { size: 13.5, bold: true, color: GRAY_900 }); // text-lg (18px)
             skills.forEach(s => {
-              text(ctx, s.category.toUpperCase(), ctx.marginX, { size: 7.5, bold: true, color: GRAY_400 });
+              text(ctx, s.category.toUpperCase(), ctx.marginX, { size: 9, bold: true, color: GRAY_400 }); // text-xs (12px)
               const items = s.items.join(', ');
-              if (items) text(ctx, items, ctx.marginX, { size: 8.5, color: GRAY_700 });
+              if (items) text(ctx, items, ctx.marginX, { size: 9, color: GRAY_700 }); // text-xs (12px)
               ctx.y += 5;
             });
             ctx.y += 6;
           }
           if (group.includes('education') && education.length > 0) {
-            text(ctx, 'EDU', ctx.marginX, { size: 10.5, bold: true, color: GRAY_900 });
+            text(ctx, 'EDU', ctx.marginX, { size: 13.5, bold: true, color: GRAY_900 }); // text-lg (18px)
             education.forEach(e => {
-              text(ctx, e.degree || '', ctx.marginX, { size: 9, bold: true, color: GRAY_900 });
-              text(ctx, e.institution || '', ctx.marginX, { size: 8.5, color: GRAY_600 });
-              text(ctx, (e.duration || '').toUpperCase(), ctx.marginX, { size: 7.5, color: GRAY_400 });
+              text(ctx, e.degree || '', ctx.marginX, { size: 10.5, bold: true, color: GRAY_900 }); // text-sm (14px)
+              text(ctx, e.institution || '', ctx.marginX, { size: 9, color: GRAY_600 }); // text-xs (12px)
+              text(ctx, (e.duration || '').toUpperCase(), ctx.marginX, { size: 7.5, color: GRAY_400 }); // text-[10px]
               ctx.y += 5;
             });
           }
@@ -567,32 +567,32 @@ const renderAestheticSection = (ctx: Ctx, data: ResumeData, sectionId: string, t
   const { personalDetails: p, experience, projects, certifications, customSections } = data;
   const header = (title: string) => {
     ensureSpace(ctx, 18);
-    ctx.doc.setFont(ctx.font, 'bold'); ctx.doc.setFontSize(12); setColor(ctx.doc, GRAY_900);
+    ctx.doc.setFont(ctx.font, 'bold'); ctx.doc.setFontSize(13.5); setColor(ctx.doc, GRAY_900); // text-lg (18px)
     ctx.doc.text(title.toUpperCase(), ctx.marginX, ctx.y);
     ctx.y += 12;
   };
   if (sectionId === 'summary' && p.summary) {
     filledRect(ctx.doc, ctx.marginX, ctx.y - 10, 2.5, 34, theme.accent);
-    text(ctx, p.summary, ctx.marginX + 10, { size: 9, italic: true, color: GRAY_600, maxWidth: ctx.contentWidth - 10 });
+    text(ctx, p.summary, ctx.marginX + 10, { size: 10.5, italic: true, color: GRAY_600, maxWidth: ctx.contentWidth - 10 }); // text-sm (14px)
     ctx.y += 10; return;
   }
   if (sectionId === 'experience' && experience.length > 0) {
     header('Work Experience');
     experience.forEach((exp, i) => {
       if (i > 0) ctx.y += 6;
-      justifyLine(ctx, exp.role || '', exp.duration, { size: 10, bold: true, color: GRAY_900, rightColor: GRAY_500, rightSize: 8 });
-      text(ctx, exp.company || '', ctx.marginX, { size: 9, bold: true, color: theme.accent });
+      justifyLine(ctx, exp.role || '', exp.duration, { size: 12, bold: true, color: GRAY_900, rightColor: GRAY_500, rightSize: 7.5 }); // text-md (16px) / text-[10px]
+      text(ctx, exp.company || '', ctx.marginX, { size: 10.5, bold: true, color: theme.accent }); // text-sm (14px)
       ctx.y += 2;
-      exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { size: 8.5, color: GRAY_600, markerColor: theme.accent }));
+      exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { size: 9, color: GRAY_600, markerColor: theme.accent })); // text-xs (12px)
     });
     ctx.y += 6; return;
   }
   if (sectionId === 'projects' && projects && projects.length > 0) {
     header('Projects');
     projects.forEach(proj => {
-      text(ctx, proj.name || '', ctx.marginX, { size: 9.5, bold: true, color: GRAY_900 });
-      if (proj.role) text(ctx, proj.role.toUpperCase(), ctx.marginX, { size: 7.5, bold: true, color: theme.accent });
-      if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 8.5, color: GRAY_600 });
+      text(ctx, proj.name || '', ctx.marginX, { size: 10.5, bold: true, color: GRAY_900 }); // text-sm (14px)
+      if (proj.role) text(ctx, proj.role.toUpperCase(), ctx.marginX, { size: 7.5, bold: true, color: theme.accent }); // text-[10px]
+      if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 9, color: GRAY_600 }); // text-xs (12px)
       ctx.y += 6;
     });
     ctx.y += 2; return;
@@ -600,8 +600,8 @@ const renderAestheticSection = (ctx: Ctx, data: ResumeData, sectionId: string, t
   if (sectionId === 'certifications' && certifications && certifications.length > 0) {
     header('Certifications');
     certifications.forEach(cert => {
-      justifyLine(ctx, cert.name || '', cert.date, { size: 9.5, bold: true, color: GRAY_900, rightColor: GRAY_400, rightSize: 7.5 });
-      text(ctx, cert.issuer || '', ctx.marginX, { size: 8.5, bold: true, color: GRAY_600 });
+      justifyLine(ctx, cert.name || '', cert.date, { size: 10.5, bold: true, color: GRAY_900, rightColor: GRAY_400, rightSize: 7.5 }); // text-sm / text-[10px]
+      text(ctx, cert.issuer || '', ctx.marginX, { size: 9, bold: true, color: GRAY_600 }); // text-[12px]
       ctx.y += 4;
     });
     return;
@@ -610,9 +610,9 @@ const renderAestheticSection = (ctx: Ctx, data: ResumeData, sectionId: string, t
   if (customSec && customSec.items.length > 0) {
     header(customSec.title);
     customSec.items.forEach(item => {
-      justifyLine(ctx, item.title || '', item.date, { size: 9.5, bold: true, color: GRAY_900, rightColor: GRAY_400, rightSize: 7.5 });
-      if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 8.5, bold: true, color: GRAY_600 });
-      if (item.description) text(ctx, item.description, ctx.marginX, { size: 8.5, color: GRAY_600 });
+      justifyLine(ctx, item.title || '', item.date, { size: 10.5, bold: true, color: GRAY_900, rightColor: GRAY_400, rightSize: 7.5 }); // text-sm / text-[10px]
+      if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 9, bold: true, color: GRAY_600 }); // text-[12px]
+      if (item.description) text(ctx, item.description, ctx.marginX, { size: 9, color: GRAY_600 }); // text-xs (12px)
       ctx.y += 4;
     });
   }
@@ -631,7 +631,7 @@ const renderCreative: Renderer = (doc, data, opts) => {
   const sidebarW = 190;
   const gap = 0;
   const mainX = M + sidebarW + 24;
-  const mainW = PAGE_WIDTH - mainX - M;
+  const mainW = pageWidth(doc) - mainX - M;
 
   pages.forEach((group, pageIdx) => {
     if (pageIdx > 0) doc.addPage();
@@ -639,36 +639,36 @@ const renderCreative: Renderer = (doc, data, opts) => {
     renderTwoColumns(doc, M, M, M,
       {
         x: M, width: sidebarW, draw: (ctx) => {
-          filledRect(ctx.doc, 0, 0, M + sidebarW + gap, PAGE_HEIGHT, INDIGO_50);
+          filledRect(ctx.doc, 0, 0, M + sidebarW + gap, pageHeight(ctx.doc), INDIGO_50);
           ctx.y = M + 4;
           if (opts.showProfilePicture && opts.profileImage) {
             drawImage(ctx.doc, opts.profileImage, ctx.marginX + sidebarW / 2 - 30, ctx.y, 60, 30);
             ctx.y += 70;
           }
-          text(ctx, (p.name || '').toUpperCase(), ctx.marginX + sidebarW / 2, { size: 15, bold: true, color: INDIGO_950, align: 'center', maxWidth: sidebarW });
-          if (p.title) text(ctx, (p.title || '').toUpperCase(), ctx.marginX + sidebarW / 2, { size: 8, bold: true, color: INDIGO_600, align: 'center', maxWidth: sidebarW });
+          text(ctx, (p.name || '').toUpperCase(), ctx.marginX + sidebarW / 2, { size: 22.5, bold: true, color: INDIGO_950, align: 'center', maxWidth: sidebarW }); // text-3xl (30px)
+          if (p.title) text(ctx, (p.title || '').toUpperCase(), ctx.marginX + sidebarW / 2, { size: 10.5, bold: true, color: INDIGO_600, align: 'center', maxWidth: sidebarW }); // text-sm (14px)
           ctx.y += 8;
-          contactParts(p).forEach(c => text(ctx, c, ctx.marginX, { size: 8, color: INDIGO_900, maxWidth: sidebarW }));
+          contactParts(p).forEach(c => text(ctx, c, ctx.marginX, { size: 9, color: INDIGO_900, maxWidth: sidebarW })); // text-xs (12px)
           if (skills.length > 0) {
             ctx.y += 6;
-            text(ctx, 'EXPERTISE', ctx.marginX, { size: 9, bold: true, color: INDIGO_900 });
+            text(ctx, 'EXPERTISE', ctx.marginX, { size: 10.5, bold: true, color: INDIGO_900 }); // text-sm (14px)
             hr(ctx, ctx.marginX, ctx.marginX + sidebarW, INDIGO_200, 1.2);
             ctx.y += 6;
             skills.forEach(s => {
-              text(ctx, s.category, ctx.marginX, { size: 8.5, bold: true, color: INDIGO_900, maxWidth: sidebarW });
+              text(ctx, s.category, ctx.marginX, { size: 9, bold: true, color: INDIGO_900, maxWidth: sidebarW }); // text-xs (12px)
               const items = s.items.join(', ');
-              if (items) text(ctx, items, ctx.marginX, { size: 7.5, italic: true, color: INDIGO_400, maxWidth: sidebarW });
+              if (items) text(ctx, items, ctx.marginX, { size: 7.5, italic: true, color: INDIGO_400, maxWidth: sidebarW }); // text-[10px]
             });
           }
           if (education.length > 0) {
             ctx.y += 6;
-            text(ctx, 'EDUCATION', ctx.marginX, { size: 9, bold: true, color: INDIGO_900 });
+            text(ctx, 'EDUCATION', ctx.marginX, { size: 10.5, bold: true, color: INDIGO_900 }); // text-sm (14px)
             hr(ctx, ctx.marginX, ctx.marginX + sidebarW, INDIGO_200, 1.2);
             ctx.y += 6;
             education.forEach(e => {
-              text(ctx, e.degree || '', ctx.marginX, { size: 8.5, bold: true, color: INDIGO_900, maxWidth: sidebarW });
-              text(ctx, e.institution || '', ctx.marginX, { size: 8, color: INDIGO_700, maxWidth: sidebarW });
-              text(ctx, e.duration || '', ctx.marginX, { size: 7.5, color: INDIGO_500, maxWidth: sidebarW });
+              text(ctx, e.degree || '', ctx.marginX, { size: 9, bold: true, color: INDIGO_900, maxWidth: sidebarW }); // text-xs (12px)
+              text(ctx, e.institution || '', ctx.marginX, { size: 9, color: INDIGO_700, maxWidth: sidebarW }); // text-xs (12px)
+              text(ctx, e.duration || '', ctx.marginX, { size: 9, color: INDIGO_500, maxWidth: sidebarW }); // text-xs (12px)
               ctx.y += 4;
             });
           }
@@ -677,31 +677,31 @@ const renderCreative: Renderer = (doc, data, opts) => {
       {
         x: mainX, width: mainW, draw: (ctx) => {
           if (group.includes('summary') && p.summary) {
-            text(ctx, 'PROFILE', ctx.marginX, { size: 12, bold: true, color: INDIGO_950 });
+            text(ctx, 'PROFILE', ctx.marginX, { size: 13.5, bold: true, color: INDIGO_950 }); // text-lg (18px)
             ctx.y += 2;
-            text(ctx, p.summary, ctx.marginX, { size: 9, color: SLATE_700 });
+            text(ctx, p.summary, ctx.marginX, { size: 10.5, color: SLATE_700 }); // text-sm (14px)
             ctx.y += 8;
           }
           if (group.includes('experience') && experience.length > 0) {
-            text(ctx, 'EXPERIENCE', ctx.marginX, { size: 12, bold: true, color: INDIGO_950 });
+            text(ctx, 'EXPERIENCE', ctx.marginX, { size: 13.5, bold: true, color: INDIGO_950 }); // text-lg (18px)
             ctx.y += 4;
             experience.forEach((exp, i) => {
               if (i > 0) ctx.y += 8;
-              justifyLine(ctx, exp.role || '', exp.duration, { size: 10, bold: true, color: SLATE_900, rightColor: INDIGO_500, rightSize: 8 });
-              text(ctx, [exp.company, exp.location].filter(Boolean).join('  |  '), ctx.marginX, { size: 9, bold: true, color: INDIGO_700 });
+              justifyLine(ctx, exp.role || '', exp.duration, { size: 12, bold: true, color: SLATE_900, rightColor: INDIGO_500, rightSize: 9 }); // text-base (16px) / text-xs (12px)
+              text(ctx, [exp.company, exp.location].filter(Boolean).join('  |  '), ctx.marginX, { size: 10.5, bold: true, color: INDIGO_700 }); // text-sm (14px)
               ctx.y += 2;
-              exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { size: 8.5, color: SLATE_600, markerColor: INDIGO_400 }));
+              exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { size: 9, color: SLATE_600, markerColor: INDIGO_400 })); // text-xs (12px)
             });
             ctx.y += 6;
           }
           customSections?.forEach(section => {
             if (!group.includes(section.id) || section.items.length === 0) return;
-            text(ctx, section.title.toUpperCase(), ctx.marginX, { size: 12, bold: true, color: INDIGO_950 });
+            text(ctx, section.title.toUpperCase(), ctx.marginX, { size: 13.5, bold: true, color: INDIGO_950 }); // text-lg (18px)
             ctx.y += 4;
             section.items.forEach(item => {
-              justifyLine(ctx, item.title || '', item.date, { size: 9.5, bold: true, color: SLATE_900, rightColor: INDIGO_500, rightSize: 8 });
-              if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 8.5, bold: true, color: INDIGO_700 });
-              if (item.description) text(ctx, item.description, ctx.marginX, { size: 8.5, color: SLATE_600 });
+              justifyLine(ctx, item.title || '', item.date, { size: 10.5, bold: true, color: SLATE_900, rightColor: INDIGO_500, rightSize: 9 }); // text-sm / text-xs
+              if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 9, bold: true, color: INDIGO_700 }); // text-xs (12px)
+              if (item.description) text(ctx, item.description, ctx.marginX, { size: 9, color: SLATE_600 }); // text-xs (12px)
               ctx.y += 4;
             });
             ctx.y += 4;
@@ -726,8 +726,8 @@ const renderTech: Renderer = (doc, data, opts) => {
     const ctx = newCtx(doc, { marginX: M, font });
 
     if (pageIdx === 0) {
-      text(ctx, `> ${p.name || 'Untitled'}_`, ctx.marginX, { size: 19, bold: true, color: SLATE_900 });
-      if (p.title) text(ctx, p.title, ctx.marginX, { size: 11, bold: true, color: EMERALD_600 });
+      text(ctx, `> ${p.name || 'Untitled'}_`, ctx.marginX, { size: 27, bold: true, color: SLATE_900 }); // text-4xl (36px)
+      if (p.title) text(ctx, p.title, ctx.marginX, { size: 13.5, bold: true, color: EMERALD_600 }); // text-lg (18px)
       ctx.y += 6;
       hr(ctx, ctx.marginX, ctx.marginX + ctx.contentWidth, EMERALD_500, 1.5);
       ctx.y += 10;
@@ -737,7 +737,7 @@ const renderTech: Renderer = (doc, data, opts) => {
       if (p.location) parts.push(`loc: ${p.location}`);
       if (p.linkedin) parts.push(`link: ${p.linkedin}`);
       if (p.website) parts.push(`web: ${p.website}`);
-      text(ctx, parts.join('    '), ctx.marginX, { size: 8, color: SLATE_600 });
+      text(ctx, parts.join('    '), ctx.marginX, { size: 9, color: SLATE_600 }); // text-xs (12px)
       ctx.y += 6;
       hr(ctx, ctx.marginX, ctx.marginX + ctx.contentWidth, SLATE_300, 0.5);
       ctx.y += 12;
@@ -747,21 +747,21 @@ const renderTech: Renderer = (doc, data, opts) => {
       const tag = (label: string) => {
         ensureSpace(ctx, 18);
         filledRect(ctx.doc, ctx.marginX, ctx.y - 8, ctx.doc.getTextWidth(`~/${label}`) + 8, 13, EMERALD_100);
-        ctx.doc.setFont(font, 'bold'); ctx.doc.setFontSize(9); setColor(ctx.doc, SLATE_900);
+        ctx.doc.setFont(font, 'bold'); ctx.doc.setFontSize(10.5); setColor(ctx.doc, SLATE_900); // text-sm (14px)
         ctx.doc.text(`~/${label}`, ctx.marginX + 4, ctx.y);
         ctx.y += 14;
       };
       if (sectionId === 'summary' && p.summary) {
         tag('summary');
-        text(ctx, p.summary, ctx.marginX, { size: 9, color: SLATE_700 });
+        text(ctx, p.summary, ctx.marginX, { size: 10.5, color: SLATE_700 }); // text-sm (14px)
         ctx.y += 8; return;
       }
       if (sectionId === 'experience' && experience.length > 0) {
         tag('experience');
         experience.forEach((exp, i) => {
           if (i > 0) ctx.y += 6;
-          justifyLine(ctx, `## ${exp.role || ''} @ ${exp.company || ''}`, `[${exp.duration || ''}]`, { size: 9, bold: true, color: SLATE_900, rightColor: SLATE_500, rightSize: 8 });
-          exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { size: 8.5, color: SLATE_700, marker: '*', markerColor: [110, 231, 183] }));
+          justifyLine(ctx, `## ${exp.role || ''} @ ${exp.company || ''}`, `[${exp.duration || ''}]`, { size: 10.5, bold: true, color: SLATE_900, rightColor: SLATE_500, rightSize: 9 }); // text-sm / text-xs
+          exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { size: 9, color: SLATE_700, marker: '*', markerColor: [110, 231, 183] })); // text-xs (12px)
         });
         ctx.y += 8; return;
       }
@@ -769,15 +769,15 @@ const renderTech: Renderer = (doc, data, opts) => {
         tag('skills');
         skills.forEach(s => {
           const items = s.items.join(', ');
-          text(ctx, `${s.category}${items ? ` (${items})` : ''}`, ctx.marginX, { size: 8.5, color: SLATE_700 });
+          text(ctx, `${s.category}${items ? ` (${items})` : ''}`, ctx.marginX, { size: 9, color: SLATE_700 }); // text-xs (12px)
         });
         ctx.y += 8; return;
       }
       if (sectionId === 'education' && education.length > 0) {
         tag('education');
         education.forEach(e => {
-          justifyLine(ctx, e.degree || '', `[${e.duration || ''}]`, { size: 9, bold: true, color: SLATE_900, rightColor: SLATE_500, rightSize: 8 });
-          text(ctx, e.institution || '', ctx.marginX, { size: 8.5, color: SLATE_600 });
+          justifyLine(ctx, e.degree || '', `[${e.duration || ''}]`, { size: 10.5, bold: true, color: SLATE_900, rightColor: SLATE_500, rightSize: 9 }); // text-sm / text-xs
+          text(ctx, e.institution || '', ctx.marginX, { size: 9, color: SLATE_600 }); // text-xs (12px)
           ctx.y += 2;
         });
         ctx.y += 6; return;
@@ -786,9 +786,9 @@ const renderTech: Renderer = (doc, data, opts) => {
       if (customSec && customSec.items.length > 0) {
         tag(customSec.title.toLowerCase().replace(/\s+/g, '-'));
         customSec.items.forEach(item => {
-          justifyLine(ctx, item.title || '', item.date ? `[${item.date}]` : '', { size: 9, bold: true, color: SLATE_900, rightColor: SLATE_500, rightSize: 8 });
-          if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 8.5, color: EMERALD_600 });
-          if (item.description) text(ctx, item.description, ctx.marginX, { size: 8.5, color: SLATE_700 });
+          justifyLine(ctx, item.title || '', item.date ? `[${item.date}]` : '', { size: 10.5, bold: true, color: SLATE_900, rightColor: SLATE_500, rightSize: 9 }); // text-sm / text-xs
+          if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 9, color: EMERALD_600 }); // text-xs (12px)
+          if (item.description) text(ctx, item.description, ctx.marginX, { size: 9, color: SLATE_700 }); // text-xs (12px)
           ctx.y += 4;
         });
         ctx.y += 6;
@@ -811,17 +811,17 @@ const renderAcademic: Renderer = (doc, data, opts) => {
 
     if (pageIdx === 0) {
       const cx = ctx.marginX + ctx.contentWidth / 2;
-      text(ctx, (p.name || 'Untitled').toUpperCase(), cx, { size: 18, color: SLATE_900, align: 'center' });
-      if (p.title) text(ctx, p.title, cx, { size: 9.5, italic: true, color: SLATE_600, align: 'center' });
+      text(ctx, (p.name || 'Untitled').toUpperCase(), cx, { size: 22.5, color: SLATE_900, align: 'center' }); // text-3xl (30px)
+      if (p.title) text(ctx, p.title, cx, { size: 10.5, italic: true, color: SLATE_600, align: 'center' }); // text-sm
       const contact = contactParts(p).join('   •   ');
-      if (contact) text(ctx, contact, cx, { size: 8, color: SLATE_700, align: 'center' });
+      if (contact) text(ctx, contact, cx, { size: 8.25, color: SLATE_700, align: 'center' }); // text-[11px]
       ctx.y += 12;
     }
 
     group.forEach(sectionId => {
       const header = (title: string) => {
         ensureSpace(ctx, 18);
-        ctx.doc.setFont(font, 'bold'); ctx.doc.setFontSize(9.5); setColor(ctx.doc, SLATE_900);
+        ctx.doc.setFont(font, 'bold'); ctx.doc.setFontSize(10.5); setColor(ctx.doc, SLATE_900); // text-sm
         ctx.doc.text(title.toUpperCase(), ctx.marginX, ctx.y);
         ctx.y += 3;
         hr(ctx, ctx.marginX, ctx.marginX + ctx.contentWidth, SLATE_300);
@@ -829,14 +829,14 @@ const renderAcademic: Renderer = (doc, data, opts) => {
       };
       if (sectionId === 'summary' && p.summary) {
         header('Curriculum Vitae');
-        text(ctx, p.summary, ctx.marginX, { size: 9.5, color: SLATE_800 });
+        text(ctx, p.summary, ctx.marginX, { size: 10.5, color: SLATE_800 });
         ctx.y += 8; return;
       }
       if (sectionId === 'education' && education.length > 0) {
         header('Education');
         education.forEach(e => {
-          justifyLine(ctx, e.degree || '', e.duration, { size: 9.5, bold: true, color: SLATE_900, rightColor: SLATE_700, rightSize: 8.5 });
-          text(ctx, e.institution || '', ctx.marginX, { size: 9.5, italic: true, color: SLATE_800 });
+          justifyLine(ctx, e.degree || '', e.duration, { size: 10.5, bold: true, color: SLATE_900, rightColor: SLATE_700, rightSize: 9 }); // text-sm / text-xs
+          text(ctx, e.institution || '', ctx.marginX, { size: 10.5, italic: true, color: SLATE_800 });
           ctx.y += 4;
         });
         ctx.y += 4; return;
@@ -845,25 +845,25 @@ const renderAcademic: Renderer = (doc, data, opts) => {
         header('Academic & Professional Appointments');
         experience.forEach((exp, i) => {
           if (i > 0) ctx.y += 6;
-          justifyLine(ctx, exp.role || '', exp.duration, { size: 9.5, bold: true, color: SLATE_900, rightColor: SLATE_700, rightSize: 8.5 });
-          text(ctx, [exp.company, exp.location].filter(Boolean).join(', '), ctx.marginX, { size: 9.5, italic: true, color: SLATE_800 });
+          justifyLine(ctx, exp.role || '', exp.duration, { size: 10.5, bold: true, color: SLATE_900, rightColor: SLATE_700, rightSize: 9 });
+          text(ctx, [exp.company, exp.location].filter(Boolean).join(', '), ctx.marginX, { size: 10.5, italic: true, color: SLATE_800 });
           ctx.y += 2;
-          exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { size: 8.5, color: SLATE_800 }));
+          exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { size: 9.75, color: SLATE_800 })); // text-[13px]
         });
         ctx.y += 6; return;
       }
       if (sectionId === 'skills' && skills.length > 0) {
         header('Core Competencies');
-        text(ctx, skills.map(s => s.category).join(' • '), ctx.marginX, { size: 9.5, color: SLATE_800 });
+        text(ctx, skills.map(s => s.category).join(' • '), ctx.marginX, { size: 9.75, color: SLATE_800 }); // text-[13px]
         ctx.y += 8; return;
       }
       const customSec = customSections?.find(c => c.id === sectionId);
       if (customSec && customSec.items.length > 0) {
         header(customSec.title);
         customSec.items.forEach(item => {
-          justifyLine(ctx, item.title || '', item.date, { size: 9.5, bold: true, color: SLATE_900, rightColor: SLATE_700, rightSize: 8.5 });
-          if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 9.5, italic: true, color: SLATE_800 });
-          if (item.description) text(ctx, item.description, ctx.marginX, { size: 9.5, color: SLATE_800 });
+          justifyLine(ctx, item.title || '', item.date, { size: 10.5, bold: true, color: SLATE_900, rightColor: SLATE_700, rightSize: 9 });
+          if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 10.5, italic: true, color: SLATE_800 });
+          if (item.description) text(ctx, item.description, ctx.marginX, { size: 9.75, color: SLATE_800 });
           ctx.y += 4;
         });
         ctx.y += 4;

@@ -211,17 +211,21 @@ export interface ExportPdfOptions {
   aestheticTheme?: 'default' | 'ocean' | 'sunset' | 'forest';
   pageBreaks?: Record<string, boolean>;
   filename?: string;
+  // Defaults to 'letter' (unchanged behavior). Pass 'a4' to print/export on A4
+  // paper instead — every template renderer reads its page dimensions from the
+  // jsPDF document itself, so this one flag is all that's needed.
+  pageFormat?: 'letter' | 'a4';
 }
 
-const PAGE_WIDTH = 612;  // Letter, in points
-const PAGE_HEIGHT = 792;
 const MARGIN_X = 54;
 const MARGIN_TOP = 54;
 const MARGIN_BOTTOM = 54;
-const CONTENT_WIDTH = PAGE_WIDTH - MARGIN_X * 2;
 
 const renderGenericAtsPdf = (doc: jsPDF, data: ResumeData, sectionOrder?: string[]) => {
   let cursorY = MARGIN_TOP;
+  const PAGE_WIDTH = (doc.internal.pageSize as any).getWidth();
+  const PAGE_HEIGHT = (doc.internal.pageSize as any).getHeight();
+  const CONTENT_WIDTH = PAGE_WIDTH - MARGIN_X * 2;
 
   const ensureSpace = (neededHeight: number) => {
     if (cursorY + neededHeight > PAGE_HEIGHT - MARGIN_BOTTOM) {
@@ -431,7 +435,7 @@ const renderGenericAtsPdf = (doc: jsPDF, data: ResumeData, sectionOrder?: string
 // (see the big comment above), then falls back to a plain ATS-safe layout if
 // a template ever doesn't have a dedicated renderer.
 export const exportToPdf = async (data: ResumeData, opts: ExportPdfOptions) => {
-  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+  const doc = new jsPDF({ unit: 'pt', format: opts.pageFormat === 'a4' ? 'a4' : 'letter' });
 
   const profileImage = opts.showProfilePicture
     ? await loadImageAsDataUrl(data.personalDetails.profilePictureUrl)

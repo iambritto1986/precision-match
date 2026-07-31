@@ -207,7 +207,7 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({ data, showProfilePict
      if (content) {
          return (
              <React.Fragment key={sectionId}>
-                {content}
+                <div data-section-id={sectionId}>{content}</div>
                 {pageBreaks?.[sectionId] && <div className="break-after-page clear-both w-full" style={{ pageBreakAfter: 'always', width: '100%' }}></div>}
              </React.Fragment>
          );
@@ -364,7 +364,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data, showProfilePictu
       if (content) {
          return (
              <React.Fragment key={sectionId}>
-                {content}
+                <div data-section-id={sectionId}>{content}</div>
                 {pageBreaks?.[sectionId] && <div className="break-after-page clear-both w-full" style={{ pageBreakAfter: 'always', width: '100%' }}></div>}
              </React.Fragment>
          );
@@ -557,7 +557,7 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ data, showProfileP
       if (content) {
          return (
              <React.Fragment key={sectionId}>
-                {content}
+                <div data-section-id={sectionId}>{content}</div>
                 {pageBreaks?.[sectionId] && <div className="break-after-page clear-both w-full" style={{ pageBreakAfter: 'always', width: '100%' }}></div>}
              </React.Fragment>
          );
@@ -711,7 +711,7 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data, showProfilePi
       if (content) {
          return (
              <React.Fragment key={sectionId}>
-                {content}
+                <div data-section-id={sectionId}>{content}</div>
                 {pageBreaks?.[sectionId] && <div className="break-after-page clear-both w-full" style={{ pageBreakAfter: 'always', width: '100%' }}></div>}
              </React.Fragment>
          );
@@ -930,7 +930,7 @@ export const AestheticTemplate: React.FC<TemplateProps> = ({ data, showProfilePi
                if (content) {
                  return (
                    <React.Fragment key={sectionId}>
-                     {content}
+                     <div data-section-id={sectionId}>{content}</div>
                      {pageBreaks?.[sectionId] && <div className="break-after-page clear-both w-full" style={{ pageBreakAfter: 'always', width: '100%' }}></div>}
                    </React.Fragment>
                  );
@@ -1031,7 +1031,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
       {/* RIGHT COLUMN */}
       <div className="col-span-2 p-8 flex flex-col gap-8">
         {data.personalDetails.summary && (
-          <div>
+          <div data-section-id="summary">
             <h3 className="text-lg font-black text-indigo-950 uppercase tracking-widest flex items-center gap-2 mb-3">
               <span className="w-4 h-1 bg-indigo-500 rounded-full"></span> Profile
             </h3>
@@ -1040,7 +1040,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
         )}
 
         {data.experience.length > 0 && (
-          <div>
+          <div data-section-id="experience">
             <h3 className="text-lg font-black text-indigo-950 uppercase tracking-widest flex items-center gap-2 mb-4">
               <span className="w-4 h-1 bg-indigo-500 rounded-full"></span> Experience
             </h3>
@@ -1067,7 +1067,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
 
         {/* CUSTOM SECTIONS IN RIGHT COLUMN */}
         {data.customSections?.map((section, sIndex) => (
-          <div key={sIndex}>
+          <div key={sIndex} data-section-id={section.id}>
             <h3 className="text-lg font-black text-indigo-950 uppercase tracking-widest flex items-center gap-2 mb-4">
               <span className="w-4 h-1 bg-indigo-500 rounded-full"></span> {section.title}
             </h3>
@@ -1127,7 +1127,7 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
         {sectionOrder.map((sectionName) => {
           if (sectionName === 'summary' && data.personalDetails.summary) {
             return (
-              <section key="summary">
+              <section key="summary" data-section-id="summary">
                 <h3 className="text-sm font-bold text-slate-900 uppercase bg-emerald-100 inline-block px-2 py-1 mb-3">~/{sectionName}</h3>
                 <p className="text-sm text-slate-700 leading-relaxed pl-2 border-l-2 border-emerald-200">{data.personalDetails.summary}</p>
               </section>
@@ -1135,7 +1135,7 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
           }
           if (sectionName === 'experience' && data.experience.length > 0) {
             return (
-              <section key="experience">
+              <section key="experience" data-section-id="experience">
                 <h3 className="text-sm font-bold text-slate-900 uppercase bg-emerald-100 inline-block px-2 py-1 mb-4">~/{sectionName}</h3>
                 <div className="space-y-6 pl-2 border-l-2 border-emerald-200">
                   {data.experience.map((exp, index) => (
@@ -1158,7 +1158,7 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
           }
           if (sectionName === 'skills' && data.skills.length > 0) {
             return (
-              <section key="skills">
+              <section key="skills" data-section-id="skills">
                 <h3 className="text-sm font-bold text-slate-900 uppercase bg-emerald-100 inline-block px-2 py-1 mb-3">~/{sectionName}</h3>
                 <div className="flex flex-wrap gap-2 pl-2 border-l-2 border-emerald-200">
                   {data.skills.map((skill, index) => (
@@ -1172,7 +1172,7 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
           }
           if (sectionName === 'education' && data.education.length > 0) {
             return (
-              <section key="education">
+              <section key="education" data-section-id="education">
                 <h3 className="text-sm font-bold text-slate-900 uppercase bg-emerald-100 inline-block px-2 py-1 mb-3">~/{sectionName}</h3>
                 <div className="space-y-4 pl-2 border-l-2 border-emerald-200">
                   {data.education.map((edu, index) => (
@@ -1192,7 +1192,7 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
             const customSection = data.customSections?.find(s => s.id === sectionName);
             if (customSection && customSection.items.length > 0) {
               return (
-                <section key={sectionName}>
+                <section key={sectionName} data-section-id={sectionName}>
                   <h3 className="text-sm font-bold text-slate-900 uppercase bg-emerald-100 inline-block px-2 py-1 mb-3">~/{customSection.title.toLowerCase().replace(/\s+/g, '-')}</h3>
                   <div className="space-y-4 pl-2 border-l-2 border-emerald-200">
                     {customSection.items.map((item, index) => (
@@ -1250,7 +1250,7 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
         {sectionOrder.map((sectionName) => {
           if (sectionName === 'summary' && data.personalDetails.summary) {
             return (
-              <section key="summary">
+              <section key="summary" data-section-id="summary">
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest border-b border-slate-300 pb-1 mb-3">Curriculum Vitae</h3>
                 <p className="text-sm text-slate-800 leading-relaxed text-justify indent-8">{data.personalDetails.summary}</p>
               </section>
@@ -1258,7 +1258,7 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
           }
           if (sectionName === 'education' && data.education.length > 0) {
             return (
-              <section key="education">
+              <section key="education" data-section-id="education">
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest border-b border-slate-300 pb-1 mb-4">Education</h3>
                 <div className="space-y-4">
                   {data.education.map((edu, index) => (
@@ -1276,7 +1276,7 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
           }
           if (sectionName === 'experience' && data.experience.length > 0) {
             return (
-              <section key="experience">
+              <section key="experience" data-section-id="experience">
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest border-b border-slate-300 pb-1 mb-4">Academic & Professional Appointments</h3>
                 <div className="space-y-5">
                   {data.experience.map((exp, index) => (
@@ -1300,7 +1300,7 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
           }
           if (sectionName === 'skills' && data.skills.length > 0) {
             return (
-              <section key="skills">
+              <section key="skills" data-section-id="skills">
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest border-b border-slate-300 pb-1 mb-3">Core Competencies</h3>
                 <div className="text-[13px] text-slate-800 leading-relaxed">
                   {data.skills.map(s => s.category).join(' • ')}
@@ -1312,7 +1312,7 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
             const customSection = data.customSections?.find(s => s.id === sectionName);
             if (customSection && customSection.items.length > 0) {
               return (
-                <section key={sectionName}>
+                <section key={sectionName} data-section-id={sectionName}>
                   <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest border-b border-slate-300 pb-1 mb-4">{customSection.title}</h3>
                   <div className="space-y-4">
                     {customSection.items.map((item, index) => (
