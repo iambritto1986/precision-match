@@ -391,15 +391,24 @@ export default function App() {
 
   
   const handleExport = async (type: 'pdf' | 'docx') => {
+    const pdfOptions = {
+      templateId: selectedTemplate,
+      sectionOrder,
+      fontFamily,
+      showProfilePicture,
+      aestheticTheme,
+      pageBreaks,
+      filename: `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`
+    };
     if (isPro) {
       if (type === 'pdf') {
-        exportToPdf(resumeData, sectionOrder, `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`);
+        await exportToPdf(resumeData, pdfOptions);
       }
       else exportToDocx(resumeData, sectionOrder);
     } else {
       if (downloadsRemaining > 0) {
         if (type === 'pdf') {
-          exportToPdf(resumeData, sectionOrder, `${resumeData.personalDetails.name.replace(/ /g, '_')}_Resume.pdf`);
+          await exportToPdf(resumeData, pdfOptions);
         }
         else exportToDocx(resumeData, sectionOrder);
         

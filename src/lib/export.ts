@@ -1,7 +1,8 @@
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
 import { saveAs } from 'file-saver';
-import { ResumeData } from '../types';
+import { ResumeData, TemplateId } from '../types';
 import jsPDF from 'jspdf';
+import { getTemplateRenderer } from './pdfTemplateRenderers';
 
 // Resolves which sections to render and in what order. Prefers the caller's
 // current sectionOrder (so exports match what the user sees on screen and
@@ -170,14 +171,48 @@ export const exportToDocx = async (data: ResumeData, sectionOrder?: string[]) =>
   saveAs(blob, `${data.personalDetails.name.replace(/\s+/g, '_')}_Resume.docx`);
 };
 
-// --------------- ATS-safe, text-based PDF export ---------------
+// --------------- Text-based PDF export ---------------
 // IMPORTANT: this generates the PDF directly from structured data using jsPDF's
-// native text API — it does NOT screenshot the on-screen visual template.
-// A screenshot-based PDF (the previous approach) embeds only a rasterized image
-// with no text layer, which most Applicant Tracking Systems cannot parse at all —
-// directly undermining the "beat the ATS" promise. This version always produces
-// a single-column, plain, real-text PDF that any ATS can read, regardless of
-// which colorful/multi-column template the user picked for on-screen viewing.
+// native text API for every template — it does NOT screenshot the on-screen
+// preview. A screenshot-based PDF (the old approach) embeds only a rasterized
+// image with no text layer, which most Applicant Tracking Systems can't parse
+// at all. Each template below (src/lib/pdfTemplateRenderers.ts) recreates that
+// template's on-screen look — layout, colors, fonts, section styling — using
+// real positioned text, so the download both matches what the user picked AND
+// stays genuinely ATS-parseable. If a templateId somehow doesn't have a
+// dedicated renderer, we fall back to a plain single-column ATS-safe layout
+// below rather than failing the export outright.
+
+// Converts a profile picture URL (data: URI or blob: URL) into a data URI that
+// jsPDF can embed. Returns null if there's no image or it can't be loaded —
+// callers should treat that the same as "no photo" rather than failing the export.
+const loadImageAsDataUrl = async (url: string | undefined): Promise<string | null> => {
+  if (!url) return null;
+  if (url.startsWith('data:')) return url;
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+};
+
+export interface ExportPdfOptions {
+  templateId: TemplateId;
+  sectionOrder?: string[];
+  fontFamily?: string;
+  showProfilePicture?: boolean;
+  aestheticTheme?: 'default' | 'ocean' | 'sunset' | 'forest';
+  pageBreaks?: Record<string, boolean>;
+  filename?: string;
+}
+
 const PAGE_WIDTH = 612;  // Letter, in points
 const PAGE_HEIGHT = 792;
 const MARGIN_X = 54;
@@ -185,8 +220,7 @@ const MARGIN_TOP = 54;
 const MARGIN_BOTTOM = 54;
 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN_X * 2;
 
-export const exportToPdf = (data: ResumeData, sectionOrder?: string[], filename?: string) => {
-  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+const renderGenericAtsPdf = (doc: jsPDF, data: ResumeData, sectionOrder?: string[]) => {
   let cursorY = MARGIN_TOP;
 
   const ensureSpace = (neededHeight: number) => {
@@ -390,8 +424,34 @@ export const exportToPdf = (data: ResumeData, sectionOrder?: string[], filename?
       });
     }
   });
+};
 
-  doc.save(filename || `${(personalDetails.name || 'Resume').replace(/\s+/g, '_')}_Resume.pdf`);
+// The public export used throughout the app. Renders the resume in the
+// visual style of whichever template the user has selected, using real text
+// (see the big comment above), then falls back to a plain ATS-safe layout if
+// a template ever doesn't have a dedicated renderer.
+export const exportToPdf = async (data: ResumeData, opts: ExportPdfOptions) => {
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+
+  const profileImage = opts.showProfilePicture
+    ? await loadImageAsDataUrl(data.personalDetails.profilePictureUrl)
+    : null;
+
+  const renderer = getTemplateRenderer(opts.templateId);
+  if (renderer) {
+    renderer(doc, data, {
+      sectionOrder: opts.sectionOrder && opts.sectionOrder.length ? opts.sectionOrder : resolveOrder(data),
+      fontFamily: opts.fontFamily,
+      showProfilePicture: !!opts.showProfilePicture,
+      aestheticTheme: opts.aestheticTheme,
+      pageBreaks: opts.pageBreaks,
+      profileImage,
+    });
+  } else {
+    renderGenericAtsPdf(doc, data, opts.sectionOrder);
+  }
+
+  doc.save(opts.filename || `${(data.personalDetails.name || 'Resume').replace(/\s+/g, '_')}_Resume.pdf`);
 };
 
 export const exportCoverLetterDocx = async (text: string, filename: string) => {
