@@ -1256,8 +1256,30 @@ export default function App() {
                </h3>
                
                <div className="flex items-center space-x-3 text-slate-600">
-                  <button 
-                    onClick={() => setZoomScale(prev => Math.max(0.5, prev - 0.05))} 
+                  {/* Font picker lives here as well as in the Page Layout tab: this is
+                      where you're actually looking while judging how the resume reads,
+                      and it was effectively undiscoverable buried in a tab. Same state,
+                      so the two controls stay in sync. */}
+                  <select
+                    className="text-[11px] font-semibold text-slate-300 tech-input px-2 py-1 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/50 max-w-[130px]"
+                    value={fontFamily}
+                    onChange={(e) => setFontFamily(e.target.value)}
+                    title="Resume font"
+                  >
+                     <option value="">Template Font</option>
+                     <option value="font-inter">Inter</option>
+                     <option value="font-sans">System Sans</option>
+                     <option value="font-serif">Playfair</option>
+                     <option value="font-mono">JetBrains</option>
+                     <option value="font-roboto">Roboto</option>
+                     <option value="font-montserrat">Montserrat</option>
+                     <option value="font-opensans">Open Sans</option>
+                     <option value="font-space">Space Grotesk</option>
+                     <option value="font-outfit">Outfit</option>
+                  </select>
+                  <div className="w-px h-4 bg-white/10"></div>
+                  <button
+                    onClick={() => setZoomScale(prev => Math.max(0.5, prev - 0.05))}
                     className="p-1.5 hover:bg-white/10 rounded-lg border border-white/10 text-slate-400 hover:text-slate-200 transition"
                     title="Zoom Out"
                   >

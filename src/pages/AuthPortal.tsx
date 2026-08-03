@@ -97,6 +97,18 @@ export const AuthPortal: React.FC = () => {
     `,
   };
 
+  // Primary CTA (Authenticate / Create Account). Solid brand cyan rather than a
+  // gradient: the old cyan->purple blend read as muddy against the dark card and
+  // fought the monochrome logo above it. Neon glow instead of the extruded
+  // drop-shadow so the button reads as the brand accent, not a 3D bevel.
+  const primaryButtonStyle = {
+    boxShadow: `
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 0 24px rgba(0, 240, 255, 0.35),
+      0 4px 6px -1px rgba(0, 0, 0, 0.5)
+    `,
+  };
+
   const insetToggleContainerStyle = {
     backgroundColor: '#0a0d17',
     boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.02)',
@@ -254,13 +266,13 @@ export const AuthPortal: React.FC = () => {
               whileHover={{ scale: 1.01, filter: 'brightness(1.1)' }}
               whileTap={{ scale: 0.98, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}
               type="submit"
-              className="w-full mt-4 bg-gradient-to-b from-[#00C4D1] to-[#8f00cc] text-white font-bold py-3 rounded-lg transition-all duration-200 flex items-center justify-center border border-[#00F0FF]/20"
-              style={extrudedButtonStyle}
+              className="w-full mt-4 bg-[#00F0FF] hover:bg-[#00C4D1] text-black font-bold py-3 rounded-lg transition-all duration-200 flex items-center justify-center border border-[#00F0FF]"
+              style={primaryButtonStyle}
             >
               {isLogin ? (
-                <><LogIn className="w-5 h-5 mr-2 drop-shadow-sm" /> Authenticate</>
+                <><LogIn className="w-5 h-5 mr-2" /> Authenticate</>
               ) : (
-                <><UserPlus className="w-5 h-5 mr-2 drop-shadow-sm" /> Create Account</>
+                <><UserPlus className="w-5 h-5 mr-2" /> Create Account</>
               )}
             </motion.button>
           </form>
@@ -349,8 +361,8 @@ export const AuthPortal: React.FC = () => {
                           setResetError(err.message || 'Failed to send reset email');
                         }
                       }}
-                      className="flex-1 bg-gradient-to-b from-cyan-600 to-cyan-800 text-white font-bold py-3 rounded-lg transition-all duration-200 border border-cyan-500/20"
-                      style={extrudedButtonStyle}
+                      className="flex-1 bg-[#00F0FF] hover:bg-[#00C4D1] text-black font-bold py-3 rounded-lg transition-all duration-200 border border-[#00F0FF]"
+                      style={primaryButtonStyle}
                     >
                       Send Link
                     </motion.button>
@@ -370,8 +382,8 @@ export const AuthPortal: React.FC = () => {
                     whileTap={{ scale: 0.98, boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}
                     type="button"
                     onClick={() => setShowResetPassword(false)}
-                    className="w-full bg-gradient-to-b from-[#00C4D1] to-[#8f00cc] text-white font-bold py-3 rounded-lg transition-all duration-200 border border-[#00F0FF]/20"
-                    style={extrudedButtonStyle}
+                    className="w-full bg-[#00F0FF] hover:bg-[#00C4D1] text-black font-bold py-3 rounded-lg transition-all duration-200 border border-[#00F0FF]"
+                    style={primaryButtonStyle}
                   >
                     Back to Login
                   </motion.button>

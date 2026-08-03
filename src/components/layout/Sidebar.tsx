@@ -57,6 +57,14 @@ export function Sidebar({
   const { logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
+  // Which sidebar accordion is expanded. Exactly one is open at a time, and
+  // "Main Menu" is the resting state — navigation is what you need most of the
+  // time, so it shouldn't require a hover to reveal. Hovering Resume History
+  // swaps the open section; leaving it falls back to Main Menu.
+  const [openSection, setOpenSection] = React.useState<'menu' | 'history'>('menu');
+  const menuOpen = openSection === 'menu';
+  const historyOpen = openSection === 'history';
+
   const handleLogout = async () => {
     await logout();
     navigate('/');
@@ -92,21 +100,26 @@ export function Sidebar({
         </div>
         <nav className="flex-1 mt-4 flex flex-col overflow-y-auto scroll-hide min-h-0">
 
-          {/* --- Main Menu: vertical accordion, hover to expand --- */}
-          <div className="group/menu flex-shrink-0 stagger-enter">
+          {/* --- Main Menu: vertical accordion, open by default --- */}
+          <div
+            className="flex-shrink-0 stagger-enter"
+            onMouseEnter={() => setOpenSection('menu')}
+          >
             <div className="px-6 py-3 flex items-center justify-between cursor-default select-none">
               <span className="text-slate-500 text-[11px] uppercase font-semibold tracking-wider">Main Menu</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-600 transition-transform duration-300 group-hover/menu:rotate-180 group-hover/menu:text-slate-400" />
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${menuOpen ? 'rotate-180 text-slate-400' : 'text-slate-600'}`} />
             </div>
-            <div className="max-h-0 opacity-0 overflow-hidden group-hover/menu:max-h-[360px] group-hover/menu:opacity-100 transition-all duration-300 ease-in-out space-y-1 pb-1">
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out space-y-1 pb-1 ${menuOpen ? 'max-h-[360px] opacity-100' : 'max-h-0 opacity-0'}`}>
               {isAdmin && <Link to="/dashboard" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/dashboard' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}><Users className="w-4 h-4 mr-3 text-slate-400 shrink-0"/> Founder Hub</Link>}
               <Link to="/resume" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/resume' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}><FileText className="w-4 h-4 mr-3 text-slate-400 shrink-0"/> Home</Link>
               <Link to="/edit" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/edit' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}><Code className="w-4 h-4 mr-3 text-slate-400 shrink-0"/> Source Data</Link>
               <Link to="/chat" id="tour-career-chat" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/chat' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}>
                   <MessageCircle className="w-4 h-4 mr-3 shrink-0" /> Chat with Aadhya {!isPro && <span className="ml-auto bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Try Free</span>}
               </Link>
-              <Link to="/interview" id="tour-live-interview" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/interview' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}>
-                  <Mic className="w-4 h-4 mr-3 shrink-0"/> Interview with Aadhya {!isPro && <span className="ml-auto bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Try Free</span>}
+              {/* Signature feature — deliberately gold rather than the app's cyan/magenta
+                  so it outranks every other item in the menu at a glance. */}
+              <Link to="/interview" id="tour-live-interview" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg border-l-2 ${location.pathname === '/interview' ? 'bg-[#FFC94A]/10 border-[#FFC94A] text-white shadow-[inset_1px_0_14px_rgba(255,201,74,0.12)]' : 'border-[#FFC94A]/50 text-[#F3D89B] hover:text-white hover:bg-[#FFC94A]/[0.07] hover:border-[#FFC94A]'}`}>
+                  <Mic className="w-4 h-4 mr-3 shrink-0 text-[#FFC94A] drop-shadow-[0_0_6px_rgba(255,201,74,0.6)]"/> Interview with Aadhya {!isPro && <span className="ml-auto bg-[#FFC94A]/20 text-[#FFC94A] px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Try Free</span>}
               </Link>
               <button onClick={() => window.startTour?.()} className="flex w-full items-center px-6 py-3 text-sm transition-all rounded-r-lg border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5">
                   <Compass className="w-4 h-4 mr-3 text-slate-400 shrink-0"/> Guided Tour
@@ -125,14 +138,18 @@ export function Sidebar({
           </button>
 
           {/* --- Resume History: vertical accordion, hover to expand --- */}
-          <div className="group/history px-6 pt-4 pb-2 mt-2 flex flex-col min-h-0">
+          <div
+            className="px-6 pt-4 pb-2 mt-2 flex flex-col min-h-0"
+            onMouseEnter={() => setOpenSection('history')}
+            onMouseLeave={() => setOpenSection('menu')}
+          >
             <div className="flex items-center justify-between cursor-default select-none">
               <p className="flex items-center gap-2 text-xs text-slate-400 uppercase tracking-widest font-bold">
                 <Layers className="w-3.5 h-3.5 shrink-0" /> Resume History
               </p>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-600 transition-transform duration-300 group-hover/history:rotate-180 group-hover/history:text-slate-400" />
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${historyOpen ? 'rotate-180 text-slate-400' : 'text-slate-600'}`} />
             </div>
-            <div className="max-h-0 opacity-0 overflow-hidden group-hover/history:max-h-[420px] group-hover/history:opacity-100 group-hover/history:overflow-y-auto transition-all duration-300 ease-in-out">
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${historyOpen ? 'max-h-[420px] opacity-100 overflow-y-auto' : 'max-h-0 opacity-0'}`}>
               <div className="flex flex-col gap-2 pt-3">
                  {resumes.map(resume => (
                    <div

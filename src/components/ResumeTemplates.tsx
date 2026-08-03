@@ -1069,6 +1069,46 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
           </div>
         )}
 
+        {data.projects && data.projects.length > 0 && (
+          <div data-section-id="projects">
+            <h3 className="text-lg font-black text-indigo-950 uppercase tracking-widest flex items-center gap-2 mb-4">
+              <span className="w-4 h-1 bg-indigo-500 rounded-full"></span> Projects
+            </h3>
+            <div className="space-y-4">
+              {data.projects.map((proj, index) => (
+                <div key={index}>
+                  <PageBreakHelper elementId={`proj-${index}`} />
+                  <div className="flex justify-between items-baseline">
+                    <h4 className="font-bold text-slate-900 text-sm">{proj.name}</h4>
+                    {proj.duration && <span className="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">{proj.duration}</span>}
+                  </div>
+                  {proj.role && <div className="text-xs font-semibold text-indigo-700">{proj.role}</div>}
+                  {proj.description && <p className="text-xs text-slate-600 mt-1">{proj.description}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {data.certifications && data.certifications.length > 0 && (
+          <div data-section-id="certifications">
+            <h3 className="text-lg font-black text-indigo-950 uppercase tracking-widest flex items-center gap-2 mb-4">
+              <span className="w-4 h-1 bg-indigo-500 rounded-full"></span> Certifications
+            </h3>
+            <div className="space-y-3">
+              {data.certifications.map((cert, index) => (
+                <div key={index} className="flex justify-between items-baseline">
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">{cert.name}</h4>
+                    {cert.issuer && <div className="text-xs font-semibold text-indigo-700">{cert.issuer}</div>}
+                  </div>
+                  {cert.date && <span className="text-xs text-indigo-500">{cert.date}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* CUSTOM SECTIONS IN RIGHT COLUMN */}
         {data.customSections?.map((section, sIndex) => (
           <div key={sIndex} data-section-id={section.id}>
@@ -1194,6 +1234,44 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
               </section>
             );
           }
+          if (sectionName === 'projects' && data.projects && data.projects.length > 0) {
+            return (
+              <section key="projects" data-section-id="projects">
+                <h3 className="text-sm font-bold text-slate-900 uppercase bg-emerald-100 inline-block px-2 py-1 mb-4">~/{sectionName}</h3>
+                <div className="space-y-4 pl-2 border-l-2 border-emerald-200">
+                  {data.projects.map((proj, index) => (
+                    <div key={index}>
+                      <PageBreakHelper elementId={`proj-${index}`} />
+                      <div className="flex justify-between items-baseline mb-1">
+                        <h4 className="font-bold text-slate-900 text-sm">## {proj.name}</h4>
+                        {proj.duration && <span className="text-xs text-slate-500">[{proj.duration}]</span>}
+                      </div>
+                      {proj.role && <div className="text-xs text-emerald-600">{proj.role}</div>}
+                      {proj.description && <p className="text-xs text-slate-700 mt-1">{proj.description}</p>}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          }
+          if (sectionName === 'certifications' && data.certifications && data.certifications.length > 0) {
+            return (
+              <section key="certifications" data-section-id="certifications">
+                <h3 className="text-sm font-bold text-slate-900 uppercase bg-emerald-100 inline-block px-2 py-1 mb-3">~/{sectionName}</h3>
+                <div className="space-y-2 pl-2 border-l-2 border-emerald-200">
+                  {data.certifications.map((cert, index) => (
+                    <div key={index} className="flex justify-between items-baseline">
+                      <div className="text-xs text-slate-700">
+                        <span className="text-emerald-400">*</span> <span className="font-bold text-slate-900">{cert.name}</span>
+                        {cert.issuer && <span className="text-slate-600"> — {cert.issuer}</span>}
+                      </div>
+                      {cert.date && <span className="text-xs text-slate-500">[{cert.date}]</span>}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          }
           if (sectionName.startsWith('custom-')) {
             const customSection = data.customSections?.find(s => s.id === sectionName);
             if (customSection && customSection.items.length > 0) {
@@ -1313,6 +1391,44 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest border-b border-slate-300 pb-1 mb-3">Core Competencies</h3>
                 <div className="text-[13px] text-slate-800 leading-relaxed">
                   {data.skills.map(s => s.category).join(' • ')}
+                </div>
+              </section>
+            );
+          }
+          if (sectionName === 'projects' && data.projects && data.projects.length > 0) {
+            return (
+              <section key="projects" data-section-id="projects">
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest border-b border-slate-300 pb-1 mb-4">Research & Projects</h3>
+                <div className="space-y-4">
+                  {data.projects.map((proj, index) => (
+                    <div key={index}>
+                      <PageBreakHelper elementId={`proj-${index}`} />
+                      <div className="flex justify-between items-baseline">
+                        <h4 className="font-bold text-slate-900 text-sm">{proj.name}</h4>
+                        {proj.duration && <span className="text-xs text-slate-700">{proj.duration}</span>}
+                      </div>
+                      {proj.role && <div className="italic text-sm text-slate-800">{proj.role}</div>}
+                      {proj.description && <p className="text-[13px] text-slate-800 mt-1 text-justify">{proj.description}</p>}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          }
+          if (sectionName === 'certifications' && data.certifications && data.certifications.length > 0) {
+            return (
+              <section key="certifications" data-section-id="certifications">
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest border-b border-slate-300 pb-1 mb-4">Certifications & Honours</h3>
+                <div className="space-y-3">
+                  {data.certifications.map((cert, index) => (
+                    <div key={index} className="flex justify-between items-baseline">
+                      <div>
+                        <span className="font-bold text-sm text-slate-900">{cert.name}</span>
+                        {cert.issuer && <span className="italic text-sm text-slate-800">, {cert.issuer}</span>}
+                      </div>
+                      {cert.date && <span className="text-xs text-slate-700">{cert.date}</span>}
+                    </div>
+                  ))}
                 </div>
               </section>
             );
