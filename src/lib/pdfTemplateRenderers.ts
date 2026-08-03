@@ -625,7 +625,11 @@ const renderAestheticSection = (ctx: Ctx, data: ResumeData, sectionId: string, t
 // support, matching the on-screen template's actual behavior).
 // ---------------------------------------------------------------------------
 const renderCreative: Renderer = (doc, data, opts) => {
-  const font = 'courier' as const; // Creative always renders mono on screen (see resolveFont note)
+  // The on-screen Creative template used to always render mono regardless of the
+  // font dropdown (a comparison bug fixed in ResumeTemplates.tsx), so this used
+  // to hardcode 'courier' to match. Now that the on-screen bug is fixed, this
+  // follows the same font selection as every other template.
+  const font = resolveFont(opts.fontFamily, 'courier');
   const { personalDetails: p, skills, education, experience, customSections } = data;
   const pages = paginate(opts.sectionOrder, opts.pageBreaks);
   const sidebarW = 190;
@@ -717,7 +721,9 @@ const renderCreative: Renderer = (doc, data, opts) => {
 // TECH — mono, terminal aesthetic, single column, emerald accents
 // ---------------------------------------------------------------------------
 const renderTech: Renderer = (doc, data, opts) => {
-  const font = 'courier' as const; // Tech always renders mono on screen (see resolveFont note)
+  // Same fix as Creative above — the on-screen font-comparison bug is gone, so
+  // this now honors the actual font dropdown instead of hardcoding courier.
+  const font = resolveFont(opts.fontFamily, 'courier');
   const { personalDetails: p, skills, education, experience, customSections } = data;
   const pages = paginate(opts.sectionOrder, opts.pageBreaks);
 
@@ -801,7 +807,10 @@ const renderTech: Renderer = (doc, data, opts) => {
 // ACADEMIC — serif, centered CV-style header, dot-separated contact
 // ---------------------------------------------------------------------------
 const renderAcademic: Renderer = (doc, data, opts) => {
-  const font = 'times' as const; // Academic always renders serif on screen (see resolveFont note)
+  // Same fix as Creative/Tech above — Academic now honors the actual font
+  // dropdown (falling back to serif, matching its on-screen default) instead
+  // of always hardcoding times.
+  const font = resolveFont(opts.fontFamily, 'times');
   const { personalDetails: p, skills, education, experience, customSections } = data;
   const pages = paginate(opts.sectionOrder, opts.pageBreaks);
 

@@ -846,6 +846,32 @@ ${jobDescription}
               }
 
               const resumeContext = msg.data || '';
+
+              // The client always sends *some* JSON here, even for a brand-new
+              // user who hasn't filled anything in yet (empty strings, empty
+              // arrays). Without this check, the system prompt below always told
+              // Aadhya to "acknowledge their experience" — so with nothing real
+              // to acknowledge, the model would just fabricate something ("I see
+              // you have some experience") instead of noticing the resume is
+              // empty. Detect that case and give Aadhya an honest, different
+              // opening instead of pretending to know the candidate's background.
+              let hasResumeContent = false;
+              try {
+                const parsedResume = JSON.parse(resumeContext);
+                const p = parsedResume?.personalDetails || {};
+                hasResumeContent = !!(
+                  (p.name && p.name.trim()) ||
+                  (p.summary && p.summary.trim()) ||
+                  (Array.isArray(parsedResume?.experience) && parsedResume.experience.length > 0)
+                );
+              } catch {
+                hasResumeContent = false;
+              }
+
+              const systemInstruction = hasResumeContent
+                ? `You are Aadhya, the AI career coach for Precision Match. You are conducting a live mock interview session. IMPORTANT: You MUST begin the conversation by introducing yourself — say something like "Hi, I'm Aadhya, your career coach from Precision Match." Then greet the candidate by name, briefly acknowledge their experience and target role from the resume context below, and ask your first interview question. Do NOT wait for the user to speak first — you initiate. Keep your responses concise, warm, and conversational. After each answer, give brief constructive feedback and follow up with the next question. Here is context about the candidate's resume:\n${resumeContext}`
+                : `You are Aadhya, the AI career coach for Precision Match. The candidate has NOT filled out their resume in the app yet — you have no real information about their background, experience, or target role. IMPORTANT: You MUST begin the conversation by introducing yourself — say something like "Hi, I'm Aadhya, your career coach from Precision Match." Then honestly explain that you don't see a completed resume for them yet, so you can't tailor questions to their real experience. Offer two options conversationally: they can quickly tell you about their background out loud right now so you can run a general interview, or they can go fill in their resume in the app first for a more tailored session. Do NOT invent or assume any details about their experience, skills, or target role — you have none. Do NOT wait for the user to speak first — you initiate. Keep your tone warm and encouraging, not critical.`;
+
               session = await ai.live.connect({
                 model: "gemini-3.1-flash-live-preview",
                 callbacks: {
@@ -864,7 +890,7 @@ ${jobDescription}
                   speechConfig: {
                     voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zephyr" } },
                   },
-                  systemInstruction: `You are Aadhya, the AI career coach for Precision Match. You are conducting a live mock interview session. IMPORTANT: You MUST begin the conversation by introducing yourself — say something like "Hi, I'm Aadhya, your career coach from Precision Match." Then greet the candidate by name, briefly acknowledge their experience and target role from the resume context below, and ask your first interview question. Do NOT wait for the user to speak first — you initiate. Keep your responses concise, warm, and conversational. After each answer, give brief constructive feedback and follow up with the next question. Here is context about the candidate's resume:\n${resumeContext}`,
+                  systemInstruction,
                 },
               });
               // Send an initial text trigger so Aadhya starts speaking immediately

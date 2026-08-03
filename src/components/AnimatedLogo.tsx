@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import React from 'react';
 
 interface AnimatedLogoProps {
   /** Pixel size for both width and height. */
@@ -32,9 +32,10 @@ interface AnimatedLogoProps {
 }
 
 /**
- * Precision Match brand mark. Vector, brand gradient (#00F0FF -> #B500FF,
- * matching --accent-gradient in index.css). Animation keyframes (.pm-logo-*)
- * live in index.css.
+ * Precision Match brand mark. Vector, monochrome (black/white) — a tile
+ * badge is a white rounded square with a black mark; a standalone (non-tile)
+ * mark is drawn in white line-art for use on dark backgrounds. Animation
+ * keyframes (.pm-logo-*) live in index.css.
  */
 export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
   size = 64,
@@ -43,10 +44,9 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
   tile = false,
   hoverPlay = false,
 }) => {
-  const gradId = `pm-logo-gradient-${useId().replace(/:/g, '')}`;
   const stateClass = animated ? '' : hoverPlay ? 'pm-logo-hover' : 'pm-logo-static';
   const rootHoverClass = !animated && hoverPlay ? 'pm-logo-hover-root' : '';
-  const strokeColor = tile ? '#FFFFFF' : `url(#${gradId})`;
+  const strokeColor = tile ? '#000000' : '#FFFFFF';
 
   return (
     <svg
@@ -57,14 +57,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
       role="img"
       aria-label="Precision Match"
     >
-      <defs>
-        <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#00F0FF" />
-          <stop offset="100%" stopColor="#B500FF" />
-        </linearGradient>
-      </defs>
-
-      {tile && <rect x={0} y={0} width={200} height={200} rx={44} fill={`url(#${gradId})`} />}
+      {tile && <rect x={0} y={0} width={200} height={200} rx={44} fill="#FFFFFF" />}
 
       <g
         className={`pm-logo-bracket ${stateClass}`}

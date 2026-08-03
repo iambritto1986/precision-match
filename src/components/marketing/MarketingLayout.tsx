@@ -38,7 +38,7 @@ export const MarketingLayout: React.FC = () => {
               animated={false}
               hoverPlay
               size={32}
-              className="rounded-xl shadow-lg group-hover:shadow-cyan-500/25 transition-shadow"
+              className="rounded-xl shadow-lg group-hover:shadow-white/25 transition-shadow"
             />
             <span className="text-xl font-bold tracking-tight text-white">Precision Match</span>
           </Link>

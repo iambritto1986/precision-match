@@ -950,7 +950,11 @@ export const AestheticTemplate: React.FC<TemplateProps> = ({ data, showProfilePi
 // ==========================================
 export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture, sectionOrder, fontFamily, pageBreaks, pageIndex }) => {
   const getStyle = (defaultClass: string) => {
-    return `${defaultClass} ${fontFamily === 'inter' ? 'font-inter' : fontFamily === 'merriweather' ? 'font-serif' : 'font-mono'}`;
+    // fontFamily holds the actual Tailwind class from the dropdown (e.g.
+    // 'font-inter', 'font-serif', 'font-mono', or '' for "template default").
+    // This used to compare against bare words like 'inter'/'merriweather',
+    // which never matched, so font selection silently did nothing here.
+    return `${defaultClass} ${fontFamily || 'font-mono'}`;
   };
 
   const PageBreakHelper = ({ elementId }: { elementId: string }) => {
@@ -1096,7 +1100,9 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
 // ==========================================
 export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture, sectionOrder, fontFamily, pageBreaks, pageIndex }) => {
   const getStyle = (defaultClass: string) => {
-    return `${defaultClass} ${fontFamily === 'inter' ? 'font-inter' : fontFamily === 'merriweather' ? 'font-serif' : 'font-mono'}`;
+    // See CreativeTemplate's identical fix above: fontFamily is already a
+    // real Tailwind class (or '' for template default), not a bare word.
+    return `${defaultClass} ${fontFamily || 'font-mono'}`;
   };
 
   const PageBreakHelper = ({ elementId }: { elementId: string }) => {
@@ -1104,7 +1110,7 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
   };
 
   return (
-    <div className={getStyle("bg-white min-h-[1056px] w-[816px] box-border relative text-slate-800 p-10 font-mono")}>
+    <div className={getStyle("bg-white min-h-[1056px] w-[816px] box-border relative text-slate-800 p-10")}>
       <header className="border-b-2 border-emerald-500 pb-6 mb-6 flex justify-between items-end">
         <div>
           <h1 className="text-4xl font-black text-slate-900 tracking-tighter mb-1">&gt; {data.personalDetails.name}_</h1>
@@ -1223,8 +1229,11 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
 // ==========================================
 export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture, sectionOrder, fontFamily, pageBreaks, pageIndex }) => {
   const getStyle = (defaultClass: string) => {
-    // Academic forces serif if not explicitly overridden, but respects user choice
-    return `${defaultClass} ${fontFamily === 'inter' ? 'font-inter' : fontFamily === 'mono' ? 'font-mono' : 'font-serif'}`;
+    // Academic forces serif if not explicitly overridden, but respects user choice.
+    // fontFamily is already a real Tailwind class (e.g. 'font-mono'), not a bare
+    // word like 'mono' — the old comparison never matched, so this always fell
+    // through to font-serif regardless of what was selected in the dropdown.
+    return `${defaultClass} ${fontFamily || 'font-serif'}`;
   };
 
   const PageBreakHelper = ({ elementId }: { elementId: string }) => {

@@ -11,7 +11,7 @@ import VoiceInterview from './components/VoiceInterview';
 import CareerChat from './components/CareerChat';
 import ResumeFormEditor from './components/ResumeFormEditor';
 import { exportToDocx, exportToPdf, exportCoverLetterDocx } from './lib/export';
-import { Upload, FileText, Download, Briefcase, RefreshCw, Layers, CheckCircle2, Image as ImageIcon, MapPin, Phone, Mail, Linkedin, Globe, FileOutput, Mic, MessageCircle, ChevronUp, ChevronDown, Code, X, Users, LogOut, LogIn, ZoomIn, ZoomOut, Maximize2, Sparkles, Check, AlertCircle, Info, Menu, ShieldAlert } from 'lucide-react';
+import { Upload, FileText, Download, Briefcase, RefreshCw, Layers, CheckCircle2, Image as ImageIcon, MapPin, Phone, Mail, Linkedin, Globe, FileOutput, Mic, MessageCircle, ChevronUp, ChevronDown, Code, X, Users, LogOut, LogIn, ZoomIn, ZoomOut, Maximize2, Sparkles, Check, AlertCircle, Info, Menu, ShieldAlert, Lock } from 'lucide-react';
 import { auth, db, getAuthHeaders } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { ParticleNetworkBackground } from './components/ParticleNetworkBackground';
@@ -42,6 +42,11 @@ import { API_BASE_URL } from './config';
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'iambrittothomas@gmail.com';
 const STRIPE_PRICE_PRO = import.meta.env.VITE_STRIPE_PRICE_PRO || '';
 const STRIPE_PRICE_CREDITS = import.meta.env.VITE_STRIPE_PRICE_CREDITS || '';
+const FREE_RESUME_LIMIT = 3;
+const PRO_RESUME_LIMIT = 10;
+// Only the Classic template is available on the free tier; every other
+// template requires Pro. Classic is always allowed regardless of this list.
+const FREE_TEMPLATE_IDS: TemplateId[] = ['classic'];
 
 const defaultData: ResumeData = {
   personalDetails: {
@@ -175,7 +180,37 @@ export default function App() {
              setIsPro(data.isPro || user.email === ADMIN_EMAIL);
              setFreeInterviewUsed(data.freeInterviewUsed ?? false);
              setFreeChatMessagesUsed(data.freeChatMessagesUsed ?? 0);
-            
+
+            // Hydrate resume history from Firestore (the real source of truth).
+            // Only do this once per session — this listener re-fires on every
+            // change to the user doc, including the debounced saves this same
+            // resume data triggers, so re-hydrating every time would fight
+            // with in-progress local edits.
+            if (!resumesHydratedRef.current) {
+              if (Array.isArray(data.resumes) && data.resumes.length > 0) {
+                setResumes(data.resumes);
+                setActiveResumeId(data.resumes[0].id);
+              } else {
+                // One-time migration: this account has resumes saved locally
+                // from before history moved to Firestore. Adopt them and push
+                // them up immediately so they're no longer stranded in one browser.
+                const stored = localStorage.getItem(`resumes_${user.uid}`);
+                if (stored) {
+                  try {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                      const migrationLimit = (data.isPro || user.email === ADMIN_EMAIL) ? PRO_RESUME_LIMIT : FREE_RESUME_LIMIT;
+                      const capped = parsed.slice(0, migrationLimit);
+                      setResumes(capped);
+                      setActiveResumeId(capped[0].id);
+                      updateDoc(userRef, { resumes: capped }).catch(console.error);
+                    }
+                  } catch { /* ignore malformed local cache */ }
+                }
+              }
+              resumesHydratedRef.current = true;
+            }
+
             if (!data.onboardingCompleted) {
               setIsOnboarding(true);
               setOnboardingStep('options');
@@ -345,31 +380,32 @@ export default function App() {
   const [instructions, setInstructions] = useState('');
   const [resumes, setResumes] = useState<{id: string, name: string, data: ResumeData}[]>([{id: '1', name: defaultData.personalDetails.name || 'Untitled Resume', data: defaultData}]);
   const [activeResumeId, setActiveResumeId] = useState<string>('1');
+  // Resume history used to live ONLY in localStorage, which meant it vanished
+  // any time the user switched browsers/devices or cleared site data — even
+  // though nothing was ever actually deleted server-side, because nothing was
+  // ever stored server-side. Resumes are now the source of truth in Firestore
+  // (loaded inside the user-profile onSnapshot listener below, with a
+  // one-time migration of any pre-existing localStorage data). This ref just
+  // makes sure we don't fire a save back to Firestore before that initial
+  // load has actually happened (which would overwrite real data with the
+  // placeholder blank resume every state starts with).
+  const resumesHydratedRef = useRef(false);
 
-  React.useEffect(() => {
-    if (user?.uid) {
-      const stored = localStorage.getItem(`resumes_${user.uid}`);
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          setResumes(parsed);
-          if (parsed.length > 0) setActiveResumeId(parsed[0].id);
-        } catch(e) {
-          setResumes([{id: '1', name: defaultData.personalDetails.name || 'Untitled Resume', data: defaultData}]);
-        }
-      } else {
-        setResumes([{id: '1', name: defaultData.personalDetails.name || 'Untitled Resume', data: defaultData}]);
-      }
-    } else {
-      setResumes([{id: '1', name: defaultData.personalDetails.name || 'Untitled Resume', data: defaultData}]);
-    }
-  }, [user?.uid]);
-
-  React.useEffect(() => {
-    if (user?.uid && resumes.length > 0) {
-      localStorage.setItem(`resumes_${user.uid}`, JSON.stringify(resumes));
-    }
-  }, [resumes, user?.uid]);
+  // Debounced save: whenever the resumes array changes (after the initial
+  // Firestore hydration above), persist it back to Firestore. localStorage is
+  // still kept as a fast local cache, but Firestore is authoritative on load.
+  useEffect(() => {
+    if (!user?.uid || !resumesHydratedRef.current) return;
+    localStorage.setItem(`resumes_${user.uid}`, JSON.stringify(resumes));
+    const capped = resumes.slice(0, isPro ? PRO_RESUME_LIMIT : FREE_RESUME_LIMIT);
+    const t = setTimeout(() => {
+      updateDoc(doc(db, 'users', user.uid), { resumes: capped }).catch(err => {
+        console.error('Failed to save resume history:', err);
+        showToast("Couldn't save your resume history to your account — check your connection.", "error");
+      });
+    }, 800);
+    return () => clearTimeout(t);
+  }, [resumes, user?.uid, isPro]);
 
   const resumeData = resumes.find(r => r.id === activeResumeId)?.data || blankData;
   
@@ -448,18 +484,43 @@ export default function App() {
     return false;
   };
 
-  const handleStartNewResume = () => {
-    if (!isPro && resumes.length >= 1) {
-       showToast("Free users are limited to 1 active resume. Upgrade to Pro for unlimited resumes.", "error");
-       setShowPricing(true);
-       return;
+  // Shared guard for every place a new resume gets created (Start New Resume,
+  // re-importing over an existing named resume, etc.) so the Free/Pro resume
+  // history cap (3 / 10) is enforced consistently rather than only at one
+  // entry point.
+  const canCreateNewResume = (): boolean => {
+    const limit = isPro ? PRO_RESUME_LIMIT : FREE_RESUME_LIMIT;
+    if (resumes.length >= limit) {
+      showToast(
+        isPro
+          ? `You've reached the ${limit}-resume limit. Delete an older resume from your history to make room for a new one.`
+          : `Free accounts can keep up to ${limit} resumes. Upgrade to Pro for up to ${PRO_RESUME_LIMIT}, or delete an older resume first.`,
+        "error"
+      );
+      if (!isPro) setShowPricing(true);
+      return false;
     }
+    return true;
+  };
+
+  const handleStartNewResume = () => {
+    if (!canCreateNewResume()) return;
     setIsOnboarding(true);
     setOnboardingStep('options');
   };
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId>('classic');
   const [aestheticTheme, setAestheticTheme] = useState<'default' | 'ocean' | 'sunset' | 'forest'>('default');
   const [showProfilePicture, setShowProfilePicture] = useState(false);
+
+  // Non-Classic templates are Pro-only. If a subscription lapses (or a resume
+  // saved while on Pro gets reopened later as a free user) while a locked
+  // template is selected, fall back to Classic rather than silently letting
+  // a free account keep using a paid template.
+  useEffect(() => {
+    if (!isPro && !FREE_TEMPLATE_IDS.includes(selectedTemplate)) {
+      setSelectedTemplate('classic');
+    }
+  }, [isPro, selectedTemplate]);
 
   // Automatic pagination: measure real rendered section heights in a hidden,
   // off-screen copy of the currently selected template (all sections in one
@@ -553,6 +614,7 @@ export default function App() {
     const currentResume = resumes.find(r => r.id === activeResumeId);
     
     if (isOnboarding) {
+      if (!canCreateNewResume()) { setIsOnboarding(false); return; }
       setOnboardingStep('loading');
       targetId = Date.now().toString();
       setResumes(prev => [...prev, { id: targetId, name: 'Importing...', data: blankData }]);
@@ -560,6 +622,7 @@ export default function App() {
     } else {
       const isInitial = currentResume?.data === defaultData || currentResume?.data === blankData || currentResume?.name === "Untitled Resume";
       if (!isInitial) {
+        if (!canCreateNewResume()) return;
         targetId = Date.now().toString();
         setResumes(prev => [...prev, { id: targetId, name: 'Importing...', data: blankData }]);
         setActiveResumeId(targetId);
@@ -758,11 +821,39 @@ export default function App() {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result && typeof event.target.result === 'string') {
-          setResumeData(prev => ({
-             ...prev,
-             personalDetails: { ...prev.personalDetails, profilePictureUrl: event.target!.result as string }
-          }));
-          setShowProfilePicture(true);
+          // Resize/compress before storing: resume history is now saved to
+          // Firestore (1MB per-document limit across ALL fields, including
+          // every stored resume), so an uncompressed phone photo could blow
+          // past that on its own. Downscaling to a small square JPEG keeps
+          // each photo to a few tens of KB, which is plenty for a resume header.
+          const img = new Image();
+          img.onload = () => {
+            const MAX_DIM = 400;
+            const scale = Math.min(1, MAX_DIM / Math.max(img.width, img.height));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              // Fallback: store the original if canvas isn't available for some reason.
+              setResumeData(prev => ({ ...prev, personalDetails: { ...prev.personalDetails, profilePictureUrl: event.target!.result as string } }));
+              setShowProfilePicture(true);
+              return;
+            }
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.82);
+            setResumeData(prev => ({
+              ...prev,
+              personalDetails: { ...prev.personalDetails, profilePictureUrl: compressed }
+            }));
+            setShowProfilePicture(true);
+          };
+          img.onerror = () => {
+            // Not a decodable image somehow — fall back to the raw data URL rather than failing silently.
+            setResumeData(prev => ({ ...prev, personalDetails: { ...prev.personalDetails, profilePictureUrl: event.target!.result as string } }));
+            setShowProfilePicture(true);
+          };
+          img.src = event.target.result as string;
         }
       };
       reader.readAsDataURL(file);
@@ -773,7 +864,7 @@ export default function App() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#0a0612] relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#00F0FF]/10 to-[#B500FF]/10 blur-[100px] -z-10 animate-pulse"></div>
-          <AnimatedLogo size={72} className="mb-6 drop-shadow-[0_0_20px_rgba(0,240,255,0.35)]" />
+          <AnimatedLogo size={72} className="mb-6 drop-shadow-[0_0_20px_rgba(255,255,255,0.25)]" />
           <p className="text-[10px] text-[#00F0FF] uppercase font-black tracking-[0.2em] animate-pulse">Loading Precision Match...</p>
         </div>
       );
@@ -1260,21 +1351,35 @@ export default function App() {
                Templates
              </div>
              <div className="flex space-x-3 overflow-x-auto scroll-hide">
-               {templates.map(t => (
-                 <div 
+               {templates.map(t => {
+                 const isLocked = !isPro && !FREE_TEMPLATE_IDS.includes(t.id);
+                 return (
+                 <div
                    key={t.id}
-                   onClick={() => setSelectedTemplate(t.id)}
-                   className={`w-32 h-10 border rounded-lg flex items-center justify-center cursor-pointer transition-all ${
-                     selectedTemplate === t.id 
-                       ? 'border-indigo-500/50 shadow-[0_0_0_2px_rgba(99,102,241,0.2)] bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/200/10' 
-                       : 'border-white/10 hover:border-white/20 bg-white/5'
+                   onClick={() => {
+                     if (isLocked) {
+                       showToast(`${t.name} is a Pro template. Upgrade to unlock all 8 templates.`, "info");
+                       setShowPricing(true);
+                       return;
+                     }
+                     setSelectedTemplate(t.id);
+                   }}
+                   title={isLocked ? `${t.name} is a Pro template` : t.name}
+                   className={`w-32 h-10 border rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                     selectedTemplate === t.id
+                       ? 'border-indigo-500/50 shadow-[0_0_0_2px_rgba(99,102,241,0.2)] bg-[#00F0FF] shadow-[0_0_10px_#00F0FF]/200/10'
+                       : isLocked
+                         ? 'border-white/5 bg-white/[0.02] opacity-60 hover:opacity-90'
+                         : 'border-white/10 hover:border-white/20 bg-white/5'
                    }`}
                  >
+                   {isLocked && <Lock className="w-3 h-3 text-slate-500" />}
                    <span className={`text-[11px] font-bold uppercase tracking-wider ${
                      selectedTemplate === t.id ? 'text-indigo-300' : 'text-slate-500'
                    }`}>{t.name}</span>
                  </div>
-               ))}
+                 );
+               })}
                {selectedTemplate === 'aesthetic' && (
                  <div className="flex items-center space-x-2 pl-4 ml-2 border-l border-white/10">
                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-1">Color:</span>
@@ -1672,10 +1777,11 @@ export default function App() {
                   {/* Card 3: Build Manually */}
                   <div 
                     onClick={() => {
+                      if (!canCreateNewResume()) return;
                       const newId = Math.random().toString(36).substring(7);
                       setResumes(prev => [...prev, { id: newId, name: 'Untitled Resume', data: blankData }]);
                       setActiveResumeId(newId);
-                      setBaseContext(''); 
+                      setBaseContext('');
                       setJobDescription('');
                       setIsOnboarding(false);
                       setWorkspaceSubTab('form');
