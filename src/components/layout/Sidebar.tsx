@@ -57,13 +57,20 @@ export function Sidebar({
   const { logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
-  // Which sidebar accordion is expanded. Exactly one is open at a time, and
-  // "Main Menu" is the resting state — navigation is what you need most of the
-  // time, so it shouldn't require a hover to reveal. Hovering Resume History
-  // swaps the open section; leaving it falls back to Main Menu.
-  const [openSection, setOpenSection] = React.useState<'menu' | 'history'>('menu');
-  const menuOpen = openSection === 'menu';
-  const historyOpen = openSection === 'history';
+  // Resume History expands on hover. Main Menu is deliberately NOT collapsed
+  // when this happens.
+  //
+  // An earlier version made the two sections mutually exclusive (opening one
+  // closed the other). That oscillates: Main Menu sits above Resume History, so
+  // collapsing it pulls the History header ~360px up and out from under the
+  // cursor, which fires mouseleave, which re-expands Main Menu, which pushes the
+  // header back under the cursor, which fires mouseenter — an infinite
+  // shake at frame rate.
+  //
+  // The invariant that prevents it: a hover-driven section must never change the
+  // height of anything ABOVE its own hover target. History only grows downward,
+  // so its header never moves and the loop can't start.
+  const [historyOpen, setHistoryOpen] = React.useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -100,16 +107,12 @@ export function Sidebar({
         </div>
         <nav className="flex-1 mt-4 flex flex-col overflow-y-auto scroll-hide min-h-0">
 
-          {/* --- Main Menu: vertical accordion, open by default --- */}
-          <div
-            className="flex-shrink-0 stagger-enter"
-            onMouseEnter={() => setOpenSection('menu')}
-          >
-            <div className="px-6 py-3 flex items-center justify-between cursor-default select-none">
+          {/* --- Main Menu: always expanded (see historyOpen note above) --- */}
+          <div className="flex-shrink-0 stagger-enter">
+            <div className="px-6 py-3 flex items-center cursor-default select-none">
               <span className="text-slate-500 text-[11px] uppercase font-semibold tracking-wider">Main Menu</span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${menuOpen ? 'rotate-180 text-slate-400' : 'text-slate-600'}`} />
             </div>
-            <div className={`overflow-hidden transition-all duration-300 ease-in-out space-y-1 pb-1 ${menuOpen ? 'max-h-[360px] opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className="space-y-1 pb-1">
               {isAdmin && <Link to="/dashboard" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/dashboard' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}><Users className="w-4 h-4 mr-3 text-slate-400 shrink-0"/> Founder Hub</Link>}
               <Link to="/resume" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/resume' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}><FileText className="w-4 h-4 mr-3 text-slate-400 shrink-0"/> Home</Link>
               <Link to="/edit" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/edit' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}><Code className="w-4 h-4 mr-3 text-slate-400 shrink-0"/> Source Data</Link>
@@ -140,8 +143,8 @@ export function Sidebar({
           {/* --- Resume History: vertical accordion, hover to expand --- */}
           <div
             className="px-6 pt-4 pb-2 mt-2 flex flex-col min-h-0"
-            onMouseEnter={() => setOpenSection('history')}
-            onMouseLeave={() => setOpenSection('menu')}
+            onMouseEnter={() => setHistoryOpen(true)}
+            onMouseLeave={() => setHistoryOpen(false)}
           >
             <div className="flex items-center justify-between cursor-default select-none">
               <p className="flex items-center gap-2 text-xs text-slate-400 uppercase tracking-widest font-bold">
