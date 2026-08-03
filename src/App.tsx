@@ -16,6 +16,7 @@ import { auth, db, getAuthHeaders } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { ParticleNetworkBackground } from './components/ParticleNetworkBackground';
 import { AnimatedLogo } from './components/AnimatedLogo';
+import { CreditsMeter } from './components/CreditsMeter';
 
 import { useAuth } from './context/AuthContext';
 
@@ -926,13 +927,10 @@ export default function App() {
         setSidebarOpen={setSidebarOpen}
         isAdmin={isAdmin}
         isPro={isPro}
-        credits={credits}
         resumes={resumes}
         activeResumeId={activeResumeId}
         setActiveResumeId={setActiveResumeId}
         setResumes={setResumes}
-        downloadsRemaining={downloadsRemaining}
-        setShowPricing={setShowPricing}
         user={user}
         handleStartNewResume={handleStartNewResume}
         resumeData={resumeData}
@@ -967,6 +965,13 @@ export default function App() {
             <span className="status-badge pr-3"><CheckCircle2 className="w-3 h-3 inline mr-1 -mt-0.5" />Optimized for ATS</span>
           </div>
           <div className="flex items-center space-x-3">
+             <CreditsMeter
+               credits={credits}
+               isPro={isPro}
+               downloadsRemaining={downloadsRemaining}
+               onUpgrade={() => setShowPricing(true)}
+               tourAnchor
+             />
              <button onClick={() => handleExport('pdf')} className="px-4 py-2 text-xs font-medium btn-primary rounded-xl flex items-center">
                <FileOutput className="w-3 h-3 mr-2" />
                Export PDF
@@ -1476,7 +1481,7 @@ export default function App() {
           
           <Route path="/chat" element={
           <motion.div key="chat" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="flex-1 overflow-hidden h-full">
-            <CareerChat resumeData={resumeData} deductCredits={handleDeductCredits} isPro={isPro} freeChatMessagesUsed={freeChatMessagesUsed} onChatMessageUsed={() => { const newCount = freeChatMessagesUsed + 1; setFreeChatMessagesUsed(newCount); if (user) updateDoc(doc(db, 'users', user.uid), { freeChatMessagesUsed: newCount }).catch(console.error); }} />
+            <CareerChat resumeData={resumeData} deductCredits={handleDeductCredits} isPro={isPro} credits={credits} downloadsRemaining={downloadsRemaining} onUpgrade={() => setShowPricing(true)} freeChatMessagesUsed={freeChatMessagesUsed} onChatMessageUsed={() => { const newCount = freeChatMessagesUsed + 1; setFreeChatMessagesUsed(newCount); if (user) updateDoc(doc(db, 'users', user.uid), { freeChatMessagesUsed: newCount }).catch(console.error); }} />
           </motion.div>
           } />
           

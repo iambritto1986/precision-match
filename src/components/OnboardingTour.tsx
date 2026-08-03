@@ -41,8 +41,10 @@ export const OnboardingTour = () => {
             popover: {
               title: 'AI Credits',
               description: 'Keep an eye on your AI Credits. Every smart action (like generating a cover letter or doing a mock interview) consumes a credit.',
-              side: 'right',
-              align: 'start'
+              // Anchor moved from the sidebar to the workspace header, so the
+              // popover has to come from below, not from the right.
+              side: 'bottom',
+              align: 'end'
             }
           },
           {

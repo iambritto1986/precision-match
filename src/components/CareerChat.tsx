@@ -5,8 +5,9 @@ import Markdown from 'react-markdown';
 import { ResumeData } from '../types';
 import { API_BASE_URL } from '../config';
 import { getAuthHeaders } from '../lib/firebase';
+import { CreditsMeter } from './CreditsMeter';
 
-export default function CareerChat({ resumeData, deductCredits, isPro = false, freeChatMessagesUsed = 0, onChatMessageUsed }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean, isPro?: boolean, freeChatMessagesUsed?: number, onChatMessageUsed?: () => void }) {
+export default function CareerChat({ resumeData, deductCredits, isPro = false, freeChatMessagesUsed = 0, onChatMessageUsed, credits = 0, downloadsRemaining = 0, onUpgrade }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean, isPro?: boolean, freeChatMessagesUsed?: number, onChatMessageUsed?: () => void, credits?: number, downloadsRemaining?: number, onUpgrade?: () => void }) {
   const FREE_CHAT_LIMIT = 5;
   const [messages, setMessages] = useState<{role: 'user'|'model', text: string}[]>([{
       role: 'model',
@@ -68,6 +69,15 @@ export default function CareerChat({ resumeData, deductCredits, isPro = false, f
             <MessageCircle className="w-4 h-4 mr-2 text-[#00F0FF]" />
             Aadhya — Career Advisor
          </h2>
+         <div className="flex items-center space-x-3">
+         {/* Chat spends credits, so the meter follows the spending, not just the
+             resume workspace. */}
+         <CreditsMeter
+            credits={credits}
+            isPro={isPro}
+            downloadsRemaining={downloadsRemaining}
+            onUpgrade={() => onUpgrade?.()}
+         />
          <label className="flex items-center space-x-2 cursor-pointer bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-white/10 transition">
             <input type="checkbox" checked={thinkingMode} onChange={e => setThinkingMode(e.target.checked)} className="sr-only" />
             <div className={`w-8 h-4 rounded-full relative transition-colors ${thinkingMode ? 'bg-[#B500FF]' : 'bg-slate-600'}`}>
@@ -75,6 +85,7 @@ export default function CareerChat({ resumeData, deductCredits, isPro = false, f
             </div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">High Thinking Mode</span>
          </label>
+         </div>
       </div>
 
       <div className={`flex-1 overflow-y-auto p-6 space-y-6 flex flex-col ${messages.length === 1 ? 'justify-center' : ''}`}>

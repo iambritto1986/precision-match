@@ -12,13 +12,10 @@ interface SidebarProps {
   setSidebarOpen: (open: boolean) => void;
   isAdmin: boolean;
   isPro: boolean;
-  credits: number;
   resumes: Array<{id: string, name: string, data: ResumeData}>;
   activeResumeId: string | null;
   setActiveResumeId: (id: string | null) => void;
   setResumes: React.Dispatch<React.SetStateAction<Array<{id: string, name: string, data: ResumeData}>>>;
-  downloadsRemaining: number;
-  setShowPricing: (show: boolean) => void;
   user: any;
   setShowFeedback: (show: boolean) => void;
   setShowSupport: (show: boolean) => void;
@@ -35,13 +32,10 @@ export function Sidebar({
   setSidebarOpen,
   isAdmin,
   isPro,
-  credits,
   resumes,
   activeResumeId,
   setActiveResumeId,
   setResumes,
-  downloadsRemaining,
-  setShowPricing,
   user,
   setShowFeedback,
   setShowSupport,
@@ -184,30 +178,9 @@ export function Sidebar({
             </div>
           </div>
 
-          <div id="tour-credits" className="px-6 pb-6 pt-5 shrink-0 border-t border-white/5 mt-auto">
-            <div className="flex flex-col">
-              <div className="flex justify-between items-end mb-2">
-                 <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">AI Credits</p>
-                 <p className="text-[10px] text-[#00F0FF] font-bold cursor-pointer hover:text-white transition drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]" onClick={() => setShowPricing(true)}>Upgrade</p>
-              </div>
-              <p className="text-xs font-semibold text-slate-300 mb-2">{isPro ? `${credits} Credits` : `${credits} / 3 Free Remaining`}</p>
-              <div className="w-full bg-slate-800/50 h-1 rounded-full overflow-hidden mb-1">
-                <div className={`h-full rounded-full transition-all ${credits > 0 ? 'bg-[#00F0FF] shadow-[0_0_10px_rgba(0,240,255,0.6)]' : 'bg-red-500 shadow-[0_0_10px_rgba(248,113,113,0.6)]'}`} style={{ width: `${isPro ? Math.min((credits/100)*100, 100) : (credits/3)*100}%` }}></div>
-              </div>
-
-              {!isPro && (
-                <>
-                  <div className="flex justify-between items-end mb-2 mt-5">
-                     <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Free Exports</p>
-                  </div>
-                  <p className="text-xs font-semibold text-slate-300 mb-2">{downloadsRemaining} / 1 Free Remaining</p>
-                  <div className="w-full bg-slate-800/50 h-1 rounded-full overflow-hidden mb-1">
-                     <div className={`h-full rounded-full transition-all ${downloadsRemaining > 0 ? 'bg-[#B500FF] shadow-[0_0_10px_rgba(181,0,255,0.6)]' : 'bg-red-500 shadow-[0_0_10px_rgba(248,113,113,0.6)]'}`} style={{ width: `${downloadsRemaining * 100}%` }}></div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+          {/* AI Credits / Free Exports used to live here. Moved into the page
+              headers (see CreditsMeter) to reclaim vertical space in the nav. */}
+          <div className="mt-auto" />
         </nav>
         <div className="p-6 border-t border-white/5 flex items-center justify-between">
           <div className="flex items-center space-x-3">
