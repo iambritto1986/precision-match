@@ -961,22 +961,32 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
     return pageBreaks?.[elementId] && pageIndex === undefined ? <div className="break-before-page" /> : null;
   };
 
+  // Creative used to render every section unconditionally, ignoring the
+  // sectionOrder subset each page instance receives. With any page break that
+  // meant page 2 repeated the whole resume instead of continuing it. Every
+  // other template filters on this; now Creative does too.
+  const order = sectionOrder || defaultOrder;
+  const isFirstPage = !pageIndex || pageIndex === 0;
+
   return (
     <div className={getStyle("bg-white min-h-[1056px] w-[816px] box-border relative text-slate-800 grid grid-cols-3")}>
       {/* LEFT COLUMN */}
       <div className="col-span-1 bg-indigo-50 p-8 border-r border-indigo-100 flex flex-col gap-6">
+        {isFirstPage && (
         <div className="flex flex-col items-center text-center">
           {showProfilePicture && data.personalDetails.profilePictureUrl && (
-            <img 
-              src={data.personalDetails.profilePictureUrl} 
-              alt="Profile" 
+            <img
+              src={data.personalDetails.profilePictureUrl}
+              alt="Profile"
               className="w-32 h-32 rounded-full object-cover border-4 border-indigo-200 mb-4"
             />
           )}
           <h1 className="text-3xl font-black text-indigo-950 uppercase tracking-tight leading-none mb-2">{data.personalDetails.name}</h1>
           <h2 className="text-sm font-bold text-indigo-600 uppercase tracking-widest">{data.personalDetails.title}</h2>
         </div>
+        )}
 
+        {isFirstPage && (
         <div className="space-y-3 mt-4 text-xs text-indigo-900/80">
           {data.personalDetails.email && (
             <div className="flex items-center gap-2">
@@ -999,9 +1009,10 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
             </div>
           )}
         </div>
+        )}
 
         {/* SKILLS IN SIDEBAR */}
-        {data.skills.length > 0 && (
+        {data.skills.length > 0 && order.includes('skills') && (
           <div className="mt-6">
             <h3 className="text-sm font-bold text-indigo-900 uppercase tracking-widest border-b-2 border-indigo-200 pb-1 mb-3">Expertise</h3>
             <div className="flex flex-col gap-2">
@@ -1016,7 +1027,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
         )}
 
         {/* EDUCATION IN SIDEBAR */}
-        {data.education.length > 0 && (
+        {data.education.length > 0 && order.includes('education') && (
           <div className="mt-6">
             <h3 className="text-sm font-bold text-indigo-900 uppercase tracking-widest border-b-2 border-indigo-200 pb-1 mb-3">Education</h3>
             <div className="flex flex-col gap-4 text-xs">
@@ -1034,7 +1045,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
 
       {/* RIGHT COLUMN */}
       <div className="col-span-2 p-8 flex flex-col gap-8">
-        {data.personalDetails.summary && (
+        {data.personalDetails.summary && order.includes('summary') && (
           <div data-section-id="summary">
             <h3 className="text-lg font-black text-indigo-950 uppercase tracking-widest flex items-center gap-2 mb-3">
               <span className="w-4 h-1 bg-indigo-500 rounded-full"></span> Profile
@@ -1043,7 +1054,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
           </div>
         )}
 
-        {data.experience.length > 0 && (
+        {data.experience.length > 0 && order.includes('experience') && (
           <div data-section-id="experience">
             <h3 className="text-lg font-black text-indigo-950 uppercase tracking-widest flex items-center gap-2 mb-4">
               <span className="w-4 h-1 bg-indigo-500 rounded-full"></span> Experience
@@ -1069,7 +1080,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
           </div>
         )}
 
-        {data.projects && data.projects.length > 0 && (
+        {data.projects && data.projects.length > 0 && order.includes('projects') && (
           <div data-section-id="projects">
             <h3 className="text-lg font-black text-indigo-950 uppercase tracking-widest flex items-center gap-2 mb-4">
               <span className="w-4 h-1 bg-indigo-500 rounded-full"></span> Projects
@@ -1090,7 +1101,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
           </div>
         )}
 
-        {data.certifications && data.certifications.length > 0 && (
+        {data.certifications && data.certifications.length > 0 && order.includes('certifications') && (
           <div data-section-id="certifications">
             <h3 className="text-lg font-black text-indigo-950 uppercase tracking-widest flex items-center gap-2 mb-4">
               <span className="w-4 h-1 bg-indigo-500 rounded-full"></span> Certifications
@@ -1110,8 +1121,8 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
         )}
 
         {/* CUSTOM SECTIONS IN RIGHT COLUMN */}
-        {data.customSections?.map((section, sIndex) => (
-          <div key={sIndex} data-section-id={section.id}>
+        {data.customSections?.filter(section => order.includes(section.id)).map((section, sIndex) => (
+          <div key={section.id} data-section-id={section.id}>
             <h3 className="text-lg font-black text-indigo-950 uppercase tracking-widest flex items-center gap-2 mb-4">
               <span className="w-4 h-1 bg-indigo-500 rounded-full"></span> {section.title}
             </h3>

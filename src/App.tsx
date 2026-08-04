@@ -189,8 +189,13 @@ export default function App() {
             // with in-progress local edits.
             if (!resumesHydratedRef.current) {
               if (Array.isArray(data.resumes) && data.resumes.length > 0) {
-                setResumes(data.resumes);
-                setActiveResumeId(data.resumes[0].id);
+                // Backfill `subject` for records saved before the field existed.
+                // 'self' is the right default: every pre-existing resume was
+                // created when the app had no concept of building for someone
+                // else, so they're all the account owner's own.
+                const withSubject = data.resumes.map((r: any) => ({ ...r, subject: r.subject ?? 'self' }));
+                setResumes(withSubject);
+                setActiveResumeId(withSubject[0].id);
               } else {
                 // One-time migration: this account has resumes saved locally
                 // from before history moved to Firestore. Adopt them and push
@@ -379,7 +384,14 @@ export default function App() {
 
   const [jobDescription, setJobDescription] = useState('');
   const [instructions, setInstructions] = useState('');
-  const [resumes, setResumes] = useState<{id: string, name: string, data: ResumeData}[]>([{id: '1', name: defaultData.personalDetails.name || 'Untitled Resume', data: defaultData}]);
+  // `subject` records who a resume is ABOUT. Only resumes marked 'self' may
+  // influence anything account-level (Aadhya's coaching context, future profile
+  // prefill). Building a resume for a friend or client must never rewrite who
+  // the app thinks you are. Legacy records with no `subject` are treated as
+  // 'self', which is correct for every resume that existed before this field.
+  const [resumes, setResumes] = useState<{id: string, name: string, data: ResumeData, subject?: 'self' | 'other'}[]>([{id: '1', name: defaultData.personalDetails.name || 'Untitled Resume', data: defaultData, subject: 'self'}]);
+  // Set after an import when we need the user to confirm who the resume is for.
+  const [pendingSubjectResumeId, setPendingSubjectResumeId] = useState<string | null>(null);
   const [activeResumeId, setActiveResumeId] = useState<string>('1');
   // Resume history used to live ONLY in localStorage, which meant it vanished
   // any time the user switched browsers/devices or cleared site data — even
@@ -408,7 +420,15 @@ export default function App() {
     return () => clearTimeout(t);
   }, [resumes, user?.uid, isPro]);
 
-  const resumeData = resumes.find(r => r.id === activeResumeId)?.data || blankData;
+  const activeResume = resumes.find(r => r.id === activeResumeId);
+  const resumeData = activeResume?.data || blankData;
+
+  // Aadhya coaches the signed-in user about their own career. If the active
+  // resume is about somebody else, handing her its contents would have her
+  // discussing a stranger's history as though it were the user's. Pass blank
+  // data instead — the server already has an honest "no resume yet" path.
+  const isActiveResumeMine = (activeResume?.subject ?? 'self') === 'self';
+  const coachingResumeData = isActiveResumeMine ? resumeData : blankData;
   
   React.useEffect(() => {
      let newOrder = [...sectionOrder];
@@ -530,19 +550,10 @@ export default function App() {
   // merged with the user's manual pageBreaks when building the visible pages
   // below.
   //
-  // NOTE: the Creative template's own multi-page rendering is pre-existing
-  // and separately broken — its main-column sections (summary/experience/
-  // custom) don't filter by the sectionOrder subset a given page instance
-  // receives, so every page instance would show the *same* full content
-  // rather than a split. That's a bug in CreativeTemplate itself, not
-  // something introduced here — auto-pagination is skipped for Creative
-  // until that's fixed, rather than pretending it splits correctly.
+  // Creative was previously excluded here because its own renderer ignored the
+  // per-page sectionOrder subset and duplicated the whole resume onto every
+  // page. That's fixed in CreativeTemplate, so it now paginates like the rest.
   useLayoutEffect(() => {
-    if (selectedTemplate === 'creative') {
-      setAutoPageBreaks(prev => (Object.keys(prev).length ? {} : prev));
-      return;
-    }
-
     const container = measureRef.current;
     if (!container) return;
 
@@ -665,6 +676,20 @@ export default function App() {
         }));
         setIsOnboarding(false); // Onboarding complete!
         setWorkspaceSubTab('form'); // Open form editor directly
+
+        // Ask who this resume is for before anything treats it as the user's own
+        // identity. We only bother them when it's genuinely ambiguous: the very
+        // first import is almost always the user themselves, but once we know a
+        // name, a DIFFERENT name is a strong signal this is someone else's resume.
+        const importedName = (generated.data.personalDetails.name || '').trim().toLowerCase();
+        const knownName = (user?.displayName || '').trim().toLowerCase();
+        const namesDiffer = !!importedName && !!knownName && importedName !== knownName;
+        const hasOtherResumes = resumes.some(r => r.id !== targetId && r.subject === 'self');
+        if (namesDiffer || hasOtherResumes) {
+          setPendingSubjectResumeId(targetId);
+        } else {
+          setResumes(prev => prev.map(r => r.id === targetId ? { ...r, subject: 'self' as const } : r));
+        }
       } else {
         alert("Failed to intelligently format resume from the text.");
       }
@@ -1481,13 +1506,13 @@ export default function App() {
           
           <Route path="/chat" element={
           <motion.div key="chat" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="flex-1 overflow-hidden h-full">
-            <CareerChat resumeData={resumeData} deductCredits={handleDeductCredits} isPro={isPro} credits={credits} downloadsRemaining={downloadsRemaining} onUpgrade={() => setShowPricing(true)} freeChatMessagesUsed={freeChatMessagesUsed} onChatMessageUsed={() => { const newCount = freeChatMessagesUsed + 1; setFreeChatMessagesUsed(newCount); if (user) updateDoc(doc(db, 'users', user.uid), { freeChatMessagesUsed: newCount }).catch(console.error); }} />
+            <CareerChat resumeData={coachingResumeData} deductCredits={handleDeductCredits} isPro={isPro} credits={credits} downloadsRemaining={downloadsRemaining} onUpgrade={() => setShowPricing(true)} freeChatMessagesUsed={freeChatMessagesUsed} onChatMessageUsed={() => { const newCount = freeChatMessagesUsed + 1; setFreeChatMessagesUsed(newCount); if (user) updateDoc(doc(db, 'users', user.uid), { freeChatMessagesUsed: newCount }).catch(console.error); }} />
           </motion.div>
           } />
           
           <Route path="/interview" element={
           <motion.div key="interview" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="flex-1 overflow-hidden h-full">
-            <VoiceInterview resumeData={resumeData} deductCredits={handleDeductCredits} isPro={isPro} freeInterviewUsed={freeInterviewUsed} showToast={showToast} onTrialUsed={() => { setFreeInterviewUsed(true); if (user) updateDoc(doc(db, 'users', user.uid), { freeInterviewUsed: true }).catch(console.error); }} />
+            <VoiceInterview resumeData={coachingResumeData} deductCredits={handleDeductCredits} isPro={isPro} freeInterviewUsed={freeInterviewUsed} showToast={showToast} onTrialUsed={() => { setFreeInterviewUsed(true); if (user) updateDoc(doc(db, 'users', user.uid), { freeInterviewUsed: true }).catch(console.error); }} />
           </motion.div>
           } />
           
@@ -1806,7 +1831,9 @@ export default function App() {
                     onClick={() => {
                       if (!canCreateNewResume()) return;
                       const newId = Math.random().toString(36).substring(7);
-                      setResumes(prev => [...prev, { id: newId, name: 'Untitled Resume', data: blankData }]);
+                      // Manual builds start blank, so there's no imported name to
+                      // be ambiguous about — the user is typing their own details.
+                      setResumes(prev => [...prev, { id: newId, name: 'Untitled Resume', data: blankData, subject: 'self' as const }]);
                       setActiveResumeId(newId);
                       setBaseContext('');
                       setJobDescription('');
@@ -2019,6 +2046,50 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Who is this resume for? Shown after an import when the extracted name
+          suggests it may not be the account owner. Deliberately not dismissible
+          by clicking outside — an unanswered question here would leave the
+          resume in an undefined state. */}
+      {pendingSubjectResumeId && (() => {
+        const pending = resumes.find(r => r.id === pendingSubjectResumeId);
+        const importedName = pending?.data.personalDetails.name?.trim();
+        const assign = (subject: 'self' | 'other') => {
+          setResumes(prev => prev.map(r => r.id === pendingSubjectResumeId ? { ...r, subject } : r));
+          setPendingSubjectResumeId(null);
+          if (subject === 'other') {
+            showToast("Saved as someone else's resume — your profile is unchanged.", 'info');
+          }
+        };
+        return (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 backdrop-enter">
+            <div className="modal-container max-w-md w-full p-6 modal-enter">
+              <h2 className="text-lg font-bold text-white mb-2">
+                {importedName ? `We imported a resume for ${importedName}` : 'Who is this resume for?'}
+              </h2>
+              <p className="text-sm text-slate-400 mb-6">
+                This decides whether the details become part of your own profile.
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => assign('self')}
+                  className="text-left p-4 rounded-xl border border-[#00F0FF]/30 bg-[#00F0FF]/[0.06] hover:bg-[#00F0FF]/[0.12] transition"
+                >
+                  <p className="text-sm font-bold text-white mb-1">This is me</p>
+                  <p className="text-xs text-slate-400">Aadhya can coach you on this background, and future resumes can prefill from it.</p>
+                </button>
+                <button
+                  onClick={() => assign('other')}
+                  className="text-left p-4 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] transition"
+                >
+                  <p className="text-sm font-bold text-white mb-1">Someone else</p>
+                  <p className="text-xs text-slate-400">Keeps it as a standalone resume. Nothing is added to your profile or shared with Aadhya as your history.</p>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Legal Modal (Privacy / Terms) */}
       {showLegalModal && (

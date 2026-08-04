@@ -184,9 +184,14 @@ export function Sidebar({
         </nav>
         <div className="p-6 border-t border-white/5 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-             <div className="w-8 h-8 rounded-full bg-white/10 border border-white/10 overflow-hidden bg-cover bg-center shrink-0" style={{ backgroundImage: user?.photoURL ? `url(${user.photoURL})` : resumeData.personalDetails.profilePictureUrl ? `url(${resumeData.personalDetails.profilePictureUrl})` : 'none' }}></div>
+             {/* Account identity comes ONLY from the signed-in user. This used to
+                 fall back to resumeData.personalDetails, which meant building a
+                 resume for someone else put THEIR name and photo in your account
+                 widget. A resume is a document about someone; it is not proof of
+                 who is logged in. */}
+             <div className="w-8 h-8 rounded-full bg-white/10 border border-white/10 overflow-hidden bg-cover bg-center shrink-0" style={{ backgroundImage: user?.photoURL ? `url(${user.photoURL})` : 'none' }}></div>
              <div className="overflow-hidden">
-               <p className="text-xs font-medium truncate w-24">{user?.displayName || user?.email || resumeData.personalDetails.name || 'Guest'}</p>
+               <p className="text-xs font-medium truncate w-24">{user?.displayName || user?.email || 'Guest'}</p>
                <p className="text-[10px] text-slate-400">{isPro ? 'Pro Member' : 'Free Tier'}</p>
              </div>
              {user ? (

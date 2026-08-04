@@ -628,7 +628,7 @@ async function startServer() {
       }
 
       const prompt = `
-You are an expert executive resume writer. 
+You are an expert executive resume writer.
 You are tasked with curating and tailoring a candidate's base resume data to a specific job description.
 
 Base Resume Data:
@@ -639,6 +639,42 @@ ${jobDescription || 'N/A (Provide purely an enhanced version of the base data)'}
 
 Additional Instructions:
 ${instructions || 'None'}
+
+=== GROUNDING RULES (these override every other instruction below) ===
+
+Every factual claim in your output MUST be traceable to the Base Resume Data above.
+The job description tells you what to EMPHASISE. It is never a source of facts about
+this candidate. A resume that gets the candidate caught out in an interview is a
+total failure, no matter how well it matches the job description.
+
+You MAY:
+- Reorder and reprioritise experience, bullets and skills so the most relevant appear first.
+- Reword existing bullets using clearer, stronger language, and adopt the job
+  description's vocabulary WHERE THE UNDERLYING FACT IS ALREADY PRESENT
+  (e.g. if the base data says "managed the product backlog" and the job description
+  says "backlog grooming", you may use the phrase "backlog grooming").
+- Drop or condense content that is irrelevant to the target role.
+- Group skills into categories that mirror how the job description organises them.
+- Set personalDetails.title to the target role ONLY IF the candidate's actual
+  experience genuinely supports it. This is a headline, not a past job title.
+
+You MUST NOT:
+- Invent, infer or estimate any metric, percentage, dollar figure, team size,
+  or timeframe that is not explicitly in the base data. If a bullet has no number,
+  leave it without a number. Never write placeholders like "X%" or "[number]".
+- Add any skill, tool, technology, language or certification that does not appear
+  in the base data, even if the job description requires it. Missing skills are the
+  user's problem to solve honestly, not yours to paper over.
+- Alter the title, employer name, location or dates of any past role.
+- Invent employers, degrees, institutions, publications, awards or certifications.
+- Upgrade scope or seniority (e.g. "contributed to" must not become "led";
+  "team member" must not become "team lead").
+- Claim years of experience with something beyond what the dates in the base data support.
+
+If the candidate is genuinely a weak match for the job description, produce an honest
+resume that presents their real strengths. Do not close the gap by fabricating.
+
+=== END GROUNDING RULES ===
 
 Please generate a highly professional, tailored resume formatted in JSON.
 The structured output must comprehensively include ALL roles, experiences, education, and bullet points from the base data. Do not arbitrarily truncate or limit length to a single page. If the input is long, the output should faithfully incorporate that depth.
@@ -653,7 +689,7 @@ The JSON should exactly match this TypeScript interface:
   customSections?: Array<{ id: string, title: string, items: Array<{ title: string, subtitle?: string, date?: string, description?: string }> }>
 }
 
-Ensure the content highlights relevant skills and experiences for the job description. Do not add fictitious information.
+Ensure the content highlights relevant skills and experiences for the job description, strictly within the grounding rules above.
 If there are any other sections (like Credentials, Publications, Awards, etc.) in the original resume that do not fit into the standard properties above, please add them to the 'customSections' array. Use a simple lowercase string for the 'id' (e.g. 'credentials').
 Respond only with valid JSON.
       `;
@@ -695,8 +731,36 @@ ${baseData}
 Target Job Description:
 ${jdText}
 
+=== GROUNDING RULES (these override every other instruction) ===
+
+Cover letters are where invented claims creep in most easily, because the format
+invites confident storytelling. Do not let it. Every factual claim about this
+candidate MUST be traceable to the Candidate Experience above.
+
+You MUST NOT:
+- Invent metrics, percentages, revenue figures, team sizes or timeframes. If the
+  candidate's experience contains no numbers, write a strong letter without numbers.
+- Claim skills, tools or technologies the candidate has not listed, even if the job
+  description asks for them.
+- Invent employers, projects, achievements, qualifications or awards.
+- Inflate seniority or scope (do not turn "contributed to" into "led").
+- Assert enthusiasm-as-fact about the company's specifics (products, culture,
+  recent news) that you have not been given. Keep interest genuine and general.
+
+You MAY:
+- Select which real experiences to foreground for this role.
+- Frame real experience in the job description's language where the substance matches.
+- Express motivation and fit in the candidate's voice.
+
+If the candidate's background is thin for this role, write an honest, confident
+letter about what they genuinely bring. Never fabricate to fill the gap — the
+candidate has to defend every sentence of this letter in an interview.
+
+=== END GROUNDING RULES ===
+
 Write the cover letter in professional plain text matching standard business letter format.
 Include placeholders like [Hiring Manager Name] or [Company Name] where appropriate if not found.
+Use a placeholder rather than inventing any detail you were not given.
       `;
 
       const response = await ai.models.generateContent({

@@ -630,7 +630,7 @@ const renderCreative: Renderer = (doc, data, opts) => {
   // to hardcode 'courier' to match. Now that the on-screen bug is fixed, this
   // follows the same font selection as every other template.
   const font = resolveFont(opts.fontFamily, 'courier');
-  const { personalDetails: p, skills, education, experience, customSections } = data;
+  const { personalDetails: p, skills, education, experience, projects, certifications, customSections } = data;
   const pages = paginate(opts.sectionOrder, opts.pageBreaks);
   const sidebarW = 190;
   const gap = 0;
@@ -698,6 +698,27 @@ const renderCreative: Renderer = (doc, data, opts) => {
             });
             ctx.y += 6;
           }
+          if (group.includes('projects') && projects && projects.length > 0) {
+            text(ctx, 'PROJECTS', ctx.marginX, { size: 13.5, bold: true, color: INDIGO_950 }); // text-lg (18px)
+            ctx.y += 4;
+            projects.forEach(proj => {
+              justifyLine(ctx, proj.name || '', proj.duration, { size: 10.5, bold: true, color: SLATE_900, rightColor: INDIGO_500, rightSize: 9 }); // text-sm / text-xs
+              if (proj.role) text(ctx, proj.role, ctx.marginX, { size: 9, bold: true, color: INDIGO_700 }); // text-xs (12px)
+              if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 9, color: SLATE_600 }); // text-xs (12px)
+              ctx.y += 4;
+            });
+            ctx.y += 4;
+          }
+          if (group.includes('certifications') && certifications && certifications.length > 0) {
+            text(ctx, 'CERTIFICATIONS', ctx.marginX, { size: 13.5, bold: true, color: INDIGO_950 }); // text-lg (18px)
+            ctx.y += 4;
+            certifications.forEach(cert => {
+              justifyLine(ctx, cert.name || '', cert.date, { size: 10.5, bold: true, color: SLATE_900, rightColor: INDIGO_500, rightSize: 9 }); // text-sm / text-xs
+              if (cert.issuer) text(ctx, cert.issuer, ctx.marginX, { size: 9, bold: true, color: INDIGO_700 }); // text-xs (12px)
+              ctx.y += 4;
+            });
+            ctx.y += 4;
+          }
           customSections?.forEach(section => {
             if (!group.includes(section.id) || section.items.length === 0) return;
             text(ctx, section.title.toUpperCase(), ctx.marginX, { size: 13.5, bold: true, color: INDIGO_950 }); // text-lg (18px)
@@ -724,7 +745,7 @@ const renderTech: Renderer = (doc, data, opts) => {
   // Same fix as Creative above — the on-screen font-comparison bug is gone, so
   // this now honors the actual font dropdown instead of hardcoding courier.
   const font = resolveFont(opts.fontFamily, 'courier');
-  const { personalDetails: p, skills, education, experience, customSections } = data;
+  const { personalDetails: p, skills, education, experience, projects, certifications, customSections } = data;
   const pages = paginate(opts.sectionOrder, opts.pageBreaks);
 
   pages.forEach((group, pageIdx) => {
@@ -788,6 +809,24 @@ const renderTech: Renderer = (doc, data, opts) => {
         });
         ctx.y += 6; return;
       }
+      if (sectionId === 'projects' && projects && projects.length > 0) {
+        tag('projects');
+        projects.forEach((proj, i) => {
+          if (i > 0) ctx.y += 4;
+          justifyLine(ctx, `## ${proj.name || ''}`, proj.duration ? `[${proj.duration}]` : '', { size: 10.5, bold: true, color: SLATE_900, rightColor: SLATE_500, rightSize: 9 });
+          if (proj.role) text(ctx, proj.role, ctx.marginX, { size: 9, color: EMERALD_600 });
+          if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 9, color: SLATE_700 });
+        });
+        ctx.y += 8; return;
+      }
+      if (sectionId === 'certifications' && certifications && certifications.length > 0) {
+        tag('certifications');
+        certifications.forEach(cert => {
+          const left = `* ${cert.name || ''}${cert.issuer ? ` — ${cert.issuer}` : ''}`;
+          justifyLine(ctx, left, cert.date ? `[${cert.date}]` : '', { size: 9, color: SLATE_700, rightColor: SLATE_500, rightSize: 9 });
+        });
+        ctx.y += 8; return;
+      }
       const customSec = customSections?.find(c => c.id === sectionId);
       if (customSec && customSec.items.length > 0) {
         tag(customSec.title.toLowerCase().replace(/\s+/g, '-'));
@@ -811,7 +850,7 @@ const renderAcademic: Renderer = (doc, data, opts) => {
   // dropdown (falling back to serif, matching its on-screen default) instead
   // of always hardcoding times.
   const font = resolveFont(opts.fontFamily, 'times');
-  const { personalDetails: p, skills, education, experience, customSections } = data;
+  const { personalDetails: p, skills, education, experience, projects, certifications, customSections } = data;
   const pages = paginate(opts.sectionOrder, opts.pageBreaks);
 
   pages.forEach((group, pageIdx) => {
@@ -865,6 +904,25 @@ const renderAcademic: Renderer = (doc, data, opts) => {
         header('Core Competencies');
         text(ctx, skills.map(s => s.category).join(' • '), ctx.marginX, { size: 9.75, color: SLATE_800 }); // text-[13px]
         ctx.y += 8; return;
+      }
+      if (sectionId === 'projects' && projects && projects.length > 0) {
+        header('Research & Projects');
+        projects.forEach(proj => {
+          justifyLine(ctx, proj.name || '', proj.duration, { size: 10.5, bold: true, color: SLATE_900, rightColor: SLATE_700, rightSize: 9 });
+          if (proj.role) text(ctx, proj.role, ctx.marginX, { size: 10.5, italic: true, color: SLATE_800 });
+          if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 9.75, color: SLATE_800 });
+          ctx.y += 4;
+        });
+        ctx.y += 4; return;
+      }
+      if (sectionId === 'certifications' && certifications && certifications.length > 0) {
+        header('Certifications & Honours');
+        certifications.forEach(cert => {
+          const left = `${cert.name || ''}${cert.issuer ? `, ${cert.issuer}` : ''}`;
+          justifyLine(ctx, left, cert.date, { size: 10.5, color: SLATE_900, rightColor: SLATE_700, rightSize: 9 });
+          ctx.y += 2;
+        });
+        ctx.y += 4; return;
       }
       const customSec = customSections?.find(c => c.id === sectionId);
       if (customSec && customSec.items.length > 0) {

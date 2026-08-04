@@ -36,6 +36,13 @@
   --font-opensans: "Open Sans", sans-serif;
   --font-space: "Space Grotesk", sans-serif;
   --font-outfit: "Outfit", sans-serif;
+
+  /* The font picker labels these "Playfair (Serif/Classic)" and
+     "JetBrains (Developer)", but Tailwind's stock font-serif/font-mono are
+     Georgia and Menlo. Both faces are already loaded via the Google Fonts
+     import above, so point the utilities at them and make the labels honest. */
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 /* Global Reset & Typography */
@@ -133,16 +140,24 @@ h1, h2, h3, h4 {
   }
 }
 
-#resume-preview-content h1, 
-#resume-preview-content h2, 
-#resume-preview-content h3, 
+/* The dark app theme uppercases and letter-spaces all headings; a resume must
+   not inherit that, hence the reset below.
+
+   NOTE: do NOT add `font-family` here. This block used to also force
+   `font-family: 'Playfair Display', 'Inter', serif !important`, which silently
+   defeated the entire font picker — an !important declaration on every element
+   inside the preview beats the Tailwind font utility class that each template
+   sets on its own wrapper, so every font selection rendered identically.
+   Each template supplies its own default font class, so no override is needed. */
+#resume-preview-content h1,
+#resume-preview-content h2,
+#resume-preview-content h3,
 #resume-preview-content h4,
 #resume-preview-content p,
 #resume-preview-content span,
 #resume-preview-content div {
   text-transform: none !important;
   letter-spacing: normal !important;
-  font-family: 'Playfair Display', 'Inter', serif !important;
 }
 
 p, span, label { color: var(--text-secondary); }
