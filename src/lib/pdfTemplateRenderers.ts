@@ -283,7 +283,9 @@ const renderModernSection = (ctx: Ctx, data: ResumeData, sectionId: string) => {
 // MINIMALIST — mono default, right-aligned labels + wide content column
 // ---------------------------------------------------------------------------
 const renderMinimalist: Renderer = (doc, data, opts) => {
-  const font = resolveFont(opts.fontFamily, 'courier');
+  // Kept in sync with MinimalistTemplate's on-screen default, which moved from
+  // mono to sans — mono read as a code listing rather than a clean resume.
+  const font = resolveFont(opts.fontFamily, 'helvetica');
   const { personalDetails: p } = data;
   const pages = paginate(opts.sectionOrder, opts.pageBreaks);
   const labelW = 90;
@@ -643,7 +645,13 @@ const renderCreative: Renderer = (doc, data, opts) => {
     renderTwoColumns(doc, M, M, M,
       {
         x: M, width: sidebarW, draw: (ctx) => {
+          // The tinted column is a structural design element, so it's painted on
+          // every page — but its CONTENT (identity, skills, education) belongs to
+          // page 1 only. Without this gate the sidebar repeated in full on every
+          // page, which both looks broken and contradicts the on-screen preview,
+          // where sidebar sections are pinned to page 1 by SIDEBAR_SECTIONS.
           filledRect(ctx.doc, 0, 0, M + sidebarW + gap, pageHeight(ctx.doc), INDIGO_50);
+          if (pageIdx > 0) return;
           ctx.y = M + 4;
           if (opts.showProfilePicture && opts.profileImage) {
             drawImage(ctx.doc, opts.profileImage, ctx.marginX + sidebarW / 2 - 30, ctx.y, 60, 30);
@@ -661,7 +669,7 @@ const renderCreative: Renderer = (doc, data, opts) => {
             skills.forEach(s => {
               text(ctx, s.category, ctx.marginX, { size: 9, bold: true, color: INDIGO_900, maxWidth: sidebarW }); // text-xs (12px)
               const items = s.items.join(', ');
-              if (items) text(ctx, items, ctx.marginX, { size: 7.5, italic: true, color: INDIGO_400, maxWidth: sidebarW }); // text-[10px]
+              if (items) text(ctx, items, ctx.marginX, { size: 8.25, italic: true, color: INDIGO_400, maxWidth: sidebarW }); // text-[11px]
             });
           }
           if (education.length > 0) {
@@ -694,7 +702,7 @@ const renderCreative: Renderer = (doc, data, opts) => {
               justifyLine(ctx, exp.role || '', exp.duration, { size: 12, bold: true, color: SLATE_900, rightColor: INDIGO_500, rightSize: 9 }); // text-base (16px) / text-xs (12px)
               text(ctx, [exp.company, exp.location].filter(Boolean).join('  |  '), ctx.marginX, { size: 10.5, bold: true, color: INDIGO_700 }); // text-sm (14px)
               ctx.y += 2;
-              exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { size: 9, color: SLATE_600, markerColor: INDIGO_400 })); // text-xs (12px)
+              exp.responsibilities.filter(r => r.trim()).forEach(r => bullet(ctx, r, ctx.marginX, { size: 9.75, color: SLATE_600, markerColor: INDIGO_400 })); // text-[13px]
             });
             ctx.y += 6;
           }
@@ -704,7 +712,7 @@ const renderCreative: Renderer = (doc, data, opts) => {
             projects.forEach(proj => {
               justifyLine(ctx, proj.name || '', proj.duration, { size: 10.5, bold: true, color: SLATE_900, rightColor: INDIGO_500, rightSize: 9 }); // text-sm / text-xs
               if (proj.role) text(ctx, proj.role, ctx.marginX, { size: 9, bold: true, color: INDIGO_700 }); // text-xs (12px)
-              if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 9, color: SLATE_600 }); // text-xs (12px)
+              if (proj.description) text(ctx, proj.description, ctx.marginX, { size: 9.75, color: SLATE_600 }); // text-[13px]
               ctx.y += 4;
             });
             ctx.y += 4;
@@ -726,7 +734,7 @@ const renderCreative: Renderer = (doc, data, opts) => {
             section.items.forEach(item => {
               justifyLine(ctx, item.title || '', item.date, { size: 10.5, bold: true, color: SLATE_900, rightColor: INDIGO_500, rightSize: 9 }); // text-sm / text-xs
               if (item.subtitle) text(ctx, item.subtitle, ctx.marginX, { size: 9, bold: true, color: INDIGO_700 }); // text-xs (12px)
-              if (item.description) text(ctx, item.description, ctx.marginX, { size: 9, color: SLATE_600 }); // text-xs (12px)
+              if (item.description) text(ctx, item.description, ctx.marginX, { size: 9.75, color: SLATE_600 }); // text-[13px]
               ctx.y += 4;
             });
             ctx.y += 4;

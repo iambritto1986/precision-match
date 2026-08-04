@@ -564,9 +564,17 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ data, showProfileP
       }
       return null;
   };
-  
+
+  // Minimalist defaulted to font-mono, which rendered like a typewriter or a code
+  // listing rather than a clean, quiet resume — the opposite of what the template
+  // name promises. Sans is the right default; anyone who wants monospace can still
+  // pick JetBrains from the font selector.
   return (
-    <div className={`${fontFamily || 'font-mono'} text-gray-800 bg-white p-12 min-h-[1056px] w-[816px] box-border relative shadow-sm transition-all duration-200`}>
+    <div className={`${fontFamily || 'font-sans'} text-gray-800 bg-white p-12 min-h-[1056px] w-[816px] box-border relative shadow-sm transition-all duration-200`}>
+      {/* Identity header belongs on page 1 only — the PDF renderer already gates
+          on pageIdx === 0, so without this the preview repeated the name and
+          contact block at the top of every page and disagreed with the export. */}
+      {(!pageIndex || pageIndex === 0) && (
       <header className="mb-10 flex gap-6 items-start">
         {showProfilePicture && personalDetails.profilePictureUrl && (
           <img src={personalDetails.profilePictureUrl} alt="Profile" className="w-20 h-20 rounded-md object-cover grayscale" />
@@ -581,6 +589,7 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ data, showProfileP
           </div>
         </div>
       </header>
+      )}
 
       {(sectionOrder || defaultOrder).map(sectionId => renderSec(sectionId))}
     </div>
@@ -721,6 +730,8 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data, showProfilePi
 
   return (
     <div className={`${fontFamily || 'font-serif'} text-[#2a2a2a] bg-white p-10 min-h-[1056px] w-[816px] box-border relative shadow-sm transition-all duration-200`}>
+      {/* Page 1 only — matches the PDF renderer's pageIdx === 0 gate. */}
+      {(!pageIndex || pageIndex === 0) && (
       <div className="text-center mb-8">
         {showProfilePicture && personalDetails.profilePictureUrl && (
           <img src={personalDetails.profilePictureUrl} alt="Profile" className="w-20 h-20 rounded-full mx-auto mb-4 border border-gray-400 object-cover" />
@@ -734,6 +745,7 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data, showProfilePi
            {personalDetails.linkedin && <span>{personalDetails.linkedin}</span>}
         </div>
       </div>
+      )}
 
       {(sectionOrder || defaultOrder).map(sectionId => renderSec(sectionId))}
     </div>
@@ -1019,7 +1031,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
               {data.skills.map((skill, index) => (
                 <div key={index} className="flex justify-between items-center text-xs">
                   <span className="font-medium text-indigo-900">{skill.category}</span>
-                  {skill.items.join(', ') && <span className="text-indigo-400/80 italic text-[10px]">{skill.items.join(', ')}</span>}
+                  {skill.items.join(', ') && <span className="text-indigo-400/80 italic text-[11px]">{skill.items.join(', ')}</span>}
                 </div>
               ))}
             </div>
@@ -1069,7 +1081,10 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
                     <span className="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">{exp.duration}</span>
                   </div>
                   <div className="text-sm font-semibold text-indigo-700 mb-2">{exp.company} {exp.location && <span className="text-slate-400 font-normal">| {exp.location}</span>}</div>
-                  <ul className="list-disc list-outside ml-4 space-y-1.5 text-xs text-slate-600">
+                  {/* Bumped 12px -> 13px. Creative previously ran smaller than every
+                      other template to force everything onto one page; now that it
+                      paginates properly, the body text can be readable. */}
+                  <ul className="list-disc list-outside ml-4 space-y-1.5 text-[13px] text-slate-600">
                     {exp.responsibilities.map((desc, i) => (
                       <li key={i} className="pl-1 marker:text-indigo-300">{desc}</li>
                     ))}
@@ -1094,7 +1109,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
                     {proj.duration && <span className="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">{proj.duration}</span>}
                   </div>
                   {proj.role && <div className="text-xs font-semibold text-indigo-700">{proj.role}</div>}
-                  {proj.description && <p className="text-xs text-slate-600 mt-1">{proj.description}</p>}
+                  {proj.description && <p className="text-[13px] text-slate-600 mt-1">{proj.description}</p>}
                 </div>
               ))}
             </div>
@@ -1135,7 +1150,7 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
                     {item.date && <span className="text-xs text-indigo-500">{item.date}</span>}
                   </div>
                   {item.subtitle && <div className="text-xs font-semibold text-indigo-700">{item.subtitle}</div>}
-                  <p className="text-xs text-slate-600 mt-1">{item.description}</p>
+                  <p className="text-[13px] text-slate-600 mt-1">{item.description}</p>
                 </div>
               ))}
             </div>
@@ -1162,6 +1177,8 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
 
   return (
     <div className={getStyle("bg-white min-h-[1056px] w-[816px] box-border relative text-slate-800 p-10")}>
+      {/* Page 1 only — matches the PDF renderer's pageIdx === 0 gate. */}
+      {(!pageIndex || pageIndex === 0) && (<>
       <header className="border-b-2 border-emerald-500 pb-6 mb-6 flex justify-between items-end">
         <div>
           <h1 className="text-4xl font-black text-slate-900 tracking-tighter mb-1">&gt; {data.personalDetails.name}_</h1>
@@ -1179,6 +1196,7 @@ export const TechTemplate: React.FC<TemplateProps> = ({ data, showProfilePicture
         {data.personalDetails.linkedin && <div><span className="text-emerald-500 font-bold">link:</span> {data.personalDetails.linkedin}</div>}
         {data.personalDetails.website && <div><span className="text-emerald-500 font-bold">web:</span> {data.personalDetails.website}</div>}
       </div>
+      </>)}
 
       <div className="space-y-6">
         {sectionOrder.map((sectionName) => {
@@ -1331,10 +1349,12 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
 
   return (
     <div className={getStyle("bg-[#fdfcfb] min-h-[1056px] w-[816px] box-border relative text-slate-900 p-12")}>
+      {/* Page 1 only — matches the PDF renderer's pageIdx === 0 gate. */}
+      {(!pageIndex || pageIndex === 0) && (
       <header className="text-center mb-8">
         <h1 className="text-3xl font-normal text-slate-900 mb-2 uppercase tracking-widest">{data.personalDetails.name}</h1>
         {data.personalDetails.title && <h2 className="text-sm font-italic text-slate-600 mb-4">{data.personalDetails.title}</h2>}
-        
+
         <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-[11px] text-slate-700 font-sans">
           {data.personalDetails.email && <span>{data.personalDetails.email}</span>}
           {data.personalDetails.phone && <><span className="text-slate-300">•</span><span>{data.personalDetails.phone}</span></>}
@@ -1343,6 +1363,7 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ data, showProfilePic
           {data.personalDetails.website && <><span className="text-slate-300">•</span><span>{data.personalDetails.website}</span></>}
         </div>
       </header>
+      )}
 
       <div className="space-y-6">
         {sectionOrder.map((sectionName) => {

@@ -49,6 +49,15 @@ const PRO_RESUME_LIMIT = 10;
 // template requires Pro. Classic is always allowed regardless of this list.
 const FREE_TEMPLATE_IDS: TemplateId[] = ['classic'];
 
+// Sections that a template renders in its sidebar rather than its main flow.
+// These must not participate in page splitting — see the pages computation in
+// the preview for why. Single-column templates have no entry and split normally.
+const SIDEBAR_SECTIONS: Partial<Record<TemplateId, string[]>> = {
+  modern: ['skills'],
+  aesthetic: ['skills', 'education'],
+  creative: ['skills', 'education'],
+};
+
 const defaultData: ResumeData = {
   personalDetails: {
     name: "",
@@ -557,7 +566,11 @@ export default function App() {
     const container = measureRef.current;
     if (!container) return;
 
-    const measuredOrder = sectionOrder;
+    // Sidebar sections live in a separate column, so their height never pushes
+    // main-column content onto another page. Measuring them here would invent
+    // page breaks that don't correspond to any real overflow.
+    const sidebarSections = SIDEBAR_SECTIONS[selectedTemplate] ?? [];
+    const measuredOrder = sectionOrder.filter(sec => !sidebarSections.includes(sec));
 
     const rectsById: Record<string, { top: number; height: number }> = {};
     container.querySelectorAll('[data-section-id]').forEach((el) => {
@@ -1363,19 +1376,33 @@ export default function App() {
                 id="resume-preview-content"
               >
                 {(() => {
+                    // Two-column templates render some sections in a sidebar and the
+                    // rest in the main column — two independent vertical flows. Paging
+                    // by simply slicing one ordered list breaks that: if the split put
+                    // 'skills' and 'education' on page 2, page 1 rendered with a
+                    // completely empty sidebar and page 2 carried a full one. Sidebar
+                    // sections belong on page 1 regardless of where the main column
+                    // breaks, so they're pinned there and excluded from the split.
+                    const sidebarSections = SIDEBAR_SECTIONS[selectedTemplate] ?? [];
+                    const pinned = sectionOrder.filter(sec => sidebarSections.includes(sec));
+                    const flowing = sectionOrder.filter(sec => !sidebarSections.includes(sec));
+
                     const pages: string[][] = [[]];
                     let currentPage = 0;
-                    sectionOrder.forEach(sec => {
+                    flowing.forEach(sec => {
                        pages[currentPage].push(sec);
                        if (pageBreaks[sec] || autoPageBreaks[sec]) {
                            currentPage++;
                            pages.push([]);
                        }
                     });
-                    
+
                     // remove empty pages at the end
                     if (pages[pages.length > 0 && pages.length - 1].length === 0) pages.pop();
                     if (pages.length === 0) pages.push([]); // ensure at least 1 page
+
+                    // Sidebar content always accompanies the first page.
+                    if (pinned.length) pages[0] = [...pinned, ...pages[0]];
 
                     return pages.map((pageSections, i) => (
                        <div key={i} className="shadow-2xl ring-1 ring-slate-900/5 bg-white print-page relative w-[816px] min-h-[1056px]" style={{ pageBreakAfter: 'always' }}>

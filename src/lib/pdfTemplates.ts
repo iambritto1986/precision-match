@@ -251,19 +251,71 @@ export const justifyLine = (
 
 // Centered section header with a horizontal rule either underneath (Classic-style)
 // or above+below as a filled bar (Executive-style).
-export const sectionHeaderCentered = (ctx: Ctx, title: string, opts: { bg?: RGB; size?: number } = {}) => {
+/**
+ * Centered section header on a tinted band.
+ *
+ * Mirrors the on-screen Executive markup:
+ *   `text-center uppercase tracking-[0.15em] border-y border-gray-300 py-1 bg-gray-50`
+ *
+ * Three things were wrong before and are worth naming so they don't come back:
+ *  1. `border-y` was never drawn — the PDF had a bare fill with no rules above
+ *     or below, which is the most visible difference from the preview.
+ *  2. The text was vertically mis-centred in the band. The baseline was placed
+ *     relative to `ctx.y` rather than to the band, leaving the label sitting
+ *     high. Baseline is now derived from the band's own top edge plus the cap
+ *     height, so the label is optically centred at any font size.
+ *  3. `tracking-[0.15em]` was ignored. jsPDF needs setCharSpace, and centring
+ *     must then be computed manually because getTextWidth excludes char spacing.
+ */
+export const sectionHeaderCentered = (
+  ctx: Ctx,
+  title: string,
+  opts: { bg?: RGB; size?: number; ruleColor?: RGB; tracking?: number } = {}
+) => {
   const size = opts.size ?? 9.5;
-  const barHeight = size + 8;
-  ensureSpace(ctx, barHeight + 6);
-  ctx.y += 6;
+  const padY = 3;                      // py-1 => 4px => 3pt above and below
+  const barHeight = size + padY * 2;
+  const gapBefore = 6;
+  const gapAfter = 8;
+
+  ensureSpace(ctx, gapBefore + barHeight + gapAfter);
+  ctx.y += gapBefore;
+
+  const top = ctx.y - size;
+  const bottom = top + barHeight;
+
   if (opts.bg) {
-    filledRect(ctx.doc, ctx.marginX, ctx.y - size, ctx.contentWidth, barHeight, opts.bg);
+    filledRect(ctx.doc, ctx.marginX, top, ctx.contentWidth, barHeight, opts.bg);
   }
+
+  // border-y: a hairline rule along the top and bottom edges of the band.
+  const rule = opts.ruleColor ?? [209, 213, 219]; // gray-300
+  setDraw(ctx.doc, rule);
+  ctx.doc.setLineWidth(0.75);
+  ctx.doc.line(ctx.marginX, top, ctx.marginX + ctx.contentWidth, top);
+  ctx.doc.line(ctx.marginX, bottom, ctx.marginX + ctx.contentWidth, bottom);
+
   ctx.doc.setFont(ctx.font, 'bold');
   ctx.doc.setFontSize(size);
   setColor(ctx.doc, [30, 30, 30]);
-  ctx.doc.text(title.toUpperCase(), ctx.marginX + ctx.contentWidth / 2, ctx.y - size / 3 + 2, { align: 'center' });
-  ctx.y += barHeight - size + 8;
+
+  const label = title.toUpperCase();
+  // 0.15em tracking, matching the on-screen class.
+  const charSpace = opts.tracking ?? size * 0.15;
+  const glyphWidth = ctx.doc.getTextWidth(label);
+  // getTextWidth ignores charSpace, so add it back: one gap between each pair of
+  // glyphs. Trailing space after the final glyph is not rendered, hence length-1.
+  const trackedWidth = glyphWidth + charSpace * Math.max(label.length - 1, 0);
+  const startX = ctx.marginX + (ctx.contentWidth - trackedWidth) / 2;
+  // Optical centre: cap height of most serif/sans faces is ~0.7em, so half of
+  // that below the band's vertical midpoint puts the glyphs visually centred.
+  const baseline = top + barHeight / 2 + size * 0.35;
+
+  ctx.doc.setCharSpace(charSpace);
+  ctx.doc.text(label, startX, baseline);
+  ctx.doc.setCharSpace(0);
+
+  ctx.y = bottom + gapAfter;
 };
 
 export const sectionHeaderLeft = (ctx: Ctx, title: string, opts: { size?: number; color?: RGB; ruleColor?: RGB } = {}) => {
