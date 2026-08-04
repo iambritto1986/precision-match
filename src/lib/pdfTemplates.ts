@@ -270,15 +270,24 @@ export const justifyLine = (
 export const sectionHeaderCentered = (
   ctx: Ctx,
   title: string,
-  opts: { bg?: RGB; size?: number; ruleColor?: RGB; tracking?: number } = {}
+  opts: { bg?: RGB; size?: number; ruleColor?: RGB; tracking?: number; gapBefore?: number; gapAfter?: number } = {}
 ) => {
   const size = opts.size ?? 9.5;
   const padY = 3;                      // py-1 => 4px => 3pt above and below
   const barHeight = size + padY * 2;
-  const gapBefore = 6;
-  const gapAfter = 8;
+  const gapBefore = opts.gapBefore ?? 10;
+  // `mb-4` under the on-screen heading => 16px => 12pt of actual white space
+  // between the band's bottom edge and the top of the next line's capitals.
+  const gapAfter = opts.gapAfter ?? 12;
+  // CRITICAL: ctx.y is a BASELINE, and `text()`/`justifyLine()` draw at it directly.
+  // The following line's capitals rise above that baseline by roughly its cap
+  // height, so leaving only `gapAfter` below the band made the next heading
+  // ("Uber Technologies — Chicago") climb back through the bottom rule and
+  // collide with the band. Reserve the ascent of a typical ~12pt following line
+  // so `gapAfter` is real white space rather than space the glyphs eat into.
+  const nextLineAscent = 8.6;
 
-  ensureSpace(ctx, gapBefore + barHeight + gapAfter);
+  ensureSpace(ctx, gapBefore + barHeight + gapAfter + nextLineAscent);
   ctx.y += gapBefore;
 
   const top = ctx.y - size;
@@ -315,7 +324,7 @@ export const sectionHeaderCentered = (
   ctx.doc.text(label, startX, baseline);
   ctx.doc.setCharSpace(0);
 
-  ctx.y = bottom + gapAfter;
+  ctx.y = bottom + gapAfter + nextLineAscent;
 };
 
 export const sectionHeaderLeft = (ctx: Ctx, title: string, opts: { size?: number; color?: RGB; ruleColor?: RGB } = {}) => {
