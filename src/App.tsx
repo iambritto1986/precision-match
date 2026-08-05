@@ -18,6 +18,7 @@ import { ParticleNetworkBackground } from './components/ParticleNetworkBackgroun
 import { AnimatedLogo } from './components/AnimatedLogo';
 import { CreditsMeter } from './components/CreditsMeter';
 import { ApplicationTracker } from './components/ApplicationTracker';
+import { InterviewCoachButton } from './components/InterviewCoachButton';
 
 import { useAuth } from './context/AuthContext';
 
@@ -1073,6 +1074,7 @@ export default function App() {
             <span className="status-badge pr-3"><CheckCircle2 className="w-3 h-3 inline mr-1 -mt-0.5" />Optimized for ATS</span>
           </div>
           <div className="flex items-center space-x-3">
+             <InterviewCoachButton />
              <CreditsMeter
                credits={credits}
                isPro={isPro}

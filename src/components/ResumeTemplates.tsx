@@ -428,15 +428,22 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ data, showProfileP
         case 'summary':
           if (personalDetails.summary) content = (
             <section className="mb-10">
-              <p className="text-xs leading-loose text-gray-600 max-w-2xl">{personalDetails.summary}</p>
+              {/* Summary used to render full-bleed while every other section sat in
+                  the label grid, so the paragraph started ~130px left of all the
+                  content beneath it. Giving it a rail label puts it on the same
+                  vertical edge as everything else. */}
+              <div className="grid grid-cols-[128px_1fr] gap-8">
+                <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 text-right pt-1">Profile</h2>
+                <p className="text-xs leading-loose text-gray-600">{personalDetails.summary}</p>
+              </div>
             </section>
           );
           break;
         case 'experience':
           if (experience.length > 0) content = (
             <section className="mb-10">
-              <div className="grid grid-cols-[1fr_3fr] gap-6">
-                <h2 className="text-sm font-bold uppercase text-gray-400 text-right mt-1">Experience</h2>
+              <div className="grid grid-cols-[128px_1fr] gap-8">
+                <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 text-right pt-1">Experience</h2>
                 <div className="flex flex-col gap-6">
                   {experience.map((exp, i) => (
                     <div key={i} className="break-inside-avoid">
@@ -461,8 +468,8 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ data, showProfileP
         case 'skills':
           if (skills.length > 0) content = (
             <section className="mb-10">
-              <div className="grid grid-cols-[1fr_3fr] gap-6">
-                 <h2 className="text-sm font-bold uppercase text-gray-400 text-right">Skills</h2>
+              <div className="grid grid-cols-[128px_1fr] gap-8">
+                 <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 text-right pt-1">Skills</h2>
                  <div className="text-xs text-gray-600 flex flex-col gap-2">
                      {skills.map((s, i) => (
                        <div key={i}><span className="font-bold text-gray-800">{s.category}:</span> {s.items.join(', ')}</div>
@@ -475,8 +482,8 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ data, showProfileP
         case 'education':
           if (education.length > 0) content = (
             <section className="mb-10">
-              <div className="grid grid-cols-[1fr_3fr] gap-6">
-                 <h2 className="text-sm font-bold uppercase text-gray-400 text-right">Education</h2>
+              <div className="grid grid-cols-[128px_1fr] gap-8">
+                 <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 text-right pt-1">Education</h2>
                  <div className="text-xs text-gray-600 flex flex-col gap-4">
                      {education.map((e, i) => (
                        <div key={i}>
@@ -492,8 +499,8 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ data, showProfileP
         case 'projects':
           if (projects && projects.length > 0) content = (
             <section className="mb-10">
-              <div className="grid grid-cols-[1fr_3fr] gap-6">
-                 <h2 className="text-sm font-bold uppercase text-gray-400 text-right">Projects</h2>
+              <div className="grid grid-cols-[128px_1fr] gap-8">
+                 <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 text-right pt-1">Projects</h2>
                  <div className="text-xs text-gray-600 flex flex-col gap-4">
                      {projects.map((p, i) => (
                        <div key={i}>
@@ -513,8 +520,8 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ data, showProfileP
         case 'certifications':
           if (certifications && certifications.length > 0) content = (
             <section className="mb-10">
-              <div className="grid grid-cols-[1fr_3fr] gap-6">
-                 <h2 className="text-sm font-bold uppercase text-gray-400 text-right">Certifications</h2>
+              <div className="grid grid-cols-[128px_1fr] gap-8">
+                 <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 text-right pt-1">Certifications</h2>
                  <div className="text-xs text-gray-600 flex flex-col gap-4">
                      {certifications.map((c, i) => (
                        <div key={i}>
@@ -534,8 +541,8 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ data, showProfileP
           const customSec = customSections?.find(c => c.id === sectionId);
           if (customSec && customSec.items.length > 0) content = (
             <section className="mb-10">
-              <div className="grid grid-cols-[1fr_3fr] gap-6">
-                 <h2 className="text-sm font-bold uppercase text-gray-400 text-right">{customSec.title}</h2>
+              <div className="grid grid-cols-[128px_1fr] gap-8">
+                 <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 text-right pt-1">{customSec.title}</h2>
                  <div className="text-xs text-gray-600 flex flex-col gap-4">
                      {customSec.items.map((item, i) => (
                        <div key={i}>
@@ -575,16 +582,23 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ data, showProfileP
           on pageIdx === 0, so without this the preview repeated the name and
           contact block at the top of every page and disagreed with the export. */}
       {(!pageIndex || pageIndex === 0) && (
-      <header className="mb-10 flex gap-6 items-start">
-        {showProfilePicture && personalDetails.profilePictureUrl && (
-          <img src={personalDetails.profilePictureUrl} alt="Profile" className="w-20 h-20 rounded-md object-cover grayscale" />
-        )}
-        <div className="flex-1">
-          <h1 className="text-3xl font-light tracking-tighter mb-1 truncate">{personalDetails.name}</h1>
+      /* The header sits on the same 128px rail as every section, so the name
+         shares a left edge with all the content below it. The photo lives in the
+         rail itself — otherwise that column is dead space on page one, which is
+         a large part of why the layout read as unbalanced. */
+      <header className="mb-12 grid grid-cols-[128px_1fr] gap-8 items-start">
+        <div className="flex justify-end">
+          {showProfilePicture && personalDetails.profilePictureUrl && (
+            <img src={personalDetails.profilePictureUrl} alt="Profile" className="w-20 h-20 rounded-md object-cover grayscale" />
+          )}
+        </div>
+        <div>
+          <h1 className="text-3xl font-light tracking-tight mb-1 truncate">{personalDetails.name}</h1>
           <p className="text-sm font-semibold text-gray-500">{personalDetails.title}</p>
-          <div className="mt-4 text-xs text-gray-400 flex flex-wrap gap-4">
+          <div className="mt-3 text-xs text-gray-400 flex flex-wrap gap-x-4 gap-y-1">
              {personalDetails.email && <span>{personalDetails.email}</span>}
              {personalDetails.phone && <span>{personalDetails.phone}</span>}
+             {personalDetails.location && <span>{personalDetails.location}</span>}
              {personalDetails.linkedin && <span>{personalDetails.linkedin}</span>}
           </div>
         </div>
