@@ -1004,8 +1004,13 @@ export default function App() {
     return <Navigate to="/auth/register" replace />;
   }
 
-  // 404 for unknown paths
-  const knownPaths = ['/resume', '/edit', '/chat', '/interview', '/dashboard'];
+  // 404 for unknown paths.
+  //
+  // ⚠️ THIS RUNS BEFORE <Routes> BELOW. Any new authenticated route MUST be added
+  // here as well as to the <Routes> block, or it will 404 even though its <Route>
+  // exists — the app shell never renders, so React Router never gets a chance to
+  // match it. (That's exactly how /tracker shipped broken.)
+  const knownPaths = ['/resume', '/edit', '/chat', '/interview', '/dashboard', '/tracker'];
   if (!knownPaths.includes(location.pathname) && !publicPaths.includes(location.pathname) && !location.pathname.startsWith('/auth')) {
     return <NotFoundPage />;
   }

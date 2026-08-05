@@ -135,7 +135,19 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
                    <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-[#B500FF] mr-2 mt-0.5 shrink-0"/> Live AI Voice Interview Practice</li>
                    <li className="flex items-start"><CheckCircle2 className="w-4 h-4 text-[#B500FF] mr-2 mt-0.5 shrink-0"/> Export to MS Word (DOCX)</li>
                 </ul>
-                <button onClick={() => isPro ? handlePortal() : handlePurchase(STRIPE_PRICE_PRO)} disabled={isProcessing} className="w-full py-2.5 rounded-xl btn-primary">{isPro ? 'Manage Subscription' : 'Upgrade to Pro'}</button>
+                {/* Fail loudly rather than firing a checkout request with an empty
+                    priceId, which the server rejects with a generic validation
+                    error and looks to the user like the button is just broken.
+                    A missing price ID means the VITE_STRIPE_PRICE_PRO env var
+                    wasn't set at BUILD time — see .env.example. */}
+                {!isPro && !STRIPE_PRICE_PRO ? (
+                  <div className="w-full py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center">
+                    <p className="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Billing unavailable</p>
+                    <p className="text-[10px] text-slate-400 mt-1 px-3">Checkout isn't configured right now. Please contact support.</p>
+                  </div>
+                ) : (
+                  <button onClick={() => isPro ? handlePortal() : handlePurchase(STRIPE_PRICE_PRO)} disabled={isProcessing} className="w-full py-2.5 rounded-xl btn-primary">{isPro ? 'Manage Subscription' : 'Upgrade to Pro'}</button>
+                )}
              </div>
           </div>
        </div>
