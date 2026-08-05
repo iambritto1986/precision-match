@@ -7,7 +7,7 @@ import { API_BASE_URL } from '../config';
 import { getAuthHeaders } from '../lib/firebase';
 import { CreditsMeter } from './CreditsMeter';
 
-export default function CareerChat({ resumeData, deductCredits, isPro = false, freeChatMessagesUsed = 0, onChatMessageUsed, credits = 0, downloadsRemaining = 0, onUpgrade }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean, isPro?: boolean, freeChatMessagesUsed?: number, onChatMessageUsed?: () => void, credits?: number, downloadsRemaining?: number, onUpgrade?: () => void }) {
+export default function CareerChat({ resumeData, deductCredits, isPro = false, freeChatMessagesUsed = 0, onChatMessageUsed, credits = 0, downloadsRemaining = 0, downloadLimit = 3, onUpgrade }: { resumeData: ResumeData, deductCredits: (amount: number) => boolean, isPro?: boolean, freeChatMessagesUsed?: number, onChatMessageUsed?: () => void, credits?: number, downloadsRemaining?: number, downloadLimit?: number, onUpgrade?: () => void }) {
   const FREE_CHAT_LIMIT = 5;
   const [messages, setMessages] = useState<{role: 'user'|'model', text: string}[]>([{
       role: 'model',
@@ -76,6 +76,7 @@ export default function CareerChat({ resumeData, deductCredits, isPro = false, f
             credits={credits}
             isPro={isPro}
             downloadsRemaining={downloadsRemaining}
+            downloadLimit={downloadLimit}
             onUpgrade={() => onUpgrade?.()}
          />
          <label className="flex items-center space-x-2 cursor-pointer bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-white/10 transition">

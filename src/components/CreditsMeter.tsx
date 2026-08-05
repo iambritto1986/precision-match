@@ -4,7 +4,10 @@ import { Zap, FileOutput } from 'lucide-react';
 interface CreditsMeterProps {
   credits: number;
   isPro: boolean;
+  /** Resume exports left on the free plan. */
   downloadsRemaining: number;
+  /** Total free exports allowed, so the readout reads "2 / 3 Exports". */
+  downloadLimit?: number;
   onUpgrade: () => void;
   /** Set on exactly one instance so the onboarding tour has a single target. */
   tourAnchor?: boolean;
@@ -25,6 +28,7 @@ export const CreditsMeter: React.FC<CreditsMeterProps> = ({
   credits,
   isPro,
   downloadsRemaining,
+  downloadLimit = 3,
   onUpgrade,
   tourAnchor = false,
 }) => {
@@ -59,16 +63,16 @@ export const CreditsMeter: React.FC<CreditsMeterProps> = ({
       {!isPro && (
         <>
           <div className="w-px h-6 bg-white/10" />
-          <div className="flex items-center gap-2" title={`${downloadsRemaining} of 1 free export remaining`}>
+          <div className="flex items-center gap-2" title={`${downloadsRemaining} of ${downloadLimit} free resume exports remaining. Resumes you've already exported can be downloaded again for free.`}>
             <FileOutput className={`w-3.5 h-3.5 shrink-0 ${downloadsRemaining > 0 ? 'text-[#B500FF]' : 'text-red-400'}`} />
             <div className="flex flex-col leading-none">
               <span className="text-[10px] font-bold text-slate-200 whitespace-nowrap">
-                {downloadsRemaining} / 1 Export
+                {downloadsRemaining} / {downloadLimit} Exports
               </span>
               <div className="w-16 h-1 bg-slate-800/60 rounded-full overflow-hidden mt-1">
                 <div
                   className={`h-full rounded-full transition-all ${downloadsRemaining > 0 ? 'bg-[#B500FF] shadow-[0_0_10px_rgba(181,0,255,0.6)]' : 'bg-red-500 shadow-[0_0_10px_rgba(248,113,113,0.6)]'}`}
-                  style={{ width: `${Math.min(downloadsRemaining, 1) * 100}%` }}
+                  style={{ width: `${(Math.min(downloadsRemaining, downloadLimit) / downloadLimit) * 100}%` }}
                 />
               </div>
             </div>

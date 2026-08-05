@@ -46,7 +46,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           displayName: result.user.displayName || '',
           createdAt: new Date().toISOString(),
           credits: 3,
-          downloadsRemaining: 1,
+          // Free exports are tracked per resume now — see FREE_DOWNLOAD_LIMIT in App.tsx.
+          freeDownloadsUsed: 0,
+          downloadedResumeIds: [],
           isPro: false,
           onboardingCompleted: false,
           freeInterviewUsed: false,
@@ -85,7 +87,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         displayName: displayName || '',
         createdAt: new Date().toISOString(),
         credits: 3,
-        downloadsRemaining: 1,
+        // Free exports are tracked per resume now — see FREE_DOWNLOAD_LIMIT in App.tsx.
+        freeDownloadsUsed: 0,
+        downloadedResumeIds: [],
         isPro: false,
         onboardingCompleted: false,
         freeInterviewUsed: false,

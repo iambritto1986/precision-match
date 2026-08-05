@@ -180,7 +180,7 @@ export const LandingPage: React.FC = () => {
               View Pricing
             </Link>
           </div>
-          <p className="text-slate-500 text-sm mt-6">Free forever plan available. Pro is $5/mo, cancel anytime.</p>
+          <p className="text-slate-500 text-sm mt-6">Free forever plan available. Pro is $9/mo, cancel anytime.</p>
         </div>
       </section>
     </div>

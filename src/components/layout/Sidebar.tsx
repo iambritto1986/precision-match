@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { X, Menu, Users, FileText, Code, MessageCircle, Mic, Compass, Plus, FileOutput, CheckCircle2, ChevronDown, Download, Layers, ShieldAlert, LogOut, LogIn } from 'lucide-react';
+import { X, Menu, Users, FileText, Code, MessageCircle, Mic, Compass, Plus, FileOutput, CheckCircle2, ChevronDown, Download, Layers, ShieldAlert, LogOut, LogIn, Briefcase } from 'lucide-react';
 import { ResumeData } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import ParticleText from '../ParticleText';
@@ -109,6 +109,7 @@ export function Sidebar({
             <div className="space-y-1 pb-1">
               {isAdmin && <Link to="/dashboard" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/dashboard' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}><Users className="w-4 h-4 mr-3 text-slate-400 shrink-0"/> Founder Hub</Link>}
               <Link to="/resume" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/resume' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}><FileText className="w-4 h-4 mr-3 text-slate-400 shrink-0"/> Home</Link>
+              <Link to="/tracker" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/tracker' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}><Briefcase className="w-4 h-4 mr-3 text-slate-400 shrink-0"/> Application Tracker</Link>
               <Link to="/edit" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/edit' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}><Code className="w-4 h-4 mr-3 text-slate-400 shrink-0"/> Source Data</Link>
               <Link to="/chat" id="tour-career-chat" className={`flex items-center px-6 py-3 text-sm transition-all rounded-r-lg ${location.pathname === '/chat' ? 'bg-white/10 border-l-2 border-[#00F0FF] text-white shadow-[inset_1px_0_10px_rgba(0,240,255,0.05)]' : 'border-l-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}>
                   <MessageCircle className="w-4 h-4 mr-3 shrink-0" /> Chat with Aadhya {!isPro && <span className="ml-auto bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider font-bold">Try Free</span>}

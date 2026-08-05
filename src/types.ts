@@ -70,6 +70,34 @@ export interface ResumeData {
 
 export type TemplateId = 'classic' | 'modern' | 'minimalist' | 'executive' | 'aesthetic' | 'creative' | 'tech' | 'academic';
 
+/**
+ * Stages an application moves through. Ordered deliberately — the board renders
+ * columns in this sequence, so it reads left-to-right as progress.
+ * 'rejected' sits last as a terminal state rather than a stage.
+ */
+export const APPLICATION_STAGES = ['saved', 'applied', 'interviewing', 'offer', 'rejected'] as const;
+export type ApplicationStage = typeof APPLICATION_STAGES[number];
+
+export interface JobApplication {
+  id: string;
+  company: string;
+  role: string;
+  stage: ApplicationStage;
+  /** Link to the posting, so the user can get back to it after applying. */
+  url?: string;
+  location?: string;
+  salary?: string;
+  notes?: string;
+  /** id of the resume in the user's history that was sent for this role. */
+  resumeId?: string;
+  /** The pasted job description, kept so it can be re-tailored against later. */
+  jobDescription?: string;
+  createdAt: number;
+  updatedAt: number;
+  /** Set when the user moves the card to 'applied'. */
+  appliedAt?: number;
+}
+
 export interface AppState {
   step: 'onboarding' | 'editor';
   baseContext: string; // The extracted text from old resume or their scratch input

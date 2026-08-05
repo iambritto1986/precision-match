@@ -5,7 +5,7 @@
 
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ResumeData, TemplateId } from './types';
+import { ResumeData, TemplateId, JobApplication } from './types';
 import { TemplateRenderer } from './components/ResumeTemplates';
 import VoiceInterview from './components/VoiceInterview';
 import CareerChat from './components/CareerChat';
@@ -17,6 +17,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { ParticleNetworkBackground } from './components/ParticleNetworkBackground';
 import { AnimatedLogo } from './components/AnimatedLogo';
 import { CreditsMeter } from './components/CreditsMeter';
+import { ApplicationTracker } from './components/ApplicationTracker';
 
 import { useAuth } from './context/AuthContext';
 
@@ -48,6 +49,11 @@ const PRO_RESUME_LIMIT = 10;
 // Only the Classic template is available on the free tier; every other
 // template requires Pro. Classic is always allowed regardless of this list.
 const FREE_TEMPLATE_IDS: TemplateId[] = ['classic'];
+// How many distinct resumes a free account may export. Matched to
+// FREE_RESUME_LIMIT so every resume a free user can create, they can also export
+// once — the limit bites when they want MORE resumes, which is the honest place
+// for it to bite.
+const FREE_DOWNLOAD_LIMIT = 3;
 
 // Sections that a template renders in its sidebar rather than its main flow.
 // These must not participate in page splitting — see the pages computation in
@@ -95,7 +101,18 @@ export default function App() {
 
   const [fontFamily, setFontFamily] = useState<string>('');
   const [credits, setCredits] = useState<number>(3);
-  const [downloadsRemaining, setDownloadsRemaining] = useState<number>(1);
+  // Free exports are tracked per RESUME, not as one global counter.
+  //
+  // The old rule gave the whole account a single download. That meant exporting
+  // a PDF and then wanting the Word version was blocked, and so was fixing a
+  // typo and re-exporting — the wall landed at the moment the user was happiest
+  // with the product, which reads as a bait-and-switch rather than a fair limit.
+  //
+  // Now: unlocking a resume costs one of FREE_DOWNLOAD_LIMIT slots, and once a
+  // resume is unlocked it can be re-exported in either format as often as needed.
+  const [freeDownloadsUsed, setFreeDownloadsUsed] = useState<number>(0);
+  const [downloadedResumeIds, setDownloadedResumeIds] = useState<string[]>([]);
+  const downloadsRemaining = Math.max(0, FREE_DOWNLOAD_LIMIT - freeDownloadsUsed);
   const [isPro, setIsPro] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
   const defaultOrder = ['summary', 'experience', 'skills', 'education', 'projects'];
@@ -186,7 +203,12 @@ export default function App() {
             const data = snapshot.data();
             setUserData(data);
              setCredits(data.credits ?? 3);
-             setDownloadsRemaining(data.downloadsRemaining ?? 1);
+             // Migrate the old single-counter scheme: downloadsRemaining 0 means
+             // they'd spent their one export, so carry that across as one used
+             // slot. We can't know WHICH resume it was, so the id list starts
+             // empty and they simply get the remaining slots.
+             setFreeDownloadsUsed(data.freeDownloadsUsed ?? (1 - (data.downloadsRemaining ?? 1)));
+             setDownloadedResumeIds(Array.isArray(data.downloadedResumeIds) ? data.downloadedResumeIds : []);
              setIsPro(data.isPro || user.email === ADMIN_EMAIL);
              setFreeInterviewUsed(data.freeInterviewUsed ?? false);
              setFreeChatMessagesUsed(data.freeChatMessagesUsed ?? 0);
@@ -226,6 +248,11 @@ export default function App() {
               resumesHydratedRef.current = true;
             }
 
+            if (!applicationsHydratedRef.current) {
+              if (Array.isArray(data.applications)) setApplications(data.applications);
+              applicationsHydratedRef.current = true;
+            }
+
             if (!data.onboardingCompleted) {
               setIsOnboarding(true);
               setOnboardingStep('options');
@@ -243,7 +270,8 @@ export default function App() {
                     displayName: user.displayName || '',
                     createdAt: new Date().toISOString(),
                     credits: 3,
-                    downloadsRemaining: 1,
+                    freeDownloadsUsed: 0,
+                    downloadedResumeIds: [],
                     isPro: user.email === ADMIN_EMAIL,
                     onboardingCompleted: false,
                     freeInterviewUsed: false,
@@ -297,7 +325,8 @@ export default function App() {
     } else {
       setUserData(null);
       setCredits(3);
-        setDownloadsRemaining(1);
+      setFreeDownloadsUsed(0);
+      setDownloadedResumeIds([]);
       setIsPro(false);
       setIsAdmin(false);
       setAdminUsersInfo([]);
@@ -401,6 +430,12 @@ export default function App() {
   const [resumes, setResumes] = useState<{id: string, name: string, data: ResumeData, subject?: 'self' | 'other'}[]>([{id: '1', name: defaultData.personalDetails.name || 'Untitled Resume', data: defaultData, subject: 'self'}]);
   // Set after an import when we need the user to confirm who the resume is for.
   const [pendingSubjectResumeId, setPendingSubjectResumeId] = useState<string | null>(null);
+
+  // Job application tracker. Stored on the user doc alongside resumes, and
+  // hydrated through the same one-shot guard so the debounced save can't race
+  // the snapshot listener and clobber in-progress edits.
+  const [applications, setApplications] = useState<JobApplication[]>([]);
+  const applicationsHydratedRef = useRef(false);
   const [activeResumeId, setActiveResumeId] = useState<string>('1');
   // Resume history used to live ONLY in localStorage, which meant it vanished
   // any time the user switched browsers/devices or cleared site data — even
@@ -428,6 +463,18 @@ export default function App() {
     }, 800);
     return () => clearTimeout(t);
   }, [resumes, user?.uid, isPro]);
+
+  // Same debounced-save pattern for the application tracker.
+  useEffect(() => {
+    if (!user?.uid || !applicationsHydratedRef.current) return;
+    const t = setTimeout(() => {
+      updateDoc(doc(db, 'users', user.uid), { applications }).catch(err => {
+        console.error('Failed to save applications:', err);
+        showToast("Couldn't save your tracker to your account — check your connection.", "error");
+      });
+    }, 800);
+    return () => clearTimeout(t);
+  }, [applications, user?.uid]);
 
   const activeResume = resumes.find(r => r.id === activeResumeId);
   const resumeData = activeResume?.data || blankData;
@@ -481,20 +528,38 @@ export default function App() {
       }
       else exportToDocx(resumeData, sectionOrder);
     } else {
-      if (downloadsRemaining > 0) {
-        if (type === 'pdf') {
-          await exportToPdf(resumeData, pdfOptions);
-        }
-        else exportToDocx(resumeData, sectionOrder);
-        
-        const newCount = downloadsRemaining - 1;
-        setDownloadsRemaining(newCount);
-        if (user && user.uid !== 'local-guest-uid') {
-          updateDoc(doc(db, 'users', user.uid), { downloadsRemaining: newCount }).catch(console.error);
-        }
-      } else {
-        showToast("You've used your free download. Upgrade to Pro for unlimited exports.", "error");
+      // Already paid for with a slot? Re-export freely, in either format.
+      const alreadyUnlocked = !!activeResumeId && downloadedResumeIds.includes(activeResumeId);
+
+      if (!alreadyUnlocked && freeDownloadsUsed >= FREE_DOWNLOAD_LIMIT) {
+        showToast(
+          `Free accounts can export ${FREE_DOWNLOAD_LIMIT} resumes. Upgrade to Pro for unlimited exports.`,
+          "error"
+        );
         setShowPricing(true);
+        return;
+      }
+
+      if (type === 'pdf') {
+        await exportToPdf(resumeData, pdfOptions);
+      } else {
+        exportToDocx(resumeData, sectionOrder);
+      }
+
+      if (!alreadyUnlocked && activeResumeId) {
+        const nextUsed = freeDownloadsUsed + 1;
+        const nextIds = [...downloadedResumeIds, activeResumeId];
+        setFreeDownloadsUsed(nextUsed);
+        setDownloadedResumeIds(nextIds);
+        if (user && user.uid !== 'local-guest-uid') {
+          updateDoc(doc(db, 'users', user.uid), {
+            freeDownloadsUsed: nextUsed,
+            downloadedResumeIds: nextIds,
+          }).catch(console.error);
+        }
+        if (nextUsed >= FREE_DOWNLOAD_LIMIT) {
+          showToast("That was your last free resume export. You can still re-download the ones you've already exported.", "info");
+        }
       }
     }
   };
@@ -1007,6 +1072,7 @@ export default function App() {
                credits={credits}
                isPro={isPro}
                downloadsRemaining={downloadsRemaining}
+               downloadLimit={FREE_DOWNLOAD_LIMIT}
                onUpgrade={() => setShowPricing(true)}
                tourAnchor
              />
@@ -1533,10 +1599,21 @@ export default function App() {
           
           <Route path="/chat" element={
           <motion.div key="chat" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="flex-1 overflow-hidden h-full">
-            <CareerChat resumeData={coachingResumeData} deductCredits={handleDeductCredits} isPro={isPro} credits={credits} downloadsRemaining={downloadsRemaining} onUpgrade={() => setShowPricing(true)} freeChatMessagesUsed={freeChatMessagesUsed} onChatMessageUsed={() => { const newCount = freeChatMessagesUsed + 1; setFreeChatMessagesUsed(newCount); if (user) updateDoc(doc(db, 'users', user.uid), { freeChatMessagesUsed: newCount }).catch(console.error); }} />
+            <CareerChat resumeData={coachingResumeData} deductCredits={handleDeductCredits} isPro={isPro} credits={credits} downloadsRemaining={downloadsRemaining} downloadLimit={FREE_DOWNLOAD_LIMIT} onUpgrade={() => setShowPricing(true)} freeChatMessagesUsed={freeChatMessagesUsed} onChatMessageUsed={() => { const newCount = freeChatMessagesUsed + 1; setFreeChatMessagesUsed(newCount); if (user) updateDoc(doc(db, 'users', user.uid), { freeChatMessagesUsed: newCount }).catch(console.error); }} />
           </motion.div>
           } />
           
+          <Route path="/tracker" element={
+          <motion.div key="tracker" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="flex-1 overflow-hidden h-full">
+            <ApplicationTracker
+              applications={applications}
+              setApplications={setApplications}
+              resumes={resumes}
+              showToast={showToast}
+            />
+          </motion.div>
+          } />
+
           <Route path="/interview" element={
           <motion.div key="interview" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25, ease: 'easeOut' }} className="flex-1 overflow-hidden h-full">
             <VoiceInterview resumeData={coachingResumeData} deductCredits={handleDeductCredits} isPro={isPro} freeInterviewUsed={freeInterviewUsed} showToast={showToast} onTrialUsed={() => { setFreeInterviewUsed(true); if (user) updateDoc(doc(db, 'users', user.uid), { freeInterviewUsed: true }).catch(console.error); }} />

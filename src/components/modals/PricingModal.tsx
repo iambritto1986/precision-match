@@ -126,7 +126,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
              <div className="border-2 border-[#B500FF]/50 card p-6 flex flex-col relative shadow-[0_0_30px_rgba(181,0,255,0.15)] lift-3d">
                 <div className="absolute top-0 right-0 bg-[#B500FF]/20 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-lg rounded-tr-2xl">Most Popular</div>
                 <h3 className="text-sm font-bold uppercase tracking-widest text-[#B500FF] mb-2">Pro Member</h3>
-                <div className="text-4xl font-black text-white mb-1">$5<span className="text-lg text-slate-400 font-normal">/mo</span></div>
+                <div className="text-4xl font-black text-white mb-1">$9<span className="text-lg text-slate-400 font-normal">/mo</span></div>
                 <p className="text-xs text-slate-500 mb-4">No hidden fees. Cancel anytime.</p>
                 <p className="text-sm text-slate-600 mb-6 border-b border-white/10 pb-4">Everything you need to land your dream job.</p>
                 <ul className="space-y-3 text-sm text-slate-300 flex-1 mb-8">

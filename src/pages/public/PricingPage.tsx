@@ -9,7 +9,7 @@ export const PricingPage: React.FC = () => {
       <PageMeta
         path="/pricing"
         title="Pricing"
-        description="Simple, transparent pricing. Start free with 3 AI resume credits, or go Pro for $5/mo for unlimited AI tailoring, auto-generated cover letters, and live AI interview practice."
+        description="Simple, transparent pricing. Start free with 3 AI resume credits, or go Pro for $9/mo for unlimited AI tailoring, auto-generated cover letters, and live AI interview practice."
       />
       <div className="text-center mb-16">
         <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">Simple, transparent pricing.</h1>
@@ -34,7 +34,7 @@ export const PricingPage: React.FC = () => {
         <div className="bg-[#111424] border-2 border-indigo-500/50 p-10 rounded-3xl flex flex-col relative shadow-[0_0_40px_rgba(99,102,241,0.15)]">
           <div className="absolute top-0 right-8 bg-indigo-500 text-white text-[10px] font-bold uppercase tracking-wider px-4 py-1.5 rounded-b-lg">Most Popular</div>
           <h3 className="text-sm font-bold uppercase tracking-widest text-indigo-400 mb-2">Pro Member</h3>
-          <div className="text-5xl font-black text-white mb-1">$5<span className="text-xl text-slate-400 font-normal">/mo</span></div>
+          <div className="text-5xl font-black text-white mb-1">$9<span className="text-xl text-slate-400 font-normal">/mo</span></div>
           <p className="text-slate-400 mb-8 border-b border-white/5 pb-8">Everything you need to land your dream job without limits.</p>
           <ul className="space-y-4 text-slate-300 flex-1 mb-10">
             <li className="flex items-start"><CheckCircle2 className="w-5 h-5 text-indigo-500 mr-3 shrink-0"/> <strong>100</strong> AI Generations / mo</li>
