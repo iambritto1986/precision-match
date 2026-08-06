@@ -288,7 +288,7 @@ const renderMinimalist: Renderer = (doc, data, opts) => {
   const font = resolveFont(opts.fontFamily, 'helvetica');
   const { personalDetails: p } = data;
   const pages = paginate(opts.sectionOrder, opts.pageBreaks);
-  const labelW = 90;
+  const labelW = 96;
   const contentX = M + labelW + 16;
   const contentW = pageWidth(doc) - contentX - M;
 
@@ -321,7 +321,7 @@ const renderMinimalistSection = (ctx: Ctx, data: ResumeData, sectionId: string, 
   const contentCtx: Ctx = { ...ctx, marginX: contentX, contentWidth: contentW };
 
   if (sectionId === 'summary' && p.summary) {
-    minimalistLabel(ctx, 'Summary', labelW);
+    minimalistLabel(ctx, 'Profile', labelW);
     text(contentCtx, p.summary, contentX, { size: 10.5, color: GRAY_600, lineHeight: 13.5 }); // text-sm (14px)
     ctx.y = Math.max(ctx.y, contentCtx.y) + 14; return;
   }
