@@ -21,6 +21,7 @@ import { ApplicationTracker } from './components/ApplicationTracker';
 import { InterviewCoachButton } from './components/InterviewCoachButton';
 import { TailorReviewModal } from './components/TailorReviewModal';
 import { diffResume, applyChanges, defaultAccepted, ResumeChange } from './lib/resumeDiff';
+import { postJson, ApiError } from './lib/apiClient';
 
 import { useAuth } from './context/AuthContext';
 
@@ -180,12 +181,16 @@ export default function App() {
   const [freeInterviewUsed, setFreeInterviewUsed] = useState(false);
   const [freeChatMessagesUsed, setFreeChatMessagesUsed] = useState(0);
 
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info', durationMs?: number) => {
     const id = Math.random().toString(36).substring(7);
     setToasts(prev => [...prev, { id, message, type }]);
+    // Errors get much longer on screen than confirmations. At a flat 4s an error
+    // explaining what went wrong disappeared before it could be read, which is
+    // how "something failed" turns into an unreportable bug.
+    const ms = durationMs ?? (type === 'error' ? 12000 : 4000);
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
-    }, 4000);
+    }, ms);
   };
 
   // Shadow window.alert with beautiful Toast notifications
@@ -735,17 +740,16 @@ export default function App() {
 
     setBaseContext(sourceText);
     setIsGenerating(true);
+    // Track whether we created a placeholder row, so a failure can clean it up
+    // rather than leaving an "Importing..." ghost that counts against the
+    // free-tier resume limit forever.
+    const createdPlaceholder = targetId !== activeResumeId;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/generate-resume`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
-        body: JSON.stringify({
-          baseData: sourceText,
-          jobDescription,
-          instructions
-        })
-      });
-      const generated = await res.json();
+      const generated = await postJson<any>(
+        '/api/generate-resume',
+        { baseData: sourceText, jobDescription, instructions },
+        { headers: await getAuthHeaders() as Record<string, string> },
+      );
       if (generated.data && generated.data.personalDetails) {
         setResumes(prev => prev.map(r => {
            if (r.id === targetId) {
@@ -776,18 +780,30 @@ export default function App() {
         } else {
           setResumes(prev => prev.map(r => r.id === targetId ? { ...r, subject: 'self' as const } : r));
         }
-      } else {
-        alert("Failed to intelligently format resume from the text.");
-      }
-      if (!isPro) {
-        setCredits(prev => Math.max(0, prev - 1));
-        if (user && user.uid !== 'local-guest-uid') {
-          updateDoc(doc(db, 'users', user.uid), { credits: credits - 1 }).catch(console.error);
+        if (!isPro) {
+          setCredits(prev => Math.max(0, prev - 1));
+          if (user && user.uid !== 'local-guest-uid') {
+            updateDoc(doc(db, 'users', user.uid), { credits: credits - 1 }).catch(console.error);
+          }
         }
+      } else {
+        // A 200 with no usable data means the model returned something we can't
+        // read. The credit is NOT deducted here — the user got nothing.
+        throw new ApiError("The AI couldn't structure that resume. Try uploading it again, or paste the text manually.");
       }
     } catch(e) {
-      console.error(e);
-      alert("Error formatting your data. Showing raw text in context.");
+      console.error('Resume ingestion failed:', e);
+      if (createdPlaceholder) {
+        setResumes(prev => prev.filter(r => r.id !== targetId));
+        setActiveResumeId(activeResumeId);
+      }
+      setIsOnboarding(false);
+      showToast(
+        e instanceof ApiError
+          ? `Import failed: ${e.message}`
+          : "Import failed. Your existing resumes are untouched — please try again.",
+        "error",
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -800,24 +816,26 @@ export default function App() {
     setIsUploading(true);
     try {
       const base64 = await fileToBase64(file);
-      const res = await fetch(`${API_BASE_URL}/api/extract-resume`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
-        body: JSON.stringify({ fileBase64: base64, mimeType: file.type })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-         alert(data.error || "Error uploading file.");
-         return;
-      }
+      const data = await postJson<{ text?: string }>(
+        '/api/extract-resume',
+        { fileBase64: base64, mimeType: file.type },
+        { headers: await getAuthHeaders() as Record<string, string> },
+      );
       if (data.text) {
         await processIngestion(data.text);
       } else {
-        alert("Could not extract text from the file.");
+        showToast("We couldn't read any text from that file. If it's a scanned image, try a text-based PDF or a Word document.", "error");
       }
     } catch (err) {
-      console.error(err);
-      alert("Error uploading file.");
+      console.error('Resume extraction failed:', err);
+      // Report what actually happened instead of one generic string — this is the
+      // difference between a reportable bug and "it just says error".
+      showToast(
+        err instanceof ApiError
+          ? `Couldn't read your file: ${err.message}`
+          : "Couldn't read your file. Please try again.",
+        "error",
+      );
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
