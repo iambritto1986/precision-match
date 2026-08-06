@@ -19,6 +19,8 @@ import { AnimatedLogo } from './components/AnimatedLogo';
 import { CreditsMeter } from './components/CreditsMeter';
 import { ApplicationTracker } from './components/ApplicationTracker';
 import { InterviewCoachButton } from './components/InterviewCoachButton';
+import { TailorReviewModal } from './components/TailorReviewModal';
+import { diffResume, applyChanges, defaultAccepted, ResumeChange } from './lib/resumeDiff';
 
 import { useAuth } from './context/AuthContext';
 
@@ -437,6 +439,11 @@ export default function App() {
   // the snapshot listener and clobber in-progress edits.
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const applicationsHydratedRef = useRef(false);
+
+  // Pending AI edits awaiting the user's review. Non-empty means the review
+  // modal is open; the resume itself is untouched until they apply.
+  const [pendingChanges, setPendingChanges] = useState<ResumeChange[]>([]);
+  const [acceptedChangeIds, setAcceptedChangeIds] = useState<Set<string>>(new Set());
   const [activeResumeId, setActiveResumeId] = useState<string>('1');
   // Resume history used to live ONLY in localStorage, which meant it vanished
   // any time the user switched browsers/devices or cleared site data — even
@@ -865,14 +872,28 @@ export default function App() {
       });
       const generated = await res.json();
       if (generated.data && generated.data.personalDetails) {
-        setResumeData({
+        // The tailored draft is NOT written straight to the resume any more.
+        // We diff it against what the user already has and let them approve each
+        // edit. That's what makes the "we don't invent things" promise checkable
+        // rather than something they have to take on trust — and it catches the
+        // model if it ignores the grounding rules and adds a skill or changes a
+        // job title anyway.
+        const tailored = {
           ...generated.data,
           personalDetails: {
-             ...generated.data.personalDetails,
-             profilePictureUrl: resumeData.personalDetails.profilePictureUrl
-          }
-        });
+            ...generated.data.personalDetails,
+            profilePictureUrl: resumeData.personalDetails.profilePictureUrl,
+          },
+        };
+        const changes = diffResume(resumeData, tailored);
         setCredits(prev => prev - 1);
+
+        if (changes.length === 0) {
+          showToast("No changes suggested — your resume already reads well for this role.", "info");
+        } else {
+          setPendingChanges(changes);
+          setAcceptedChangeIds(defaultAccepted(changes));
+        }
       } else {
         throw new Error(generated.error || "Failed to generate");
       }
@@ -2156,6 +2177,35 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Review step for AI tailoring — the resume is untouched until the user
+          applies. Rejecting everything is a no-op by construction. */}
+      {pendingChanges.length > 0 && (
+        <TailorReviewModal
+          changes={pendingChanges}
+          accepted={acceptedChangeIds}
+          setAccepted={setAcceptedChangeIds}
+          onCancel={() => {
+            setPendingChanges([]);
+            setAcceptedChangeIds(new Set());
+            showToast("Discarded — your resume is unchanged.", "info");
+          }}
+          onApply={() => {
+            if (acceptedChangeIds.size > 0) {
+              setResumeData(prev => applyChanges(prev, pendingChanges, acceptedChangeIds));
+              showToast(
+                `Applied ${acceptedChangeIds.size} ${acceptedChangeIds.size === 1 ? 'change' : 'changes'}.`,
+                "success"
+              );
+              setWorkspaceSubTab('form');
+            } else {
+              showToast("Kept your original — nothing was changed.", "info");
+            }
+            setPendingChanges([]);
+            setAcceptedChangeIds(new Set());
+          }}
+        />
       )}
 
       {/* Who is this resume for? Shown after an import when the extracted name

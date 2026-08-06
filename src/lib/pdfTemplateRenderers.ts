@@ -288,22 +288,35 @@ const renderMinimalist: Renderer = (doc, data, opts) => {
   const font = resolveFont(opts.fontFamily, 'helvetica');
   const { personalDetails: p } = data;
   const pages = paginate(opts.sectionOrder, opts.pageBreaks);
+  // Mirrors the on-screen rail exactly: grid-cols-[128px_1fr] gap-8.
+  // 128px => 96pt, 32px gap => 24pt.
   const labelW = 96;
-  const contentX = M + labelW + 16;
+  const RAIL_GAP = 24;
+  const contentX = M + labelW + RAIL_GAP;
   const contentW = pageWidth(doc) - contentX - M;
+  const PHOTO = 60; // w-20 h-20 => 80px => 60pt
 
   pages.forEach((group, pageIdx) => {
     if (pageIdx > 0) doc.addPage();
     const ctx = newCtx(doc, { marginX: M, font });
 
     if (pageIdx === 0) {
-      if (opts.showProfilePicture && opts.profileImage) drawImage(doc, opts.profileImage, ctx.marginX, ctx.y, 50);
-      const tx = opts.showProfilePicture && opts.profileImage ? ctx.marginX + 62 : ctx.marginX;
-      text(ctx, p.name || 'Untitled', tx, { size: 22.5, color: GRAY_900, lineHeight: 24 }); // text-3xl (30px)
-      if (p.title) text(ctx, p.title, tx, { size: 10.5, bold: true, color: GRAY_500 }); // text-sm (14px)
-      const contact = contactParts(p).slice(0, 3).join('    ');
-      if (contact) text(ctx, contact, tx, { size: 9, color: GRAY_400 }); // text-xs (12px)
-      ctx.y += 18;
+      // The header sits on the same rail as every section: photo right-aligned
+      // inside the label column, name/title/contact starting at contentX. It
+      // previously drew the name hard against the left margin, so the header
+      // didn't line up with any of the content beneath it — the same imbalance
+      // that was fixed on screen.
+      const headerTop = ctx.y;
+      if (opts.showProfilePicture && opts.profileImage) {
+        drawImage(doc, opts.profileImage, M + labelW - PHOTO, headerTop, PHOTO);
+      }
+      text(ctx, p.name || 'Untitled', contentX, { size: 22.5, color: GRAY_900, lineHeight: 24 }); // text-3xl (30px)
+      if (p.title) text(ctx, p.title, contentX, { size: 10.5, bold: true, color: GRAY_500 }); // text-sm (14px)
+      // Screen shows email / phone / location / linkedin — don't truncate to 3.
+      const contact = contactParts(p).join('    ');
+      if (contact) text(ctx, contact, contentX, { size: 9, color: GRAY_400, maxWidth: contentW }); // text-xs (12px)
+      // Keep the cursor clear of a tall photo, then apply the on-screen mb-12 (48px => 36pt).
+      ctx.y = Math.max(ctx.y, headerTop + (opts.showProfilePicture && opts.profileImage ? PHOTO : 0)) + 26;
     }
 
     group.forEach(sectionId => renderMinimalistSection(ctx, data, sectionId, labelW, contentX, contentW));
