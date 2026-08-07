@@ -155,6 +155,8 @@ try {
   if (credential && projectId) {
     firebaseAdminApp = initializeApp({ credential, projectId });
     firebaseAdminApp.customDatabaseId = process.env.FIREBASE_DATABASE_ID || 'default';
+    const db = getFirestore(firebaseAdminApp, firebaseAdminApp.customDatabaseId);
+    db.settings({ preferRest: true });
   } else if (credential && !projectId) {
     logger.error('Firebase Admin NOT initialised: no project id (set VITE_FIREBASE_PROJECT_ID).');
   }
@@ -164,9 +166,7 @@ try {
 
 const getDb = () => {
     if (!firebaseAdminApp) return null;
-    const db = getFirestore(firebaseAdminApp, firebaseAdminApp.customDatabaseId || 'default');
-    db.settings({ preferRest: true });
-    return db;
+    return getFirestore(firebaseAdminApp, firebaseAdminApp.customDatabaseId || 'default');
 };
 
 // The founder/admin account gets unlimited access, mirroring the client-side
