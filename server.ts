@@ -778,26 +778,91 @@ Use a placeholder rather than inventing any detail you were not given.
   app.post("/api/ats-score", requireAuth(), async (req, res) => {
     try {
       const { resumeData, jobDescription } = req.body;
-      if (!resumeData || !jobDescription) {
-        return res.status(400).json({ error: "Missing resumeData or jobDescription", code: "VALIDATION_ERROR" });
+      if (!resumeData) {
+        return res.status(400).json({ error: "Missing resumeData", code: "VALIDATION_ERROR" });
       }
 
-      const prompt = `
-You are an expert ATS (Applicant Tracking System) algorithm and senior technical recruiter.
-Analyze the provided resume against the job description.
-Return a JSON object with EXACTLY the following structure:
-{
-  "score": number (0-100 indicating how well the resume matches the JD),
-  "matchedKeywords": string[] (important keywords from the JD that are present in the resume),
-  "missingKeywords": string[] (important keywords from the JD that are missing in the resume)
+      // Readiness is deliberately TWO things:
+      //  - quality: intrinsic strength of the resume. Needs no job description, so
+      //    it can be scored the moment a resume is imported.
+      //  - fit: match against one specific posting. Only computed when a JD exists.
+      // Collapsing them into one number meant nothing could be shown until both
+      // were present, and made "score" ambiguous between "good resume" and
+      // "good for this job".
+      const hasJd = typeof jobDescription === 'string' && jobDescription.trim().length > 0;
+
+      const fitBlock = hasJd ? `
+Also assess fit against this specific job description.
+
+"fit": {
+  "score": number (0-100, how well this resume matches THIS role),
+  "matchedKeywords": string[] (important JD terms genuinely evidenced in the resume),
+  "gaps": [
+    {
+      "keyword": string,
+      "likelyHave": boolean,
+      "note": string
+    }
+  ]
 }
-Be strict and realistic. Do not give a 100% score unless it is a perfect match.
+
+RULES FOR "gaps" — read carefully, this is the part that matters most:
+
+A gap is something the job asks for that the resume does not evidence. Your job is
+to describe it honestly, NOT to tell the candidate to insert the keyword.
+
+Set "likelyHave" to true ONLY when the resume contains adjacent evidence suggesting
+the candidate probably has done this but didn't spell it out — e.g. the JD says
+"stakeholder management" and the resume describes running steering committees.
+In that case "note" should point at the specific existing experience they could
+draw out, e.g. "Your steering committee work likely covers this — consider making
+it explicit."
+
+Set "likelyHave" to false when there is no evidence at all. In that case "note"
+must state plainly that this is a genuine gap, e.g. "Nothing in your background
+shows this. Adding it would not be truthful."
+
+NEVER phrase a note as an instruction to add a keyword to score higher. The
+candidate has to defend every line of this resume in an interview.
+
+Target Job Description:
+${jobDescription}
+` : '';
+
+      const prompt = `
+You are a senior recruiter and an expert on how applicant tracking systems parse resumes.
+
+Assess the resume below on its own merits, independent of any specific job.
+
+Return a JSON object with EXACTLY this structure:
+{
+  "quality": {
+    "score": number (0-100, overall strength and ATS-readability of this resume),
+    "checks": [
+      {
+        "id": string (short slug, e.g. "quantified-impact"),
+        "label": string (short human label, e.g. "Quantified impact"),
+        "status": "pass" | "warn" | "fail",
+        "detail": string (one specific sentence about THIS resume, not generic advice)
+      }
+    ]
+  }${hasJd ? ',\n  "fit": { ... as specified below ... }' : ''}
+}
+
+Cover these quality checks, in this order:
+  contact-complete    — are name, email, phone and location present and parseable?
+  summary-strength    — is there a summary, and is it specific rather than generic filler?
+  quantified-impact   — do bullets contain concrete numbers, scale or outcomes?
+  active-language     — do bullets lead with strong verbs rather than "responsible for"?
+  section-structure   — are standard sections present and clearly named for ATS parsing?
+  length-density      — is the volume of content appropriate for the experience shown?
+
+Be strict and realistic. Do not award a high score to a thin or vague resume.
+Never invent facts about the candidate; describe only what is actually present.
+${fitBlock}
 
 Resume:
 ${JSON.stringify(resumeData)}
-
-Job Description:
-${jobDescription}
       `;
 
       const response = await ai.models.generateContent({
@@ -810,9 +875,17 @@ ${jobDescription}
 
       const text = response.text;
       if (!text) throw new Error("Empty response from AI");
-      
+
       const result = JSON.parse(text);
-      res.json(result);
+      // Backwards compatibility: older clients read score/matchedKeywords/
+      // missingKeywords at the top level. Keep those populated from the fit
+      // block so a stale frontend bundle doesn't break mid-deploy.
+      res.json({
+        ...result,
+        score: result?.fit?.score ?? result?.quality?.score ?? 0,
+        matchedKeywords: result?.fit?.matchedKeywords ?? [],
+        missingKeywords: (result?.fit?.gaps ?? []).map((g: any) => g?.keyword).filter(Boolean),
+      });
     } catch (e: any) {
       logger.error("ATS Score error:", e);
       res.status(500).json({ error: e.message, code: "ATS_SCORE_FAILED" });

@@ -20,8 +20,15 @@ import { CreditsMeter } from './components/CreditsMeter';
 import { ApplicationTracker } from './components/ApplicationTracker';
 import { InterviewCoachButton } from './components/InterviewCoachButton';
 import { TailorReviewModal } from './components/TailorReviewModal';
-import { diffResume, applyChanges, defaultAccepted, ResumeChange } from './lib/resumeDiff';
+import { diffResume, applyChanges, defaultAccepted, cloneResume, ResumeChange } from './lib/resumeDiff';
 import { postJson, ApiError } from './lib/apiClient';
+import { ReadinessDial } from './components/ReadinessDial';
+
+/** Shape returned by /api/ats-score. `fit` is absent when there's no job description. */
+interface ReadinessResult {
+  quality: { score: number; checks: { id: string; label: string; status: 'pass' | 'warn' | 'fail'; detail: string }[] };
+  fit?: { score: number; matchedKeywords: string[]; gaps: { keyword: string; likelyHave: boolean; note: string }[] };
+}
 
 import { useAuth } from './context/AuthContext';
 
@@ -175,7 +182,27 @@ export default function App() {
   const [showLegalModal, setShowLegalModal] = useState<'privacy' | 'terms' | null>(null);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [atsScoreData, setAtsScoreData] = useState<{score: number, matchedKeywords: string[], missingKeywords: string[]} | null>(null);
+  /**
+   * Resume readiness. `quality` is intrinsic to the resume and needs no job
+   * description, so it can be scored right after import. `fit` only exists once
+   * there's a JD to measure against.
+   */
+  const [readiness, setReadiness] = useState<ReadinessResult | null>(null);
+  /** Serialised resume + JD at the moment of the last scan, used to detect staleness. */
+  const [scoredSnapshot, setScoredSnapshot] = useState<string | null>(null);
+  /** Fit score captured before tailoring, so the improvement can be shown after. */
+  const [fitBefore, setFitBefore] = useState<number | null>(null);
+
+  /**
+   * The resume exactly as it was before the last batch of AI changes was applied.
+   *
+   * Applying AI edits used to be irreversible: once accepted, the user's own
+   * wording was gone with no route back. That quietly contradicts the whole
+   * premise — you can't "decide for yourself in manual edit" if your original
+   * sentence no longer exists anywhere. Held in memory only, so it costs nothing
+   * and can't bloat the Firestore document.
+   */
+  const [undoSnapshot, setUndoSnapshot] = useState<{ resumeId: string; data: ResumeData; count: number } | null>(null);
   const [isAtsScanning, setIsAtsScanning] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   const [freeInterviewUsed, setFreeInterviewUsed] = useState(false);
@@ -780,6 +807,18 @@ export default function App() {
         } else {
           setResumes(prev => prev.map(r => r.id === targetId ? { ...r, subject: 'self' as const } : r));
         }
+
+        // Score the freshly imported resume straight away. Quality needs no job
+        // description, so there's always something useful to show the moment the
+        // import lands — the user shouldn't have to hunt for a button to find out
+        // whether their resume is any good.
+        handleAtsScan({
+          data: {
+            ...generated.data,
+            personalDetails: { ...generated.data.personalDetails },
+          },
+          silent: true,
+        });
         if (!isPro) {
           setCredits(prev => Math.max(0, prev - 1));
           if (user && user.uid !== 'local-guest-uid') {
@@ -847,30 +886,41 @@ export default function App() {
     return JSON.stringify(resumeData);
   };
 
-  const handleAtsScan = async () => {
-    if (!jobDescription) {
-      showToast("Please enter a job description to scan against.", "error");
-      return;
-    }
+  /**
+   * @param silent  Used for the automatic scan after import — no success toast,
+   *                and failures stay quiet, because the user didn't ask for it
+   *                and a red error on a successful upload is alarming noise.
+   */
+  const handleAtsScan = async (opts: { data?: ResumeData; silent?: boolean } = {}) => {
+    const target = opts.data ?? resumeData;
     setIsAtsScanning(true);
-    setAtsScoreData(null);
+    if (!opts.silent) setReadiness(null);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/ats-score`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
-        body: JSON.stringify({ resumeData, jobDescription })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to scan');
-      setAtsScoreData(data);
-      showToast("ATS Scan Complete!", "success");
+      const data = await postJson<ReadinessResult>(
+        '/api/ats-score',
+        { resumeData: target, jobDescription },
+        { headers: await getAuthHeaders() as Record<string, string> },
+      );
+      setReadiness(data);
+      setScoredSnapshot(JSON.stringify({ r: target, j: jobDescription }));
+      if (!opts.silent) showToast("Readiness check complete.", "success");
     } catch (e: any) {
-      console.error(e);
-      showToast(e.message, "error");
+      console.error('Readiness scan failed:', e);
+      if (!opts.silent) {
+        showToast(e instanceof ApiError ? `Scan failed: ${e.message}` : "Scan failed. Please try again.", "error");
+      }
     } finally {
       setIsAtsScanning(false);
     }
   };
+
+  // The score is a snapshot of one resume against one job description. Editing
+  // either — including applying tailored changes — makes the displayed number
+  // wrong, and a stale "85% excellent match" is worse than no score at all
+  // because it reads as current.
+  const readinessIsStale =
+    !!readiness && scoredSnapshot !== null &&
+    scoredSnapshot !== JSON.stringify({ r: resumeData, j: jobDescription });
 
   const generateResume = async () => {
     if (credits <= 0) {
@@ -905,6 +955,9 @@ export default function App() {
         };
         const changes = diffResume(resumeData, tailored);
         setCredits(prev => prev - 1);
+        // Remember where fit stood before this round, so once the user applies
+        // changes the dial can show the movement rather than just a new number.
+        setFitBefore(readiness?.fit?.score ?? null);
 
         if (changes.length === 0) {
           showToast("No changes suggested — your resume already reads well for this role.", "info");
@@ -1160,6 +1213,38 @@ export default function App() {
                ))}
              </div>
 
+             {/* Undo for the last applied batch of AI changes. Sits directly under
+                 the tabs because the user lands on Manual Edit right after applying,
+                 so it's in view exactly when second thoughts occur. Cleared once
+                 they switch resumes, since the snapshot wouldn't belong to the
+                 resume on screen any more. */}
+             {undoSnapshot && undoSnapshot.resumeId === activeResumeId && (
+               <div className="flex items-center gap-3 mb-4 px-3 py-2 rounded-xl bg-[#00F0FF]/[0.06] border border-[#00F0FF]/25 shrink-0">
+                 <Sparkles className="w-3.5 h-3.5 text-[#00F0FF] shrink-0" />
+                 <p className="text-[11px] text-slate-300 flex-1 leading-relaxed">
+                   {undoSnapshot.count} AI {undoSnapshot.count === 1 ? 'change' : 'changes'} applied. Your original wording is still recoverable.
+                 </p>
+                 <button
+                   onClick={() => {
+                     setResumeData(undoSnapshot.data);
+                     setUndoSnapshot(null);
+                     showToast("Reverted to your version before the AI changes.", "success");
+                     handleAtsScan({ data: undoSnapshot.data, silent: true });
+                   }}
+                   className="text-[10px] uppercase tracking-wider font-bold text-[#00F0FF] hover:text-white transition shrink-0"
+                 >
+                   Undo
+                 </button>
+                 <button
+                   onClick={() => setUndoSnapshot(null)}
+                   className="text-slate-500 hover:text-slate-300 shrink-0"
+                   title="Dismiss"
+                 >
+                   <X className="w-3 h-3" />
+                 </button>
+               </div>
+             )}
+
              {/* Tab 1: AI Tailor */}
              {workspaceSubTab === 'ai' && (
                <div className="flex-1 flex flex-col space-y-6">
@@ -1216,56 +1301,104 @@ export default function App() {
                       onChange={(e) => setJobDescription(e.target.value)}
                     />
                     
-                    {/* ATS MATCH SCANNER UI */}
+                    {/* RESUME READINESS */}
                     <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 mt-2">
                       <div className="flex justify-between items-center mb-3">
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">ATS Keyword Match</h3>
-                        <button 
-                          onClick={handleAtsScan}
-                          disabled={isAtsScanning || !jobDescription}
-                          className="text-[10px] uppercase font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/200/10 hover:bg-emerald-500/200/20 border border-emerald-500/20 px-3 py-1.5 rounded transition disabled:opacity-50 flex items-center gap-1"
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Resume Readiness</h3>
+                        <button
+                          onClick={() => handleAtsScan()}
+                          disabled={isAtsScanning}
+                          className="text-[10px] uppercase font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-3 py-1.5 rounded transition disabled:opacity-50 flex items-center gap-1"
                         >
                           {isAtsScanning ? <RefreshCw className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
-                          Scan Resume
+                          {readiness ? 'Rescan' : 'Check Readiness'}
                         </button>
                       </div>
-                      
-                      {atsScoreData && (
-                        <div className="space-y-4 mt-4 border-t border-white/10 pt-4 animate-fadeIn">
-                          <div className="flex items-center gap-4">
-                            <div className="relative w-14 h-14 shrink-0 flex items-center justify-center rounded-full bg-slate-900 border-4 border-slate-800">
-                               <svg className="absolute inset-0 w-full h-full transform -rotate-90">
-                                 <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="4" fill="none" className="text-white" />
-                                 <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="4" fill="none" 
-                                   className={atsScoreData.score > 75 ? "text-emerald-500" : atsScoreData.score > 50 ? "text-amber-500" : "text-rose-500"} 
-                                   strokeDasharray="138" strokeDashoffset={138 - (138 * atsScoreData.score) / 100} style={{ transition: 'stroke-dashoffset 1s ease' }} />
-                               </svg>
-                               <span className="relative text-sm font-black text-white">{atsScoreData.score}%</span>
+
+                      {!readiness && !isAtsScanning && (
+                        <p className="text-[11px] text-slate-500 leading-relaxed">
+                          Checks how strong your resume is on its own. Paste a job description above to also see how well
+                          it fits that specific role.
+                        </p>
+                      )}
+
+                      {readiness && (
+                        <div className={`space-y-4 mt-4 border-t border-white/10 pt-4 animate-fadeIn ${readinessIsStale ? 'opacity-60' : ''}`}>
+                          {readinessIsStale && (
+                            <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2">
+                              <AlertCircle className="w-3.5 h-3.5 text-amber-400 mt-0.5 shrink-0" />
+                              <p className="text-[11px] text-amber-200/90">
+                                Your resume or job description changed since this check — these numbers are out of date.
+                                <button onClick={() => handleAtsScan()} className="ml-1 underline font-bold hover:text-white">Rescan</button>
+                              </p>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">
-                              {atsScoreData.score > 80 ? "Excellent match! You're highly aligned with this role." : atsScoreData.score > 50 ? "Good start, but missing some key terminology. Try generating a tailored version." : "Low match. A tailored rewrite is highly recommended."}
-                            </p>
+                          )}
+
+                          {/* Two scores, because they answer different questions. */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <ReadinessDial label="Resume Quality" score={readiness.quality?.score ?? 0} />
+                            {readiness.fit
+                              ? <ReadinessDial label="Fit for This Role" score={readiness.fit.score} delta={fitBefore !== null ? readiness.fit.score - fitBefore : undefined} />
+                              : (
+                                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/10 p-3 text-center">
+                                  <p className="text-[10px] text-slate-500 leading-relaxed">Paste a job description to score fit for a specific role.</p>
+                                </div>
+                              )}
                           </div>
-                          
-                          <div>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Matched Keywords</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {atsScoreData.matchedKeywords.length === 0 && <span className="text-xs text-slate-600 italic">None found</span>}
-                              {atsScoreData.matchedKeywords.map((kw, i) => (
-                                <span key={i} className="text-[10px] bg-emerald-500/200/10 border border-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">{kw}</span>
+
+                          {/* Quality checks — concrete, about this resume. */}
+                          {readiness.quality?.checks?.length > 0 && (
+                            <div className="space-y-1.5">
+                              {readiness.quality.checks.map(c => (
+                                <div key={c.id} className="flex items-start gap-2">
+                                  {c.status === 'pass'
+                                    ? <Check className="w-3 h-3 text-emerald-400 mt-0.5 shrink-0" />
+                                    : c.status === 'warn'
+                                      ? <AlertCircle className="w-3 h-3 text-amber-400 mt-0.5 shrink-0" />
+                                      : <X className="w-3 h-3 text-rose-400 mt-0.5 shrink-0" />}
+                                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                                    <span className="font-bold text-slate-300">{c.label}.</span> {c.detail}
+                                  </p>
+                                </div>
                               ))}
                             </div>
-                          </div>
-                          
-                          <div>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Missing Keywords (Add These)</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {atsScoreData.missingKeywords.length === 0 && <span className="text-xs text-emerald-400 italic">Looks good!</span>}
-                              {atsScoreData.missingKeywords.map((kw, i) => (
-                                <span key={i} className="text-[10px] bg-rose-500/10 border border-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full">{kw}</span>
-                              ))}
-                            </div>
-                          </div>
+                          )}
+
+                          {readiness.fit && (
+                            <>
+                              <div>
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Evidenced in your resume</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {readiness.fit.matchedKeywords.length === 0 && <span className="text-xs text-slate-600 italic">None found</span>}
+                                  {readiness.fit.matchedKeywords.map((kw, i) => (
+                                    <span key={i} className="text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">{kw}</span>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Deliberately NOT "add these". A gap you can't honestly fill
+                                  is information, not a to-do — framing it as a checklist is
+                                  what pushes people into claiming skills they don't have. */}
+                              {readiness.fit.gaps?.length > 0 && (
+                                <div>
+                                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Gaps for this role</p>
+                                  <div className="space-y-2">
+                                    {readiness.fit.gaps.map((g, i) => (
+                                      <div key={i} className={`rounded-lg border px-3 py-2 ${g.likelyHave ? 'border-[#00F0FF]/25 bg-[#00F0FF]/[0.04]' : 'border-white/10 bg-white/[0.02]'}`}>
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <span className="text-[11px] font-bold text-slate-200">{g.keyword}</span>
+                                          <span className={`text-[9px] uppercase tracking-wider font-bold ${g.likelyHave ? 'text-[#00F0FF]' : 'text-slate-500'}`}>
+                                            {g.likelyHave ? 'You may already have this' : 'Genuine gap'}
+                                          </span>
+                                        </div>
+                                        <p className="text-[10px] text-slate-400 leading-relaxed">{g.note}</p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          )}
                         </div>
                       )}
                     </div>
@@ -2211,12 +2344,22 @@ export default function App() {
           }}
           onApply={() => {
             if (acceptedChangeIds.size > 0) {
-              setResumeData(prev => applyChanges(prev, pendingChanges, acceptedChangeIds));
+              const updated = applyChanges(resumeData, pendingChanges, acceptedChangeIds);
+              // Capture the pre-AI state before overwriting, so it's always recoverable.
+              setUndoSnapshot({
+                resumeId: activeResumeId,
+                data: cloneResume(resumeData),
+                count: acceptedChangeIds.size,
+              });
+              setResumeData(updated);
               showToast(
                 `Applied ${acceptedChangeIds.size} ${acceptedChangeIds.size === 1 ? 'change' : 'changes'}.`,
                 "success"
               );
               setWorkspaceSubTab('form');
+              // Re-score against the new content so the dial shows the movement
+              // this tailoring actually produced, rather than a stale number.
+              handleAtsScan({ data: updated, silent: true });
             } else {
               showToast("Kept your original — nothing was changed.", "info");
             }

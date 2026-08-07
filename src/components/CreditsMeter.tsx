@@ -63,7 +63,7 @@ export const CreditsMeter: React.FC<CreditsMeterProps> = ({
       {!isPro && (
         <>
           <div className="w-px h-6 bg-white/10" />
-          <div className="flex items-center gap-2" title={`${downloadsRemaining} of ${downloadLimit} free resume exports remaining. Resumes you've already exported can be downloaded again for free.`}>
+          <div className="flex items-center gap-2" title={`${downloadsRemaining} of ${downloadLimit} free resume exports remaining. Resumes you've already exported can be downloaded again for free.`} data-meter="exports">
             <FileOutput className={`w-3.5 h-3.5 shrink-0 ${downloadsRemaining > 0 ? 'text-[#B500FF]' : 'text-red-400'}`} />
             <div className="flex flex-col leading-none">
               <span className="text-[10px] font-bold text-slate-200 whitespace-nowrap">
@@ -78,15 +78,23 @@ export const CreditsMeter: React.FC<CreditsMeterProps> = ({
             </div>
           </div>
 
-          <div className="w-px h-6 bg-white/10" />
-          <button
-            onClick={onUpgrade}
-            className="text-[10px] text-[#00F0FF] font-bold uppercase tracking-wider hover:text-white transition drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]"
-          >
-            Upgrade
-          </button>
         </>
       )}
+
+      {/* Billing entry point — shown to EVERYONE.
+          Pro users previously had nothing clickable here at all, which left no
+          route in the whole app to buy more credits, change plan, or cancel a
+          subscription. "Upgrade" is the wrong word once you've upgraded, so the
+          label changes but the destination is the same modal (which offers Buy
+          Credits and Manage Subscription to Pro accounts). */}
+      <div className="w-px h-6 bg-white/10" />
+      <button
+        onClick={onUpgrade}
+        title={isPro ? 'Buy credits, change plan, or cancel your subscription' : 'See plans and upgrade'}
+        className="text-[10px] text-[#00F0FF] font-bold uppercase tracking-wider hover:text-white transition drop-shadow-[0_0_8px_rgba(0,240,255,0.4)] whitespace-nowrap"
+      >
+        {isPro ? 'Manage Plan' : 'Upgrade'}
+      </button>
     </div>
   );
 };
