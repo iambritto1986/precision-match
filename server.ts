@@ -23,7 +23,38 @@ import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import fs from 'fs';
+import pino from 'pino';
 import { Resend } from 'resend';
+
+// In-memory ring buffer for diagnostics
+const diagnosticLogs: string[] = [];
+const addDiagnostic = (msg: string) => {
+  const timestamp = new Date().toISOString();
+  diagnosticLogs.push(`[${timestamp}] ${msg}`);
+  if (diagnosticLogs.length > 100) diagnosticLogs.shift();
+};
+
+const logger = pino({
+  transport: {
+    target: 'pino-pretty',
+    options: { colorize: true }
+  }
+});
+
+// Monkey-patch logger to also capture diagnostics
+const originalInfo = logger.info.bind(logger);
+const originalError = logger.error.bind(logger);
+logger.info = (obj: any, msg?: string, ...args: any[]) => {
+  addDiagnostic(`INFO: ${msg || ''} ${typeof obj === 'string' ? obj : JSON.stringify(obj)}`);
+  originalInfo(obj, msg, ...args);
+};
+logger.error = (obj: any, msg?: string, ...args: any[]) => {
+  let errStr = typeof obj === 'string' ? obj : '';
+  if (obj instanceof Error) errStr = `${obj.message}\n${obj.stack}`;
+  else if (typeof obj === 'object') errStr = JSON.stringify(obj);
+  addDiagnostic(`ERROR: ${msg || ''} ${errStr}`);
+  originalError(obj, msg, ...args);
+};
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -57,48 +88,85 @@ setInterval(() => {
 }, 5 * 60_000);
 
 let firebaseAdminApp: any;
+/**
+ * Firebase Admin credentials.
+ *
+ * WHY THIS IS SHAPED THE WAY IT IS — this exact code crashed production.
+ *
+ * `applicationDefault()` does NOT throw when there are no credentials. It returns
+ * a lazy credential that only attempts to resolve when Firestore first opens a
+ * gRPC channel — i.e. in the middle of a request. On a host with no ADC (Render,
+ * Fly, most containers) that rejection surfaces from a timer callback, escapes
+ * every try/catch here, and takes the whole process down with NO_ADC_FOUND. The
+ * instance restarts and the user sees a 502 with nothing useful in the logs.
+ *
+ * So: prefer explicit credentials, and treat ADC as opt-in rather than a silent
+ * fallback that appears to work at boot and detonates later under load.
+ */
 try {
-  const firebaseConfigPath = path.resolve(process.cwd(), 'firebase-applet-config.json');
-  if (fs.existsSync(firebaseConfigPath)) {
-    const config = JSON.parse(fs.readFileSync(firebaseConfigPath, 'utf8'));
-
-    // Determine credential: service account file > application default > graceful skip
-    let credential: any;
+  const readServiceAccount = (): any | null => {
+    // Preferred on hosted platforms: paste the service-account JSON into an env
+    // var. Base64 is accepted because some dashboards mangle multi-line values.
+    const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+    if (raw && raw.trim()) {
+      const text = raw.trim().startsWith('{')
+        ? raw
+        : Buffer.from(raw, 'base64').toString('utf8');
+      return JSON.parse(text);
+    }
+    // Local development convenience.
     if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
       const saPath = path.resolve(process.cwd(), process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
-      if (fs.existsSync(saPath)) {
-        credential = cert(JSON.parse(fs.readFileSync(saPath, 'utf8')));
-      } else {
-        logger.warn(`FIREBASE_SERVICE_ACCOUNT_PATH set to "${saPath}" but file not found. Falling back.`);
-      }
+      if (fs.existsSync(saPath)) return JSON.parse(fs.readFileSync(saPath, 'utf8'));
+      logger.warn(`FIREBASE_SERVICE_ACCOUNT_PATH set to "${saPath}" but no file is there.`);
     }
+    return null;
+  };
 
-    if (!credential) {
-      try {
-        credential = applicationDefault();
-      } catch {
-        logger.warn('Application Default Credentials not available. Firebase Admin will not be initialised.');
-      }
+  // Project id comes from env first — the config file is a legacy AI Studio
+  // artefact and must not decide which Firebase project we talk to.
+  let projectId = process.env.VITE_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || '';
+  if (!projectId) {
+    const legacyPath = path.resolve(process.cwd(), 'firebase-applet-config.json');
+    if (fs.existsSync(legacyPath)) {
+      try { projectId = JSON.parse(fs.readFileSync(legacyPath, 'utf8')).projectId || ''; } catch { /* ignore */ }
     }
+  }
 
-    if (credential) {
-      firebaseAdminApp = initializeApp({
-        credential,
-        projectId: process.env.VITE_FIREBASE_PROJECT_ID || config.projectId,
-      });
-      // Store database id for reference (client uses 'default')
-      firebaseAdminApp.customDatabaseId = process.env.FIREBASE_DATABASE_ID || 'default';
-    }
+  const sa = readServiceAccount();
+  let credential: any = null;
+
+  if (sa) {
+    credential = cert(sa);
+    projectId = projectId || sa.project_id;
+    logger.info(`Firebase Admin: using service account for project "${projectId}".`);
+  } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.USE_APPLICATION_DEFAULT_CREDENTIALS === 'true') {
+    // Only when the environment actually advertises ADC. Never as a blind default.
+    credential = applicationDefault();
+    logger.info('Firebase Admin: using Application Default Credentials.');
   } else {
-    logger.warn('firebase-applet-config.json not found – Firebase Admin is disabled.');
+    logger.error(
+      'Firebase Admin NOT initialised: set FIREBASE_SERVICE_ACCOUNT_JSON (recommended) ' +
+      'or FIREBASE_SERVICE_ACCOUNT_PATH. Credit checks and billing endpoints will return ' +
+      'a clear 503 until this is configured.'
+    );
+  }
+
+  if (credential && projectId) {
+    firebaseAdminApp = initializeApp({ credential, projectId });
+    firebaseAdminApp.customDatabaseId = process.env.FIREBASE_DATABASE_ID || 'default';
+  } else if (credential && !projectId) {
+    logger.error('Firebase Admin NOT initialised: no project id (set VITE_FIREBASE_PROJECT_ID).');
   }
 } catch (e) {
-  logger.warn("Failed to initialize Firebase Admin (non-fatal):", e);
+  logger.error('Failed to initialise Firebase Admin:', e);
 }
 
 const getDb = () => {
     if (!firebaseAdminApp) return null;
-    return getFirestore(firebaseAdminApp, firebaseAdminApp.customDatabaseId || 'default');
+    const db = getFirestore(firebaseAdminApp, firebaseAdminApp.customDatabaseId || 'default');
+    db.settings({ preferRest: true });
+    return db;
 };
 
 // The founder/admin account gets unlimited access, mirroring the client-side
@@ -151,6 +219,37 @@ function requireAuth(): express.RequestHandler {
 // The founder/admin account (ADMIN_EMAIL) always bypasses these checks.
 type CreditAction = 'resume' | 'chat' | 'voice';
 type CreditCheckResult = { ok: boolean; isTrial?: boolean; error?: string; code?: string };
+
+/**
+ * Caps how long we'll wait on an upstream AI call.
+ *
+ * Without this, a slow generation just runs until the hosting proxy gives up and
+ * emits its own 502/504. That response is HTML, carries no explanation, never
+ * reaches our error handling, and leaves nothing useful in the logs — which is
+ * exactly the "server didn't respond in time (502)" users were seeing.
+ *
+ * Failing *ourselves*, earlier, means the client always gets structured JSON it
+ * can explain. The cap must stay comfortably below the platform's own timeout.
+ */
+const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 70_000);
+
+async function withAiTimeout<T>(work: Promise<T>, label: string): Promise<T> {
+  let timer: NodeJS.Timeout;
+  const timeout = new Promise<never>((_resolve, reject) => {
+    timer = setTimeout(() => {
+      const e: any = new Error(
+        `${label} took longer than ${Math.round(AI_TIMEOUT_MS / 1000)}s. Very long or image-heavy documents can exceed this — try a shorter or text-based file.`,
+      );
+      e.code = 'AI_TIMEOUT';
+      reject(e);
+    }, AI_TIMEOUT_MS);
+  });
+  try {
+    return await Promise.race([work, timeout]);
+  } finally {
+    clearTimeout(timer!);
+  }
+}
 
 async function checkAndConsume(uid: string, email: string | undefined, action: CreditAction): Promise<CreditCheckResult> {
   if (email && email === ADMIN_EMAIL) return { ok: true };
@@ -230,6 +329,15 @@ async function startServer() {
 
   // --------------- CORS ---------------
   const allowedOrigin = process.env.APP_URL || 'http://localhost:3000';
+  app.use((req, res, next) => {
+    logger.info({ method: req.method, url: req.url }, 'Incoming request');
+    next();
+  });
+
+  app.get('/api/diagnostics', (req, res) => {
+    res.type('text/plain').send(diagnosticLogs.join('\n'));
+  });
+
   app.use((req, res, next) => {
     const origin = req.headers.origin;
     if (!origin || origin === allowedOrigin || allowedOrigin === '*') {
@@ -603,15 +711,19 @@ async function startServer() {
          ];
       }
 
-      const response = await ai.models.generateContent({
+      const response = await withAiTimeout(ai.models.generateContent({
         model: "gemini-3.1-flash-lite",
         contents: contents
-      });
+      }), 'Reading your document');
 
       res.json({ text: response.text });
     } catch (e: any) {
       logger.error(e);
-      res.status(500).json({ error: e.message, code: "RESUME_EXTRACT_FAILED" });
+      const timedOut = e?.code === 'AI_TIMEOUT';
+      res.status(timedOut ? 504 : 500).json({
+        error: e.message,
+        code: timedOut ? 'AI_TIMEOUT' : 'RESUME_EXTRACT_FAILED',
+      });
     }
   });
 
@@ -624,7 +736,11 @@ async function startServer() {
 
       const creditCheck = await checkAndConsume(req.auth.uid, req.auth.email, 'resume');
       if (!creditCheck.ok) {
-        return res.status(402).json({ error: creditCheck.error, code: creditCheck.code });
+        // 402 means "you need to pay". A database/config failure is OUR problem,
+        // not the user's, and telling someone to upgrade when the server can't
+        // reach Firestore sends them to a checkout page that won't help.
+        const serverSide = creditCheck.code === 'DB_UNAVAILABLE' || creditCheck.code === 'CHECK_FAILED';
+        return res.status(serverSide ? 503 : 402).json({ error: creditCheck.error, code: creditCheck.code });
       }
 
       const prompt = `
@@ -694,18 +810,22 @@ If there are any other sections (like Credentials, Publications, Awards, etc.) i
 Respond only with valid JSON.
       `;
 
-      const response = await ai.models.generateContent({
+      const response = await withAiTimeout(ai.models.generateContent({
         model: "gemini-3.1-flash-lite",
         contents: prompt,
         config: {
             responseMimeType: "application/json"
         }
-      });
+      }), 'Tailoring your resume');
 
       res.json({ data: JSON.parse(response.text || '{}') });
     } catch (e: any) {
       logger.error(e);
-      res.status(500).json({ error: e.message, code: "RESUME_GENERATE_FAILED" });
+      const timedOut = e?.code === 'AI_TIMEOUT';
+      res.status(timedOut ? 504 : 500).json({
+        error: e.message,
+        code: timedOut ? 'AI_TIMEOUT' : 'RESUME_GENERATE_FAILED',
+      });
     }
   });
 
@@ -763,15 +883,19 @@ Include placeholders like [Hiring Manager Name] or [Company Name] where appropri
 Use a placeholder rather than inventing any detail you were not given.
       `;
 
-      const response = await ai.models.generateContent({
+      const response = await withAiTimeout(ai.models.generateContent({
         model: "gemini-3.1-flash-lite",
         contents: prompt
-      });
+      }), 'Writing your cover letter');
 
       res.json({ text: response.text });
     } catch (e: any) {
       logger.error(e);
-      res.status(500).json({ error: e.message, code: "COVER_LETTER_FAILED" });
+      const timedOut = e?.code === 'AI_TIMEOUT';
+      res.status(timedOut ? 504 : 500).json({
+        error: e.message,
+        code: timedOut ? 'AI_TIMEOUT' : 'COVER_LETTER_FAILED',
+      });
     }
   });
 
@@ -865,13 +989,13 @@ Resume:
 ${JSON.stringify(resumeData)}
       `;
 
-      const response = await ai.models.generateContent({
+      const response = await withAiTimeout(ai.models.generateContent({
         model: "gemini-3.1-flash-lite",
         contents: prompt,
         config: {
           responseMimeType: "application/json"
         }
-      });
+      }), 'Checking readiness');
 
       const text = response.text;
       if (!text) throw new Error("Empty response from AI");
@@ -888,7 +1012,11 @@ ${JSON.stringify(resumeData)}
       });
     } catch (e: any) {
       logger.error("ATS Score error:", e);
-      res.status(500).json({ error: e.message, code: "ATS_SCORE_FAILED" });
+      const timedOut = e?.code === 'AI_TIMEOUT';
+      res.status(timedOut ? 504 : 500).json({
+        error: e.message,
+        code: timedOut ? 'AI_TIMEOUT' : 'ATS_SCORE_FAILED',
+      });
     }
   });
 
@@ -901,7 +1029,11 @@ ${JSON.stringify(resumeData)}
 
         const creditCheck = await checkAndConsume(req.auth.uid, req.auth.email, 'chat');
         if (!creditCheck.ok) {
-          return res.status(402).json({ error: creditCheck.error, code: creditCheck.code });
+          // 402 means "you need to pay". A database/config failure is OUR problem,
+        // not the user's, and telling someone to upgrade when the server can't
+        // reach Firestore sends them to a checkout page that won't help.
+        const serverSide = creditCheck.code === 'DB_UNAVAILABLE' || creditCheck.code === 'CHECK_FAILED';
+        return res.status(serverSide ? 503 : 402).json({ error: creditCheck.error, code: creditCheck.code });
         }
 
         const modelName = thinkingMode ? "gemini-3.1-pro-preview" : "gemini-3.1-flash-lite";
@@ -946,8 +1078,44 @@ ${JSON.stringify(resumeData)}
     });
   }
 
+  // Any /api/* request that reached here matched no route. Express's default
+  // handler answers with an HTML error page, so the client's res.json() blows up
+  // with `Unexpected token '<', "<!DOCTYPE"` — which says nothing about the real
+  // problem. Note the SPA catch-all above is app.get, so unmatched POSTs in
+  // particular fell straight through to that HTML. Always answer /api in JSON.
+  app.use('/api', (req, res) => {
+    res.status(404).json({
+      error: `No API route matches ${req.method} ${req.originalUrl}.`,
+      code: 'ROUTE_NOT_FOUND',
+    });
+  });
+
   const server = app.listen(PORT, "0.0.0.0", () => {
     logger.info(`Server running on http://localhost:${PORT}`);
+  });
+
+  // Node closes idle keep-alive connections after 5s by default. When a platform
+  // proxy (Render, Heroku, most load balancers) reuses a connection that Node has
+  // just closed, the proxy surfaces it to the client as a 502 — with nothing in
+  // the app logs, because the app never saw a request. Keeping Node's timeouts
+  // ABOVE the proxy's is the standard mitigation. headersTimeout must exceed
+  // keepAliveTimeout or the fix doesn't hold.
+  server.keepAliveTimeout = 120_000;
+  server.headersTimeout = 125_000;
+
+  // Since Node 15 an unhandled rejection terminates the process. A single
+  // misconfigured dependency rejecting from a background callback — exactly what
+  // NO_ADC_FOUND did — therefore took down the entire server mid-request, which
+  // the user experienced as an unexplained 502.
+  //
+  // One user's failed request must never be able to kill every other user's
+  // in-flight request. Log loudly and keep serving; the endpoint that triggered
+  // it still returns its own error to its own caller.
+  process.on('unhandledRejection', (reason: any) => {
+    logger.error('Unhandled promise rejection (server kept alive):', reason?.stack || reason);
+  });
+  process.on('uncaughtException', (err: any) => {
+    logger.error('Uncaught exception (server kept alive):', err?.stack || err);
   });
 
   const wss = new WebSocketServer({ server });
