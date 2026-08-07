@@ -7,6 +7,13 @@ interface ApplicationTrackerProps {
   setApplications: React.Dispatch<React.SetStateAction<JobApplication[]>>;
   resumes: Array<{ id: string; name: string; data: ResumeData }>;
   showToast: (msg: string, type: 'success' | 'error' | 'info') => void;
+  /**
+   * Set when the user arrives from the tailoring workspace via "Save to Tracker".
+   * Opens the add form already carrying the job description and the resume that
+   * was actually tailored for it — the link that makes this more than a spreadsheet.
+   */
+  prefill?: { jobDescription?: string; resumeId?: string } | null;
+  onPrefillConsumed?: () => void;
 }
 
 const STAGE_META: Record<ApplicationStage, { label: string; accent: string; dot: string }> = {
@@ -22,11 +29,26 @@ const emptyDraft = (): Omit<JobApplication, 'id' | 'createdAt' | 'updatedAt'> =>
 });
 
 export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({
-  applications, setApplications, resumes, showToast,
+  applications, setApplications, resumes, showToast, prefill, onPrefillConsumed,
 }) => {
   const [editing, setEditing] = useState<JobApplication | null>(null);
   const [draft, setDraft] = useState(emptyDraft());
   const [isOpen, setIsOpen] = useState(false);
+
+  // Arriving with a prefill means the user just tailored a resume for a role and
+  // asked to track it, so open straight into the form with what we already know.
+  React.useEffect(() => {
+    if (!prefill) return;
+    setEditing(null);
+    setDraft({
+      ...emptyDraft(),
+      stage: 'applied',
+      jobDescription: prefill.jobDescription ?? '',
+      resumeId: prefill.resumeId ?? '',
+    });
+    setIsOpen(true);
+    onPrefillConsumed?.();
+  }, [prefill]);
 
   const byStage = useMemo(() => {
     const map = {} as Record<ApplicationStage, JobApplication[]>;

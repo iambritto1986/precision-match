@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { CheckCircle2, X } from 'lucide-react';
-import { API_BASE_URL } from '../../config';
+import { postJson, ApiError } from '../../lib/apiClient';
 
 interface PricingModalProps {
   setShowPricing: (show: boolean) => void;
@@ -33,19 +33,16 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
          console.warn("User doc missing, proceeding anyway");
       }
 
-      const res = await fetch(`${API_BASE_URL}/api/create-checkout-session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-           priceId,
-           userId: user.uid,
-           successUrl: `${window.location.origin}${window.location.pathname}?success=true`,
-           cancelUrl: window.location.href
-        })
-      });
+      if (!priceId) {
+        throw new Error("This plan isn't configured for checkout yet. Please contact support.");
+      }
 
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
+      const data = await postJson<{ url?: string }>('/api/create-checkout-session', {
+        priceId,
+        userId: user.uid,
+        successUrl: `${window.location.origin}${window.location.pathname}?success=true`,
+        cancelUrl: window.location.href,
+      });
       if (!data.url) throw new Error("No checkout URL returned");
 
       // The server creates the Stripe Checkout Session and returns its hosted URL directly —
@@ -62,20 +59,22 @@ export const PricingModal: React.FC<PricingModalProps> = ({ setShowPricing, user
     if (!user) return;
     setIsProcessing(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/create-portal-session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-           userId: user.uid,
-           returnUrl: window.location.origin
-        })
+      // Uses postJson so a non-JSON response (an HTML 404 page, or a proxy 502)
+      // produces a readable explanation rather than
+      // `Unexpected token '<', "<!DOCTYPE" is not valid JSON`.
+      const data = await postJson<{ url?: string }>('/api/create-portal-session', {
+        userId: user.uid,
+        returnUrl: window.location.origin,
       });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
+      if (!data.url) throw new Error("No portal URL returned");
       window.location.href = data.url;
     } catch (e: any) {
-      console.error(e);
-      alert("Failed to open subscription manager: " + e.message);
+      console.error('Billing portal failed:', e);
+      alert(
+        e instanceof ApiError && e.code === 'NO_CUSTOMER_ID'
+          ? "We can't find an active Stripe subscription for this account. If you believe this is wrong, contact support and we'll link it up."
+          : "Couldn't open the subscription manager: " + e.message
+      );
       setIsProcessing(false);
     }
   };

@@ -471,6 +471,16 @@ export default function App() {
   // the snapshot listener and clobber in-progress edits.
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const applicationsHydratedRef = useRef(false);
+  /** Hand-off from the tailoring workspace to the tracker's add form. */
+  const [trackerPrefill, setTrackerPrefill] = useState<{ jobDescription?: string; resumeId?: string } | null>(null);
+  /** Set after an export so we can offer to record the application. */
+  const [offerToTrack, setOfferToTrack] = useState(false);
+
+  const saveToTracker = () => {
+    setTrackerPrefill({ jobDescription, resumeId: activeResumeId });
+    setOfferToTrack(false);
+    navigate('/tracker');
+  };
 
   // Pending AI edits awaiting the user's review. Non-empty means the review
   // modal is open; the resume itself is untouched until they apply.
@@ -567,6 +577,9 @@ export default function App() {
         await exportToPdf(resumeData, pdfOptions);
       }
       else exportToDocx(resumeData, sectionOrder);
+      if (jobDescription.trim() && !applications.some(a => a.resumeId === activeResumeId)) {
+        setOfferToTrack(true);
+      }
     } else {
       // Already paid for with a slot? Re-export freely, in either format.
       const alreadyUnlocked = !!activeResumeId && downloadedResumeIds.includes(activeResumeId);
@@ -584,6 +597,13 @@ export default function App() {
         await exportToPdf(resumeData, pdfOptions);
       } else {
         exportToDocx(resumeData, sectionOrder);
+      }
+
+      // Exporting is the moment the application actually goes out, so it's the
+      // natural point to offer to record it — but only when there's a job
+      // description to record, and only if it isn't already tracked.
+      if (jobDescription.trim() && !applications.some(a => a.resumeId === activeResumeId)) {
+        setOfferToTrack(true);
       }
 
       if (!alreadyUnlocked && activeResumeId) {
@@ -792,7 +812,11 @@ export default function App() {
            return r;
         }));
         setIsOnboarding(false); // Onboarding complete!
-        setWorkspaceSubTab('form'); // Open form editor directly
+        // Deliberately staying on AI Tailor. This used to jump to Manual Edit,
+        // which made sense when AI Tailor had nothing to show after an import —
+        // but the readiness dials now appear here, so jumping away hid the very
+        // feedback the import produces. The user can move to Manual Edit when
+        // they choose to.
 
         // Ask who this resume is for before anything treats it as the user's own
         // identity. We only bother them when it's genuinely ambiguous: the very
@@ -1218,6 +1242,24 @@ export default function App() {
                  so it's in view exactly when second thoughts occur. Cleared once
                  they switch resumes, since the snapshot wouldn't belong to the
                  resume on screen any more. */}
+             {offerToTrack && (
+               <div className="flex items-center gap-3 mb-4 px-3 py-2 rounded-xl bg-emerald-500/[0.07] border border-emerald-500/25 shrink-0">
+                 <Briefcase className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                 <p className="text-[11px] text-slate-300 flex-1 leading-relaxed">
+                   Exported. Want to record this application so you can track where it goes?
+                 </p>
+                 <button
+                   onClick={saveToTracker}
+                   className="text-[10px] uppercase tracking-wider font-bold text-emerald-400 hover:text-white transition shrink-0"
+                 >
+                   Track it
+                 </button>
+                 <button onClick={() => setOfferToTrack(false)} className="text-slate-500 hover:text-slate-300 shrink-0" title="Dismiss">
+                   <X className="w-3 h-3" />
+                 </button>
+               </div>
+             )}
+
              {undoSnapshot && undoSnapshot.resumeId === activeResumeId && (
                <div className="flex items-center gap-3 mb-4 px-3 py-2 rounded-xl bg-[#00F0FF]/[0.06] border border-[#00F0FF]/25 shrink-0">
                  <Sparkles className="w-3.5 h-3.5 text-[#00F0FF] shrink-0" />
@@ -1300,7 +1342,21 @@ export default function App() {
                       value={jobDescription}
                       onChange={(e) => setJobDescription(e.target.value)}
                     />
-                    
+
+                    {/* Bridge from tailoring to the tracker. Without this the two
+                        halves of the product never meet: you tailor a resume for a
+                        role and then have to retype the role into the tracker by
+                        hand. Carries the job description and the resume that was
+                        actually tailored for it. */}
+                    {jobDescription.trim() && (
+                      <button
+                        onClick={saveToTracker}
+                        className="w-full mt-2 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 rounded-xl transition flex items-center justify-center gap-2"
+                      >
+                        <Briefcase className="w-3 h-3" /> Save to Application Tracker
+                      </button>
+                    )}
+
                     {/* RESUME READINESS */}
                     <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 mt-2">
                       <div className="flex justify-between items-center mb-3">
@@ -1789,6 +1845,8 @@ export default function App() {
               setApplications={setApplications}
               resumes={resumes}
               showToast={showToast}
+              prefill={trackerPrefill}
+              onPrefillConsumed={() => setTrackerPrefill(null)}
             />
           </motion.div>
           } />
@@ -2356,7 +2414,8 @@ export default function App() {
                 `Applied ${acceptedChangeIds.size} ${acceptedChangeIds.size === 1 ? 'change' : 'changes'}.`,
                 "success"
               );
-              setWorkspaceSubTab('form');
+              // Staying on AI Tailor: the undo bar and the re-scored dials both
+              // render here, so this is where the result of applying is visible.
               // Re-score against the new content so the dial shows the movement
               // this tailoring actually produced, rather than a stale number.
               handleAtsScan({ data: updated, silent: true });

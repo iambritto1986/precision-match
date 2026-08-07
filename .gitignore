@@ -13,6 +13,14 @@ build/
 # Keep the example env file
 !.env.example
 
+# Firebase service-account private keys. These grant full admin access to the
+# project — never commit one. Downloaded keys are named like
+# <project>-firebase-adminsdk-<hash>.json.
+*firebase-adminsdk*.json
+serviceAccountKey.json
+service-account*.json
+*-service-account.json
+
 # Logs
 *.log
 npm-debug.log*
